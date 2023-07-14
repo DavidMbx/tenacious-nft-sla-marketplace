@@ -1,5 +1,7 @@
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import "../styles/globals.css";
+import { ChakraProvider } from "@chakra-ui/react";
+import { Navbar } from "../components/Navbar";
 
 // This is the chain your dApp will work on.
 // Change this to the chain your app is built for.
@@ -9,7 +11,10 @@ const activeChain = "ethereum";
 function MyApp({ Component, pageProps }) {
   return (
     <ThirdwebProvider activeChain={activeChain}>
+      <ChakraProvider> 
+        <Navbar/>
       <Component {...pageProps} />
+      </ChakraProvider>
     </ThirdwebProvider>
   );
 }

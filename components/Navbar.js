@@ -6,10 +6,6 @@ const SparqlClient = require('sparql-http-client')
 
 
 
-
-
-
-
 export function Navbar(){
 
 

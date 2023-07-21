@@ -22,6 +22,7 @@
     "framer-motion": "^10.12.20",
     "hardhat": "^2.16.1",
     "hardhat-waffle": "^0.0.1-security",
+    "ipfs-http-client": "^60.0.1",
     "next": "^13",
     "react": "^18.2",
     "react-dom": "^18.2",

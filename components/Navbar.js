@@ -91,6 +91,9 @@ export function Navbar(){
                 <Link as={NextLink} href='/sell' mx={2.5}>
                     <Text>Sell</Text> 
                 </Link>
+                <Link as={NextLink} href='/register-cloud-provider' mx={2.5}>
+                    <Text>Register new Cloud Provider</Text> 
+                </Link>
             </Flex>
             <Flex dir={"row"} alignItems={"center"}>
                 <ConnectWallet/>

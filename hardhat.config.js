@@ -1,9 +1,11 @@
 require("@nomiclabs/hardhat-waffle");
+const test=require('dotenv').config()
 
 
 const fs= require ("fs")
-const privateKey=process.env.PRIVATE_KEY
-const projectId="63702440ff3445e2b37b16c074cdf536"
+const privateKey=process.env.PRIVATE_KEY_ACCOUNT;
+const projectId=process.env.PROJECT_ID;
+
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {

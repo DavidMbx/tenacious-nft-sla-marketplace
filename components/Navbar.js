@@ -55,8 +55,8 @@ export function Navbar(){
               PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
   
               INSERT DATA {
-                cs:Address_${address.slice(0,6)} rdf:type cs:BlockchainAddress.
-                cs:Address_${address.slice(0,6)} cs:hasAddress "${address}".
+                cs:Address_${address} rdf:type cs:BlockchainAddress.
+                cs:Address_${address} cs:hasAddress "${address}".
               }
             `;
   

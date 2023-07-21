@@ -1,5 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
-const test=require('dotenv').config()
+require('dotenv').config()
 
 
 const fs= require ("fs")

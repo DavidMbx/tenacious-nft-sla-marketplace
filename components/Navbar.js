@@ -10,10 +10,11 @@ export function Navbar(){
 
 
     const address=useAddress();
+    
 
-    const endpointUrl = 'http://18.188.159.193:3030/CSOntology/sparql'; 
-    const updateUrl = 'http://18.188.159.193:3030/CSOntology/update'; 
-    const client = new SparqlClient({ endpointUrl ,updateUrl});
+    const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
+    const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
+    const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
     
 
 
@@ -34,7 +35,7 @@ export function Navbar(){
             }
             `;
     
-            const stream = await client.query.select(selectQuery);
+            const stream = await clientSPARQL.query.select(selectQuery);
             let datiRicevuti=false;
             
            stream.on('data', row => {
@@ -61,7 +62,7 @@ export function Navbar(){
             `;
   
            
-            client.query.update(insertQuery)
+            clientSPARQL.query.update(insertQuery)
                 }
               });
               

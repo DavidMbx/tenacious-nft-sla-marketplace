@@ -14,9 +14,9 @@ export default function RegisterCloudProvider() {
  
     
 
-  const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
-  const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
-  const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+    const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
+    const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
+    const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
 
     
 
@@ -24,10 +24,6 @@ export default function RegisterCloudProvider() {
     const [cloudProviderPicture, setCloudProviderPicture] = useState(null);
     const cloudProviderAddress= useAddress();
 
-   
-
-    //const projectId="2SvucqSOnKIM4Y7DjL40kSynFR7"
-    //const projectSecret="a755bbc0257449770a9852826a34c541"
     const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
     const projectSecret=process.env.NEXT_PUBLIC_PRIVATE_KEY_IPFS_INFURA
     const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret,'utf8').toString('base64');
@@ -75,7 +71,7 @@ export default function RegisterCloudProvider() {
       console.log('Cloud Provider Form:', formInput);
       console.log('Cloud Provider Picture:', cloudProviderPicture);
       console.log('Cloud Provider Address:',cloudProviderAddress)
-      checkIfCloudProvider()
+      checkIfAlreadyCloudProvider()
       
 
     };
@@ -99,7 +95,7 @@ async function uploadToIPFS(file) {
   }
 
    
-  async function createFile() {
+  async function createFileJSON() {
        
 
     const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
@@ -119,17 +115,17 @@ async function uploadToIPFS(file) {
 
 
 
-async function checkIfCloudProvider() {
+async function checkIfAlreadyCloudProvider() {
 
 
     // Query SPARQL per verificare se l'utente esiste già nel database
     const selectQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
 
-SELECT ?typeCloudActor
-WHERE {
+    SELECT ?typeCloudActor
+    WHERE {
   ?address cs:hasAddress "${cloudProviderAddress}" .
   ?cloudActor cs:hasBlockchainAddress ?address.
   ?cloudActor rdf:type cs:CloudProvider.
@@ -152,7 +148,7 @@ WHERE {
         
         if (!datiRicevuti) {
          // L'utente non è registrato già come cloud provider, procedo con l'inserimento
-         createFile()
+         createFileJSON()
         }
 
         })
@@ -214,27 +210,24 @@ streamUpdate.on('error', err => {
           <FormLabel>Cloud Provider Name</FormLabel>
           <Input
             placeholder="Cloud Provider Name"
-            mt={2}
             onChange={e=> updateFormInput({...formInput,cloudProviderName: e.target.value})}
             borderRadius="md"
           />
 
           <FormLabel mt={4}>Cloud Provider Mail</FormLabel>
           <Input
-            isRequired
             placeholder="Cloud Provider Mail"
-            mt={2}
             type='email'
             onChange={e=> updateFormInput({...formInput,cloudProviderMail: e.target.value})}
             borderRadius="md"
           />
 
           <FormLabel mt={4}>Choose Cloud Provider Picture</FormLabel>
-          <Input type="file" id="photoCS" mt={2} onChange={handlePictureChange} borderRadius="md" />
+          <Input type="file" id="photoCS" onChange={handlePictureChange} borderRadius="md" />
           
           {/* Al posto dell'immagine commentata */}
           {cloudProviderPicture && (
-            <img className="rounded mt-4" width="350" src={URL.createObjectURL(cloudProviderPicture)} alt="Cloud Provider" />
+            <img className="rounded mt-4" width="200" src={URL.createObjectURL(cloudProviderPicture)} alt="Cloud Provider" />
           )}
           
           <Button

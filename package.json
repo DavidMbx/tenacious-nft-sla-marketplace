@@ -23,9 +23,9 @@
     "hardhat": "^2.16.1",
     "hardhat-waffle": "^0.0.1-security",
     "ipfs-http-client": "^60.0.1",
-    "next": "^13",
-    "react": "^18.2",
-    "react-dom": "^18.2",
+    "next": "^13.4.12",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sparql-http-client": "^2.4.2"
   },
   "devDependencies": {

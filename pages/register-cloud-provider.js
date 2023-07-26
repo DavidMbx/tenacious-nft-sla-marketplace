@@ -130,7 +130,7 @@ PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
 
 SELECT ?typeCloudActor
 WHERE {
-  ?address cs:hasAddress "${address}" .
+  ?address cs:hasAddress "${cloudProviderAddress}" .
   ?cloudActor cs:hasBlockchainAddress ?address.
   ?cloudActor rdf:type cs:CloudProvider.
 }

@@ -6,6 +6,7 @@ import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
+const EthConverter = require('eth-converter')
 
 export default function CreateCloudServiceBadge() {
 
@@ -22,6 +23,7 @@ export default function CreateCloudServiceBadge() {
       cloudServiceResponseTimeTarget:'',cloudServiceResponseTimePenalty:'',cloudServicePictureURL:''})
 
       const cloudProviderAddress= useAddress();
+      const [cloudProviderName,setCloudProviderName]=useState(null)
   
       const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
       const projectSecret=process.env.NEXT_PUBLIC_PRIVATE_KEY_IPFS_INFURA
@@ -61,12 +63,24 @@ export default function CreateCloudServiceBadge() {
 
     async function createFileJSON() {
        
-
-        const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
-        if(!cloudProviderAddress ||!cloudProviderName ||!cloudProviderMail ||!cloudProviderPictureURL  ) return  console.log(cloudProviderAddress+cloudProviderName+cloudProviderMail+cloudProviderPictureURL)
+        const { cloudServiceType, cloudServicePricingModel, 
+        cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
+        cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
+        cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURL}= formInput
+        
+        if(!cloudServiceType||!cloudServicePricingModel ||!cloudServicePrice
+            ||!cloudServiceAvailabilityTarget  ||!cloudServiceAvailabilityPenalty 
+            ||!cloudServiceErrorRateTarget ||! cloudServiceErrorRatePenalty ||! cloudServiceResponseTimeTarget
+            ||! cloudServiceResponseTimePenalty||! cloudServicePictureURL ||! cloudProviderAddress
+             ) return  
+             console.log("Errore, manca un campo")
     
         const data= JSON.stringify({
-            cloudProviderAddress,cloudProviderName,cloudProviderMail,cloudProviderPictureURL
+            cloudProviderAddress,cloudServiceType,cloudServicePricingModel,cloudServicePrice,
+            cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
+            cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
+            cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty,
+            cloudServicePictureURL
         })
         const formURI=uploadToIPFS(data)
         console.log(data+"\n"+formURI)
@@ -76,6 +90,67 @@ export default function CreateCloudServiceBadge() {
         
         
     }
+
+    async function uploadToBlockchain() {
+
+    }
+
+    async function uploadToSPARQL() {
+
+        const { cloudServiceType, cloudServicePricingModel, 
+            cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
+            cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
+            cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURL}= formInput
+
+        //Utilizzo come id quello della picture uploadata su IPFS
+        const cloudServiceID=$cloudServicePictureURL.slice(33) 
+        const insertQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      
+        INSERT DATA {
+            cs:CloudService_${cloudServiceID} rdf:type cs:CloudService .
+            cs:Subscription_${cloudServiceID}  rdf:type cs:Subscription .
+            cs:Subscription_${cloudServiceID} cs:hasPrice cs:Price_${cloudServiceID}.
+            cs:Price_${cloudServiceID} cs:currency "Euro".
+            cs:Price_${cloudServiceID}  cs:value "${EthConverter.convert(cloudServicePrice, 'eth', 'eur')}".
+            cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
+            cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
+            cs:PricingModel_${cloudServiceID}  rdf:type cs:${cloudServicePricingModel}.
+            cs:Availability_${cloudServiceID}  rdf:type cs:Availability.
+            cs:ErrorRate_${cloudServiceID}  rdf:type cs:ErrorRate.
+            cs:ResponseTime_${cloudServiceID}  rdf:type cs:ResponseTime.
+            cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget} ".
+            cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget} ".
+            cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget} ".
+            cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
+            cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
+            cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURL} " .
+            cs:CloudService_${cloudServiceID}  cs:offeredBy cs:${cloudProviderName}.
+            cs:NFT-Badge_${cloudServiceID}  rdf:type cs:NFT-Badge .
+            cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
+            cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "address".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "tokenURI".
+          
+        
+      `;
+      
+      const streamUpdate=clientSPARQL.query.update(insertQuery)
+      
+      streamUpdate.on('end', () => {
+        
+        //Alla fine aggiorno la pagina e scrivo dati correttamente inseriti
+        console.log(streamUpdate.on('data'))
+      
+        })
+      
+      
+      streamUpdate.on('error', err => {
+        console.error(err)
+      })
+      
+      }
     
     
 
@@ -104,6 +179,7 @@ export default function CreateCloudServiceBadge() {
              Object.entries(row).forEach(([key, value]) => {
               console.log(`${key}: ${value.value} (${value.termType})`)
               datiRicevuti=true;
+              setCloudProviderName(value.value)
     
             })
           })

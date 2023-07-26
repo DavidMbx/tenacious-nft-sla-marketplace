@@ -18,6 +18,7 @@
     "@thirdweb-dev/react": "^3",
     "@thirdweb-dev/sdk": "^3",
     "dotenv": "^16.3.1",
+    "eth-converter": "^0.2.0",
     "ethers": "^5",
     "framer-motion": "^10.12.20",
     "hardhat": "^2.16.1",

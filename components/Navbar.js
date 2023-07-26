@@ -83,7 +83,7 @@ export function Navbar(){
         <Box maxW={"1200px"} m={"auto"} py={"10px"}px={"40px"}>
         <Flex justifyContent={"space-between"} alignItems={"center"}>
             <Link as={NextLink} href='/'>
-                <Heading>Tenacious NFT SLA Marketplace</Heading>
+                <Heading>Tenacious Marketplace</Heading>
             </Link>
             <Flex direction={"row"}>
                 <Link as={NextLink} href='/buy' mx={2.5}>
@@ -93,7 +93,10 @@ export function Navbar(){
                     <Text>Sell</Text> 
                 </Link>
                 <Link as={NextLink} href='/register-cloud-provider' mx={2.5}>
-                    <Text>Register new Cloud Provider</Text> 
+                    <Text>Register as Cloud Provider</Text> 
+                </Link>
+                <Link as={NextLink} href='/create-cloud-service-badge' mx={2.5}>
+                    <Text>Create Cloud Service</Text> 
                 </Link>
             </Flex>
             <Flex dir={"row"} alignItems={"center"}>

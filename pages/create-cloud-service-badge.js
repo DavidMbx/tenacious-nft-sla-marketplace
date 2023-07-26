@@ -6,7 +6,6 @@ import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
-const EthConverter = require('eth-converter')
 
 export default function CreateCloudServiceBadge() {
 
@@ -114,7 +113,7 @@ export default function CreateCloudServiceBadge() {
             cs:Subscription_${cloudServiceID}  rdf:type cs:Subscription .
             cs:Subscription_${cloudServiceID} cs:hasPrice cs:Price_${cloudServiceID}.
             cs:Price_${cloudServiceID} cs:currency "Euro".
-            cs:Price_${cloudServiceID}  cs:value "${EthConverter.convert(cloudServicePrice, 'eth', 'eur')}".
+            cs:Price_${cloudServiceID}  cs:value "".
             cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
             cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
             cs:PricingModel_${cloudServiceID}  rdf:type cs:${cloudServicePricingModel}.
@@ -124,6 +123,20 @@ export default function CreateCloudServiceBadge() {
             cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget} ".
             cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget} ".
             cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget} ".
+            cs:Penalty_${cloudServiceID} rdf:type cs:Penalty
+            cs:SLO_${cloudServiceID} rdf:type cs:SLO
+            cs:SLO_${cloudServiceID} cs:hasAvailability cs:Availability_${cloudServiceID}
+            cs:SLO_${cloudServiceID} cs:hasErrorRate cs:ErrorRate_${cloudServiceID} 
+            cs:SLO_${cloudServiceID} cs:hasResponseTime cs:ResponseTime_${cloudServiceID} 
+            cs:SLO_${cloudServiceID} cs:hasPenalty cs:Penalty_${cloudServiceID}
+            cs:Penalty_${cloudServiceID} cs:penaltyValueAvailability "${cloudServiceAvailabilityPenalty}"
+            cs:Penalty_${cloudServiceID} cs:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}"
+            cs:Penalty_${cloudServiceID} cs:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}"
+            cs:Penalty_${cloudServiceID} cs:currency "Ether"
+            
+
+            //Implementare anche virtual Appliance
+        
             cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
             cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
             cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURL} " .

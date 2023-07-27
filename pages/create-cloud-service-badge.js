@@ -9,6 +9,18 @@ const SparqlClient = require('sparql-http-client')
 
 export default function CreateCloudServiceBadge() {
 
+
+  const [state, setState] = React.useState(null)
+  const options = [
+    { label: 'Green', value: 'green' },
+    { label: 'Green-Yellow', value: 'greenyellow' },
+    { label: 'Red', value: 'red' },
+    { label: 'Violet', value: 'violet' },
+    { label: 'Forest', value: 'forest' },
+    { label: 'Tangerine', value: 'tangerine' },
+    { label: 'Blush', value: 'blush' },
+    { label: 'Purple', value: 'purple' },
+  ]
         const [cloudServicePicture, setCloudServicePicture] = useState(null);
         const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
         const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
@@ -244,12 +256,14 @@ export default function CreateCloudServiceBadge() {
             <FormControl isRequired>
                 <FormLabel>Cloud Service Type</FormLabel>
                     <Select 
+                    isSearchable
                     placeholder='Select Cloud Service Type'
+                    defaultValue={options[0].value}
+                    value={state}
                     onChange={e=> updateFormInput({...formInput,cloudServiceType: e.target.value})}
-                    >
-                        <option>United Arab Emirates</option>
-                        <option>Nigeria</option>
-                    </Select>
+                    options={options}
+                    />
+                  
 
                     <FormLabel mt={4}>Pricing Model</FormLabel>
                     <Select 

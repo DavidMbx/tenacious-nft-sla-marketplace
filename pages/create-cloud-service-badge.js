@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Select,NumberInput,NumberInputField,
-NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper,Heading,Link,IconButton,AddIcon} from '@chakra-ui/react';
+NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper,Heading,Link,IconButton,Spacer} from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { create } from 'ipfs-http-client';
 import { Navbar } from '/components/Navbar'
@@ -13,8 +13,6 @@ export default function CreateCloudServiceBadge() {
 
    // Stato per memorizzare le opzioni del Select
   const [options, setOptions] = useState([
-    { value: 'option1', label: 'Opzione 1' },
-    { value: 'option2', label: 'Opzione 2' },
     // Puoi aggiungere altre opzioni qui
   ]);
         const [cloudServicePicture, setCloudServicePicture] = useState(null);
@@ -28,6 +26,11 @@ export default function CreateCloudServiceBadge() {
       cloudServicePrice:'',cloudServiceAvailabilityTarget:'',cloudServiceAvailabilityPenalty:'',
       cloudServiceErrorRateTarget:'',cloudServiceErrorRatePenalty:'',
       cloudServiceResponseTimeTarget:'',cloudServiceResponseTimePenalty:'',cloudServicePictureURL:''})
+
+      const[formVirtualAppliance, updateFormVirtualAppliance]=useState({ memory:'', storage:'', 
+      version:'',region:'',cpuSpeed:'',
+      cpuCores:'',architecture:'',
+      })
 
       const cloudProviderAddress= useAddress();
       const [cloudProviderName,setCloudProviderName]=useState(null)
@@ -141,9 +144,17 @@ export default function CreateCloudServiceBadge() {
             cs:Penalty_${cloudServiceID} cs:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}" . 
             cs:Penalty_${cloudServiceID} cs:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}" .
             cs:Penalty_${cloudServiceID} cs:currency "Ether" .
-            
-
-            //Implementare anche virtual Appliance
+            cs:VirtualAppliance_${cloudServiceID} rdf:type cs:VirtualAppliance .
+            cs:ImageType_${cloudServiceID} rdf:type cs:ImageType .
+            cs:CloudService_${cloudServiceID} cs:hasImage cs:ImageType_${cloudServiceID}.
+            cs:CloudService_${cloudServiceID} cs:hasAppliance cs:VirtualAppliance_${cloudServiceID}.
+            cs:VirtualAppliance_${cloudServiceID} cs:memory "${memory}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:storage "${storage}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:version "${version}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:cpuSpeed "${cpuSpeed}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:cpuCores "${cpuCores}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:architecture "${architecture}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:hasRegion cs:${region}.
         
             cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
             cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
@@ -316,6 +327,9 @@ export default function CreateCloudServiceBadge() {
         <Flex justifyContent="center" alignItems="center" height="190vh">
           <Box w="50%" p={4} >
             <FormControl isRequired>
+
+
+        
                 <FormLabel>Cloud Service Type</FormLabel>
                     <Select 
                     placeholder='Select Cloud Service Type'
@@ -352,8 +366,103 @@ export default function CreateCloudServiceBadge() {
                      </Button>
                    </Flex>
 
-                 
 
+                   <Box mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Virtual Appliance</Text>
+
+                   
+                    <FormLabel mt={4} >Memory</FormLabel>
+                    <NumberInput min={1} precision={0} step={1} >
+                    <NumberInputField 
+                    placeholder="GB"
+                    onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,memory: e.target.value})} 
+                    />
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+
+                    <Spacer />
+
+                    <FormLabel mt={4} >Storage</FormLabel>
+                    <NumberInput min={1} precision={0} step={1} >
+                    <NumberInputField 
+                    placeholder="GB"
+                    onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,storage: e.target.value})} 
+                    />
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+
+                    
+
+                    <FormLabel mt={4} >Version</FormLabel>
+                    <NumberInput min={0} precision={1} step={0.1} >
+                    <NumberInputField 
+                    placeholder="1.0"
+                    onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,version: e.target.value})} 
+                    />
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+
+                    <FormLabel mt={4}>Region</FormLabel>
+                    <Select 
+                    placeholder='Select Region'
+                    onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,region: e.target.value})} 
+                    >
+                        <option>AF-North</option>
+                        <option>AF-South</option>
+                        <option>EU-North</option>
+                        <option>EU-South</option>
+                        <option>US-East</option>
+                        <option>US-West</option>
+                    </Select>
+
+                    <FormLabel mt={4} >CPU Speed</FormLabel>
+                    <NumberInput min={1} precision={2} step={0.01} >
+                    <NumberInputField 
+                    placeholder="GHz"
+                    onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,cpuSpeed: e.target.value})} 
+                    />
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+
+                    <FormLabel mt={4} >CPU Cores</FormLabel>
+                    <NumberInput min={1} precision={0} step={1} >
+                    <NumberInputField 
+                    placeholder="Core"
+                    onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,cpuCores: e.target.value})} 
+                    />
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+
+                    <FormLabel mt={4} >Architecture</FormLabel>
+                    <Input
+                      placeholder="Type"
+                      onChange={e=> updateFormVirtualAppliance({...formVirtualAppliance,architecture: e.target.value})} 
+                       borderRadius="md"
+          />
+
+
+                   </Box>
+                  
+                  
+
+                 
+                   <Box mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Pricing</Text>
                     <FormLabel mt={4}>Pricing Model</FormLabel>
                     <Select 
                     placeholder='Select Pricing Model'
@@ -374,9 +483,13 @@ export default function CreateCloudServiceBadge() {
                         </NumberInputStepper>
                     </NumberInput>
 
-                    <Box mt={5} p={5}  borderWidth={1} borderRadius={8} boxShadow="lg">
+                    </Box>
+
+                    <Flex>
+                    <Box mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Text as='b' fontSize='lg'>SLO: Availability</Text>
 
+                    
                     <FormLabel mt={4} >Target</FormLabel>
                     <NumberInput min={0} max={100} precision={1} step={0.1}>
                     <NumberInputField 
@@ -398,9 +511,10 @@ export default function CreateCloudServiceBadge() {
                         <NumberDecrementStepper />
                         </NumberInputStepper>
                     </NumberInput>
+                   
                     </Box>
 
-                    <Box mt={5} p={5}  borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Box mt={5} p={5} mr={4}  borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Text as='b' fontSize='lg'>SLO: Error Rate</Text>
 
                     <FormLabel mt={4} >Target</FormLabel>
@@ -426,6 +540,8 @@ export default function CreateCloudServiceBadge() {
                     </NumberInput>
                     </Box>
 
+                   
+
                     <Box mt={5} p={5}  borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Text as='b' fontSize='lg'>SLO: Response Time</Text>
                     <FormLabel mt={4} >Target</FormLabel>
@@ -450,7 +566,7 @@ export default function CreateCloudServiceBadge() {
                         </NumberInputStepper>
                     </NumberInput>
                     </Box>
-
+                    </Flex>
 
           <FormLabel mt={4}>Choose Cloud Service Picture</FormLabel>
           <Input type="file" id="photoCS" mt={2} onChange={handlePictureChange} borderRadius="md" />
@@ -462,7 +578,7 @@ export default function CreateCloudServiceBadge() {
           
           <Button
             onClick={handleCreateCloudService}
-            mt={4}
+            mt={7}
             colorScheme="teal"
             borderRadius="md"
             size="lg"

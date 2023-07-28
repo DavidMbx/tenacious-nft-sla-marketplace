@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Select,NumberInput,NumberInputField,
-NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper,Heading} from '@chakra-ui/react';
+NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper,Heading,Link,IconButton,AddIcon} from '@chakra-ui/react';
+import NextLink from 'next/link';
 import { create } from 'ipfs-http-client';
 import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
@@ -10,17 +11,12 @@ const SparqlClient = require('sparql-http-client')
 export default function CreateCloudServiceBadge() {
 
 
-  const [state, setState] = React.useState(null)
-  const options = [
-    { label: 'Green', value: 'green' },
-    { label: 'Green-Yellow', value: 'greenyellow' },
-    { label: 'Red', value: 'red' },
-    { label: 'Violet', value: 'violet' },
-    { label: 'Forest', value: 'forest' },
-    { label: 'Tangerine', value: 'tangerine' },
-    { label: 'Blush', value: 'blush' },
-    { label: 'Purple', value: 'purple' },
-  ]
+   // Stato per memorizzare le opzioni del Select
+  const [options, setOptions] = useState([
+    { value: 'option1', label: 'Opzione 1' },
+    { value: 'option2', label: 'Opzione 2' },
+    // Puoi aggiungere altre opzioni qui
+  ]);
         const [cloudServicePicture, setCloudServicePicture] = useState(null);
         const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
         const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
@@ -135,16 +131,16 @@ export default function CreateCloudServiceBadge() {
             cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget} ".
             cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget} ".
             cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget} ".
-            cs:Penalty_${cloudServiceID} rdf:type cs:Penalty
-            cs:SLO_${cloudServiceID} rdf:type cs:SLO
-            cs:SLO_${cloudServiceID} cs:hasAvailability cs:Availability_${cloudServiceID}
-            cs:SLO_${cloudServiceID} cs:hasErrorRate cs:ErrorRate_${cloudServiceID} 
-            cs:SLO_${cloudServiceID} cs:hasResponseTime cs:ResponseTime_${cloudServiceID} 
-            cs:SLO_${cloudServiceID} cs:hasPenalty cs:Penalty_${cloudServiceID}
-            cs:Penalty_${cloudServiceID} cs:penaltyValueAvailability "${cloudServiceAvailabilityPenalty}"
-            cs:Penalty_${cloudServiceID} cs:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}"
-            cs:Penalty_${cloudServiceID} cs:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}"
-            cs:Penalty_${cloudServiceID} cs:currency "Ether"
+            cs:Penalty_${cloudServiceID} rdf:type cs:Penalty .
+            cs:SLO_${cloudServiceID} rdf:type cs:SLO .
+            cs:SLO_${cloudServiceID} cs:hasAvailability cs:Availability_${cloudServiceID} .
+            cs:SLO_${cloudServiceID} cs:hasErrorRate cs:ErrorRate_${cloudServiceID}  .
+            cs:SLO_${cloudServiceID} cs:hasResponseTime cs:ResponseTime_${cloudServiceID} .
+            cs:SLO_${cloudServiceID} cs:hasPenalty cs:Penalty_${cloudServiceID} .
+            cs:Penalty_${cloudServiceID} cs:penaltyValueAvailability "${cloudServiceAvailabilityPenalty}" .
+            cs:Penalty_${cloudServiceID} cs:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}" . 
+            cs:Penalty_${cloudServiceID} cs:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}" .
+            cs:Penalty_${cloudServiceID} cs:currency "Ether" .
             
 
             //Implementare anche virtual Appliance
@@ -188,7 +184,7 @@ export default function CreateCloudServiceBadge() {
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
     
-        SELECT ?typeCloudActor
+        SELECT ?cloudActor
         WHERE {
       ?address cs:hasAddress "${cloudProviderAddress}" .
       ?cloudActor cs:hasBlockchainAddress ?address.
@@ -243,9 +239,75 @@ export default function CreateCloudServiceBadge() {
         console.log('Cloud Service Picture:', cloudServicePicture);
         console.log('Cloud Provider Address:',cloudProviderAddress)
         //checkIfCloudProvider()
-        
+      
   
       };
+
+
+
+       // Funzione per creare il vettore dei service types in base alle query sparql
+       //Viene effettuata query sparql che seleziona il cloud provider a cui è associato l'indirizzo e carica i suoi servizi
+      async function createOptions() {
+
+
+        //Le inizializzo dapprima
+        
+        setOptions([]);
+
+        // Query SPARQL per verificare se l'utente esiste già nel database
+        const selectQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    
+        SELECT ?serviceType
+        WHERE {
+      ?address cs:hasAddress "${cloudProviderAddress}" .
+      ?cloudActor cs:hasBlockchainAddress ?address.
+      ?serviceType cs:offeredBy cs:?cloudActor.
+    }
+    
+        `;
+    
+        const stream = await clientSPARQL.query.select(selectQuery);
+        let datiRicevuti=false;
+        
+       stream.on('data', row => {
+             Object.entries(row).forEach(([key, value]) => {
+              console.log(`${key}: ${value.value} (${value.termType})`)
+
+              const newOption = {
+                value: value.value,
+                label: value.value,
+              };
+              setOptions((prevOptions) => [...prevOptions, newOption]);
+              datiRicevuti=true;
+              
+    
+            })
+          })
+    
+          stream.on('end', () => {
+            
+            if (!datiRicevuti) {
+
+             // Non ho trovato tipi di servizi cloud afferenti all'utente
+             console.log("Non ho trovato tipi di servizi cloud afferenti all'utente")
+            }
+            else{
+              console.log("Ho trovato tipi di servizi cloud afferenti all'utente:"+options)
+
+            }
+    
+            })
+          
+          
+          stream.on('error', err => {
+            console.error(err)
+          })
+
+      
+    };
 
 
 
@@ -256,24 +318,52 @@ export default function CreateCloudServiceBadge() {
             <FormControl isRequired>
                 <FormLabel>Cloud Service Type</FormLabel>
                     <Select 
-                    isSearchable
                     placeholder='Select Cloud Service Type'
-                    defaultValue={options[0].value}
-                    value={state}
-                    onChange={e=> updateFormInput({...formInput,cloudServiceType: e.target.value})}
-                    options={options}
-                    />
-                  
+                    onChange={e=> updateFormInput({...formInput,cloudServiceType: e.target.value})} >
+                  {options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                  {option.label}
+                  </option>
+                  ))}
+                    </Select>
+                  <Flex>
+                    <Button
+                      onClick={createOptions}
+                      mt={2}
+                      mr={2}
+                      colorScheme="teal"
+                      variant='outline'
+                      borderRadius="md"
+                      size="sm"
+                      boxShadow="lg"
+                      >
+                      Load your Cloud Service Types
+                     </Button>
+                     <Button
+                      //onClick={}
+                      mt={2}
+                      colorScheme="teal"
+                      variant='outline'
+                      borderRadius="md"
+                      size="sm"
+                      boxShadow="lg"
+                      >
+                      Add new Cloud Service Type
+                     </Button>
+                   </Flex>
+
+                 
 
                     <FormLabel mt={4}>Pricing Model</FormLabel>
                     <Select 
                     placeholder='Select Pricing Model'
                     onChange={e=> updateFormInput({...formInput,cloudServicePricingModel: e.target.value})}>
-                        <option>United Arab Emirates</option>
-                        <option>Nigeria</option>
+                        <option>PayAsYouGo</option>
+                        <option>Subscription</option>
                     </Select>
 
-                    <FormLabel mt={4} >Price per Hour</FormLabel>
+
+                    <FormLabel mt={4} >Price per hour</FormLabel>
                     <NumberInput min={0} precision={2} step={0.1} >
                     <NumberInputField 
                     placeholder="ETH"
@@ -373,7 +463,7 @@ export default function CreateCloudServiceBadge() {
           <Button
             onClick={handleCreateCloudService}
             mt={4}
-            colorScheme="green"
+            colorScheme="teal"
             borderRadius="md"
             size="lg"
             boxShadow="lg"

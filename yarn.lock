@@ -4400,17 +4400,10 @@
     "base64-js" "^1.3.1"
     "ieee754" "^1.2.1"
 
-"bufferutil@^4.0.1":
+"bufferutil@^4.0.1", "bufferutil@4.0.5":
   "integrity" "sha512-kukuqc39WOHtdxtw4UScxF/WVnMFVSQVKhtx3AjZJzhd0RGZZldcrfSEbVsWWe6KNH253574cq5F+wpv0G9pJw=="
   "resolved" "https://registry.npmjs.org/bufferutil/-/bufferutil-4.0.7.tgz"
   "version" "4.0.7"
-  dependencies:
-    "node-gyp-build" "^4.3.0"
-
-"bufferutil@4.0.5":
-  "integrity" "sha512-HTm14iMQKK2FjFLRTM5lAVcyaUzOnqbPtesFIvREgXpJHdQm8bWS+GkQgIkfaBYRHuCnea7w8UVNfwiAQhlr9A=="
-  "resolved" "https://registry.npmjs.org/bufferutil/-/bufferutil-4.0.5.tgz"
-  "version" "4.0.5"
   dependencies:
     "node-gyp-build" "^4.3.0"
 
@@ -8634,6 +8627,11 @@
     "use-callback-ref" "^1.3.0"
     "use-sidecar" "^1.1.2"
 
+"react-icons@^4.10.1":
+  "integrity" "sha512-/ngzDP/77tlCfqthiiGNZeYFACw85fUjZtLbedmJ5DTlNDIwETxhwBzdOJ21zj4iJdvc0J3y7yOsX3PpxAJzrw=="
+  "resolved" "https://registry.npmjs.org/react-icons/-/react-icons-4.10.1.tgz"
+  "version" "4.10.1"
+
 "react-is@^16.13.1", "react-is@^16.7.0":
   "integrity" "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
@@ -9986,17 +9984,10 @@
   "resolved" "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz"
   "version" "1.2.0"
 
-"utf-8-validate@^5.0.2", "utf-8-validate@>=5.0.2":
+"utf-8-validate@^5.0.2", "utf-8-validate@>=5.0.2", "utf-8-validate@5.0.7":
   "integrity" "sha512-Z6czzLq4u8fPOyx7TU6X3dvUZVvoJmxSQ+IcrlmagKhilxlhZgxPK6C5Jqbkw1IDUmFTM+cz9QDnnLTwDz/2gQ=="
   "resolved" "https://registry.npmjs.org/utf-8-validate/-/utf-8-validate-5.0.10.tgz"
   "version" "5.0.10"
-  dependencies:
-    "node-gyp-build" "^4.3.0"
-
-"utf-8-validate@5.0.7":
-  "integrity" "sha512-vLt1O5Pp+flcArHGIyKEQq883nBt8nN8tVBcoL0qUXj2XT1n7p70yGIq2VK98I5FdZ1YHc0wk/koOnHjnXWk1Q=="
-  "resolved" "https://registry.npmjs.org/utf-8-validate/-/utf-8-validate-5.0.7.tgz"
-  "version" "5.0.7"
   dependencies:
     "node-gyp-build" "^4.3.0"
 

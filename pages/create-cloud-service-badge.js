@@ -125,13 +125,13 @@ export default function CreateCloudServiceBadge() {
       
         INSERT DATA {
             cs:CloudService_${cloudServiceID} rdf:type cs:CloudService .
-            cs:Subscription_${cloudServiceID}  rdf:type cs:Subscription .
-            cs:Subscription_${cloudServiceID} cs:hasPrice cs:Price_${cloudServiceID}.
-            cs:Price_${cloudServiceID} cs:currency "Euro".
-            cs:Price_${cloudServiceID}  cs:value "".
-            cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
-            cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
+            cs:Price_${cloudServiceID} cs:currency "Eth".
+            cs:Price_${cloudServiceID}  cs:value "${cloudServicePrice}".
             cs:PricingModel_${cloudServiceID}  rdf:type cs:${cloudServicePricingModel}.
+            cs:PricingModel_${cloudServiceID}  rdf:type cs:PricingModel.
+            cs:PricingModel_${cloudServiceID}  cs:hasPrice cs:Price_${cloudServiceID} .
+            cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
+            cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
             cs:Availability_${cloudServiceID}  rdf:type cs:Availability.
             cs:ErrorRate_${cloudServiceID}  rdf:type cs:ErrorRate.
             cs:ResponseTime_${cloudServiceID}  rdf:type cs:ResponseTime.
@@ -159,7 +159,6 @@ export default function CreateCloudServiceBadge() {
             cs:VirtualAppliance_${cloudServiceID} cs:cpuCores "${cpuCores}" .
             cs:VirtualAppliance_${cloudServiceID} cs:architecture "${architecture}" .
             cs:VirtualAppliance_${cloudServiceID} cs:hasRegion cs:${region}.
-        
             cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
             cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
             cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURL} " .

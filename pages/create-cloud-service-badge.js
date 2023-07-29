@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Select,NumberInput,NumberInputField,
 NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper,Heading,Link,IconButton,Spacer} from '@chakra-ui/react';
+import { useRouter } from 'next/router'
 import NextLink from 'next/link';
 import { create } from 'ipfs-http-client';
 import { Navbar } from '/components/Navbar'
@@ -9,6 +10,9 @@ require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
 
 export default function CreateCloudServiceBadge() {
+
+
+  const router = useRouter()
 
 
    // Stato per memorizzare le opzioni del Select
@@ -275,7 +279,7 @@ export default function CreateCloudServiceBadge() {
         WHERE {
       ?address cs:hasAddress "${cloudProviderAddress}" .
       ?cloudActor cs:hasBlockchainAddress ?address.
-      ?serviceType cs:offeredBy cs:?cloudActor.
+      ?serviceType cs:createdBy cs:?cloudActor.
     }
     
         `;
@@ -320,6 +324,10 @@ export default function CreateCloudServiceBadge() {
       
     };
 
+    const handleAddServiceType = () => {
+      router.push('/add-new-service-type')
+    };
+    
 
 
 
@@ -340,6 +348,7 @@ export default function CreateCloudServiceBadge() {
                   </option>
                   ))}
                     </Select>
+
                   <Flex>
                     <Button
                       onClick={createOptions}
@@ -353,8 +362,9 @@ export default function CreateCloudServiceBadge() {
                       >
                       Load your Cloud Service Types
                      </Button>
-                     <Button
-                      //onClick={}
+
+                     <Button 
+                      onClick={handleAddServiceType}
                       mt={2}
                       colorScheme="teal"
                       variant='outline'

@@ -236,8 +236,8 @@ streamUpdate.on('error', err => {
           
           <Button
             onClick={handleRegister}
-            mt={4}
-            colorScheme="green"
+            mt={6}
+            colorScheme="teal"
             borderRadius="md"
             size="lg"
             boxShadow="lg"

@@ -189,19 +189,10 @@ async function uploadToSPARQL() {
   
 `;
 
-const streamUpdate=clientSPARQL.query.update(insertQuery)
-
-streamUpdate.on('end', () => {
-  
-  //Alla fine aggiorno la pagina e scrivo dati correttamente inseriti
-  console.log(streamUpdate.on('data'))
-
-  })
+const responseUpdate=clientSPARQL.query.update(insertQuery)
+console.log(responseUpdate)
 
 
-streamUpdate.on('error', err => {
-  console.error(err)
-})
 
 }
 

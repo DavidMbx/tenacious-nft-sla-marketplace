@@ -171,19 +171,9 @@ export default function CreateCloudServiceBadge() {
         
       `;
       
-      const streamUpdate=clientSPARQL.query.update(insertQuery)
+      const responseUpdate=clientSPARQL.query.update(insertQuery)
       
-      streamUpdate.on('end', () => {
-        
-        //Alla fine aggiorno la pagina e scrivo dati correttamente inseriti
-        console.log(streamUpdate.on('data'))
-      
-        })
-      
-      
-      streamUpdate.on('error', err => {
-        console.error(err)
-      })
+      console.log(responseUpdate)
       
       }
     
@@ -276,12 +266,16 @@ export default function CreateCloudServiceBadge() {
     
         SELECT ?serviceType
         WHERE {
+      
       ?address cs:hasAddress "${cloudProviderAddress}" .
       ?cloudActor cs:hasBlockchainAddress ?address.
-      ?serviceType cs:createdBy cs:?cloudActor.
+      ?serviceType cs:createdBy ?cloudActor.
     }
+
+    
     
         `;
+
     
         const stream = await clientSPARQL.query.select(selectQuery);
         let datiRicevuti=false;

@@ -57,9 +57,10 @@ WHERE {
          Object.entries(row).forEach(([key, value]) => {
           console.log(`${key}: ${value.value} (${value.termType})`)
 
+          const newValue=value.value.slice(value.value.indexOf('#')+1,value.value.indexOf('_'))
           const newOption = {
-            value: value.value,
-            label: value.value,
+            value: newValue,
+            label: newValue
           };
           setOptionsCategory((prevOptions) => [...prevOptions, newOption]);
           datiRicevuti=true;
@@ -76,7 +77,7 @@ WHERE {
          console.log("Non ho trovato categorie di servizi cloud")
         }
         else{
-          console.log("Ho trovato le seguenti categorie di servizi cloud:"+options)
+          console.log("Ho trovato le seguenti categorie di servizi cloud:"+optionsCategory)
 
         }
 
@@ -101,21 +102,25 @@ async function checkCloudProviderName() {
 
     SELECT ?cloudActor
     WHERE {
-  ?address cs:hasAddress "${cloudProviderAddress}" .
-  ?cloudActor cs:hasBlockchainAddress ?address.
-  ?cloudActor rdf:type cs:CloudProvider.
-}
+    ?address cs:hasAddress "${cloudProviderAddress}" .
+    ?cloudActor cs:hasBlockchainAddress ?address.
+    ?cloudActor rdf:type cs:CloudProvider.
+    }
 
     `;
 
     const stream = await clientSPARQL.query.select(selectQuery);
-    let datiRicevuti=false;
     
+    
+    let datiRicevuti=false;
+    let newName=""
    stream.on('data', row => {
          Object.entries(row).forEach(([key, value]) => {
           console.log(`${key}: ${value.value} (${value.termType})`)
           datiRicevuti=true;
-          setCloudProviderName(value.value)
+          newName=value.value.slice(value.value.indexOf('#')+1)
+    
+          
 
         })
       })
@@ -126,12 +131,18 @@ async function checkCloudProviderName() {
 
          // L'utente non è registrato già come cloud provider, non può creare un nuovo servizio cloud
          console.log("Utente non è Cloud Provider, non può creare nuovi servizi Cloud")
+         
+
         }
         else{
 
             //L'utente è registrato come cloud provider, procedo con la creazione del servizio cloud
 
-            createFileJSON()
+            console.log("Utente è Cloud Provider, può creare nuovi servizi Cloud")
+            
+            //Aggiustare qui, il nome non viene aggiornato e resta null perchè il set è un operazione asincrona
+            setCloudProviderName(newName)
+            uploadToSPARQL()
 
         }
 
@@ -147,6 +158,7 @@ async function checkCloudProviderName() {
 async function uploadToSPARQL() {
 
     const { serviceCategory,serviceTypeName}= formInput
+    console.log(cloudProviderName)
 
   
 
@@ -157,24 +169,14 @@ async function uploadToSPARQL() {
   
     INSERT DATA {
         cs:${serviceTypeName} rdf:type cs:ServiceType .
-        cs:${serviceTypeName} cs:createdBy cs:${cloudProviderName}.
-        cs:${serviceTypeName} cs:aKindOf cs:${serviceCategory}.
-    
+        cs:${serviceTypeName} cs:createdBy cs:${cloudProviderName} .
+        cs:${serviceTypeName} cs:aKindOf cs:${serviceCategory+"_Category"} .
+         }
   `;
   
-  const streamUpdate=clientSPARQL.query.update(insertQuery)
+  const responseUpdate=clientSPARQL.query.update(insertQuery)
   
-  streamUpdate.on('end', () => {
-    
-    //Alla fine aggiorno la pagina e scrivo dati correttamente inseriti
-    console.log(streamUpdate.on('data'))
-  
-    })
-  
-  
-  streamUpdate.on('error', err => {
-    console.error(err)
-  })
+  console.log(responseUpdate)
   
   }
 
@@ -189,9 +191,7 @@ const handleAddNewServiceType= () => {
     console.log('Cloud Provider Address:',cloudProviderAddress);
 
     checkCloudProviderName()
-    uploadToSPARQL()
-    
-  
+
 
   };
 

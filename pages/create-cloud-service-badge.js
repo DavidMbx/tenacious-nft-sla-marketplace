@@ -193,7 +193,7 @@ async function uploadToIPFS(file) {
             cs:VirtualAppliance_${cloudServiceID} cs:version "${version}" .
             cs:VirtualAppliance_${cloudServiceID} cs:cpuSpeed "${cpuSpeed}" .
             cs:VirtualAppliance_${cloudServiceID} cs:cpuCores "${cpuCores}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:architecture "${architecture}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:architecture "${architecture.replace(/ /g, "_")}" .
             cs:VirtualAppliance_${cloudServiceID} cs:hasRegion cs:${region}.
             cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
             cs:Picture_${cloudServiceID}  rdf:type cs:Picture .

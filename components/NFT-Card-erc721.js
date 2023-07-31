@@ -10,7 +10,7 @@ import { Box, Flex, Skeleton, Text } from "@chakra-ui/react";
 
 
 
-export default function NFTComponent({ nft }) {
+export default function NFTComponentERC721({ nft }) {
     const  {contract: marketplace, isLoading: loadingMarketplace } = useContract(NFT_MARKETPLACE_CONTRACT, "marketplace-v3");
 
     const { data: directListing, isLoading: loadingDirectListing } = 

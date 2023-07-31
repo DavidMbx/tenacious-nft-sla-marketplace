@@ -124,7 +124,7 @@ async function checkIfAlreadyCloudProvider() {
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
 
-    SELECT ?typeCloudActor
+    SELECT ?cloudActor
     WHERE {
   ?address cs:hasAddress "${cloudProviderAddress}" .
   ?cloudActor cs:hasBlockchainAddress ?address.
@@ -148,7 +148,11 @@ async function checkIfAlreadyCloudProvider() {
         
         if (!datiRicevuti) {
          // L'utente non è registrato già come cloud provider, procedo con l'inserimento
+         console.log("L'indirizzo non risulta associato a nessun Cloud Provider")
          createFileJSON()
+        }
+        else{
+          console.log("L'indirizzo risulta già associato ad un Cloud Provider")
         }
 
         })
@@ -176,15 +180,15 @@ async function uploadToSPARQL() {
   PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
 
   INSERT DATA {
-    cs:${cloudProviderName} rdf:type cs:CloudProvider.
-    cs:${cloudProviderName} cs:hasMail "${cloudProviderMail}".
-    cs:Picture_${cloudProviderName} rdf:type cs:Picture.
-    cs:Picture_${cloudProviderName} cs:hasLink "${cloudProviderPictureURL}".
-    cs:${cloudProviderName} cs:hasPicture cs:Picture_${cloudProviderName}.
-    cs:${cloudProviderName} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
-    cs:NFT-Badge_${cloudProviderName} cs:hasOwner cs:Address_${cloudProviderAddress} .
-    cs:NFT-Badge_${cloudProviderName} cs:tokenURI "".
-    cs:NFT-Badge_${cloudProviderName} cs:hasAddress "".
+    cs:${cloudProviderName.replace(/ /g, "_")} rdf:type cs:CloudProvider.
+    cs:${cloudProviderName.replace(/ /g, "_")} cs:hasMail "${cloudProviderMail}".
+    cs:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type cs:Picture.
+    cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURL}".
+    cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
+    cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "".
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "".
   }
   
 `;

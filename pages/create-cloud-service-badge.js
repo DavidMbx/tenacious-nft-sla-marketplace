@@ -37,7 +37,7 @@ export default function CreateCloudServiceBadge() {
       })
 
       const cloudProviderAddress= useAddress();
-      const [cloudProviderName,setCloudProviderName]=useState(null)
+      
   
       const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
       const projectSecret=process.env.NEXT_PUBLIC_PRIVATE_KEY_IPFS_INFURA
@@ -54,6 +54,21 @@ export default function CreateCloudServiceBadge() {
           },
         });
   
+
+// Funzione per caricare un file su IPFS
+async function uploadToIPFS(file) {
+  try {
+    const { cid } = await client.add(file); // Carica il file su IPFS
+
+    console.log('File caricato su IPFS. CID:', cid.toString());
+    const url= `https://nftslamarket.infura-ipfs.io/${cid.path}`
+    return cid.toString(); // Restituisci l'hash IPFS del file
+  } catch (error) {
+    console.error('Errore durante il caricamento su IPFS:', error);
+    return null;
+  }
+}
+
 
 
     async function handlePictureChange(event) {
@@ -75,22 +90,29 @@ export default function CreateCloudServiceBadge() {
         }
     }
 
-    async function createFileJSON() {
+    async function createFileJSON(newName) {
        
         const { cloudServiceType, cloudServicePricingModel, 
         cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
         cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
         cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURL}= formInput
+
+        const{ memory, storage, 
+          version,region,cpuSpeed,
+          cpuCores,architecture,
+          }=formVirtualAppliance
         
         if(!cloudServiceType||!cloudServicePricingModel ||!cloudServicePrice
             ||!cloudServiceAvailabilityTarget  ||!cloudServiceAvailabilityPenalty 
             ||!cloudServiceErrorRateTarget ||! cloudServiceErrorRatePenalty ||! cloudServiceResponseTimeTarget
             ||! cloudServiceResponseTimePenalty||! cloudServicePictureURL ||! cloudProviderAddress
+            ||! memory ||! storage ||! version ||! region ||! cpuSpeed ||! cpuCores ||! architecture
              ) return  
              console.log("Errore, manca un campo")
     
         const data= JSON.stringify({
-            cloudProviderAddress,cloudServiceType,cloudServicePricingModel,cloudServicePrice,
+            cloudProviderAddress,cloudServiceType,memory,storage,version,region,
+            cpuSpeed,cpuCores,architecture,cloudServicePricingModel,cloudServicePrice,
             cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
             cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
             cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty,
@@ -100,7 +122,8 @@ export default function CreateCloudServiceBadge() {
         console.log(data+"\n"+formURI)
     
         uploadToBlockchain();
-        uploadToSPARQL();
+        uploadToSPARQL(newName);
+        //
         
         
     }
@@ -109,15 +132,28 @@ export default function CreateCloudServiceBadge() {
 
     }
 
-    async function uploadToSPARQL() {
+    async function uploadToSPARQL(cloudProviderName) {
 
         const { cloudServiceType, cloudServicePricingModel, 
             cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
             cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
             cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURL}= formInput
 
+
+            const{ memory, storage, 
+            version,region,cpuSpeed,
+            cpuCores,architecture,
+            }=formVirtualAppliance
+
+           
+
         //Utilizzo come id quello della picture uploadata su IPFS
-        const cloudServiceID=$cloudServicePictureURL.slice(33) 
+        const cloudServiceID=cloudServicePictureURL.slice(33) 
+        console.log(formInput)
+        console.log(formVirtualAppliance)
+        console.log(cloudServiceID)
+        console.log(cloudProviderName)
+        //
         const insertQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -167,7 +203,7 @@ export default function CreateCloudServiceBadge() {
             cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
             cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "address".
             cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "tokenURI".
-          
+        }
         
       `;
       
@@ -199,12 +235,14 @@ export default function CreateCloudServiceBadge() {
     
         const stream = await clientSPARQL.query.select(selectQuery);
         let datiRicevuti=false;
-        
+        let newName=""
+
        stream.on('data', row => {
              Object.entries(row).forEach(([key, value]) => {
               console.log(`${key}: ${value.value} (${value.termType})`)
               datiRicevuti=true;
-              setCloudProviderName(value.value)
+              newName=value.value.slice(value.value.indexOf('#')+1)
+              
     
             })
           })
@@ -220,7 +258,7 @@ export default function CreateCloudServiceBadge() {
 
                 //L'utente è registrato come cloud provider, procedo con la creazione del servizio cloud
 
-                createFileJSON()
+                createFileJSON(newName)
 
             }
     
@@ -242,7 +280,7 @@ export default function CreateCloudServiceBadge() {
         console.log('Cloud Service Form:', formInput);
         console.log('Cloud Service Picture:', cloudServicePicture);
         console.log('Cloud Provider Address:',cloudProviderAddress)
-        //checkIfCloudProvider()
+        checkIfCloudProvider()
       
   
       };
@@ -284,10 +322,12 @@ export default function CreateCloudServiceBadge() {
              Object.entries(row).forEach(([key, value]) => {
               console.log(`${key}: ${value.value} (${value.termType})`)
 
-              const newOption = {
-                value: value.value,
-                label: value.value,
-              };
+              const newValue=value.value.slice(value.value.indexOf('#')+1)
+            const newOption = {
+            value: newValue,
+            label: newValue
+            };
+            
               setOptions((prevOptions) => [...prevOptions, newOption]);
               datiRicevuti=true;
               

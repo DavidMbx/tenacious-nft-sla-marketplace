@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Select,Checkbox} from '@chakra-ui/react';
 import { create } from 'ipfs-http-client';
 import { Navbar } from '/components/Navbar'
@@ -16,7 +16,7 @@ export default function AddNewServiceType() {
         const [formInput,updateFormInput]=useState({ serviceTypeName:'', serviceCategory:''})
 
         const cloudProviderAddress= useAddress();
-        const [cloudProviderName,setCloudProviderName]=useState(null)
+        
 
             // Stato per memorizzare le opzioni del Select
         const [optionsCategory, setOptionsCategory] = useState([
@@ -141,8 +141,14 @@ async function checkCloudProviderName() {
             console.log("Utente è Cloud Provider, può creare nuovi servizi Cloud")
             
             //Aggiustare qui, il nome non viene aggiornato e resta null perchè il set è un operazione asincrona
-            setCloudProviderName(newName)
-            uploadToSPARQL()
+            
+          
+            uploadToSPARQL(newName)
+         
+           
+             
+            
+      
 
         }
 
@@ -155,12 +161,13 @@ async function checkCloudProviderName() {
 }
 
 
-async function uploadToSPARQL() {
+async function uploadToSPARQL(cloudProviderName) {
 
     const { serviceCategory,serviceTypeName}= formInput
     console.log(cloudProviderName)
+    console.log(serviceTypeName)
 
-  
+
 
     const insertQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -168,9 +175,9 @@ async function uploadToSPARQL() {
     PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
   
     INSERT DATA {
-        cs:${serviceTypeName} rdf:type cs:ServiceType .
-        cs:${serviceTypeName} cs:createdBy cs:${cloudProviderName} .
-        cs:${serviceTypeName} cs:aKindOf cs:${serviceCategory+"_Category"} .
+        cs:${serviceTypeName.replace(/ /g, "_")} rdf:type cs:ServiceType .
+        cs:${serviceTypeName.replace(/ /g, "_")} cs:createdBy cs:${cloudProviderName} .
+        cs:${serviceTypeName.replace(/ /g, "_")} cs:aKindOf cs:${serviceCategory+"_Category"} .
          }
   `;
   
@@ -189,6 +196,7 @@ const handleAddNewServiceType= () => {
     // Esempio di output dei dati per la demo
     console.log('Cloud Service Form:', formInput);
     console.log('Cloud Provider Address:',cloudProviderAddress);
+    
 
     checkCloudProviderName()
 

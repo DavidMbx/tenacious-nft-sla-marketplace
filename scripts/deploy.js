@@ -18,10 +18,18 @@ async function main() {
   await nft_erc721.deployed();
   console.log("nft erc721 deployed to:", nft_erc721.address);
 
-  const NFT_Badge=await hre.ethers.getContractFactory("NFT_Badge");
-  const nft_badge= await NFT_Badge.deploy();
-  await nft_badge.deployed();
-  console.log("nft badge deployed to:", nft_badge.address);
+  const NFT_Badge_Provider=await hre.ethers.getContractFactory("NFT_Badge_Provider");
+  const nft_badge_provider= await NFT_Badge_Provider.deploy();
+  await nft_badge_provider.deployed();
+  console.log("nft badge provider deployed to:", nft_badge_provider.address);
+
+  const NFT_Badge_Service=await hre.ethers.getContractFactory("NFT_Badge_Service");
+  const nft_badge_service= await NFT_Badge_Service.deploy();
+  await nft_badge_service.deployed();
+  console.log("nft badge service deployed to:", nft_badge_service.address);
+
+
+  
 
 
 }

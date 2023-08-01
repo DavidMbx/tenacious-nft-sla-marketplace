@@ -15,8 +15,8 @@ const SparqlClient = require('sparql-http-client')
 export default function RegisterCloudProvider() {
 
 
-  const sdk = new ThirdwebSDK("localhost");
-  const contract = sdk.getContract(NFT_BADGE_PROVIDER_CONTRACT, "nft-collection");
+  //const sdk = new ThirdwebSDK("localhost");
+  //const contract = sdk.getContract(NFT_BADGE_PROVIDER_CONTRACT, "nft-collection");
   
 
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
@@ -174,7 +174,7 @@ async function checkIfAlreadyCloudProvider() {
 async function uploadToBlockchain() {
 
   const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
-
+/*
   // Custom metadata of the NFTs you want to mint.
 const metadatas = [{
   cloudProviderAddress: cloudProviderAddress,
@@ -187,8 +187,7 @@ const tx = await contract.mintBatchTo(cloudProviderAddress, metadatas);
 const receipt = tx[0].receipt; // same transaction receipt for all minted NFTs
 const firstTokenId = tx[0].id; // token id of the first minted NFT
 const firstNFT = await tx[0].data(); // (optional) fetch details of the first minted NFT
-
-
+*/
 }
 
 async function uploadToSPARQL() {

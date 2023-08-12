@@ -5,7 +5,7 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const hre = require("hardhat");
-import {ThirdwebSDK} from "@thirdweb-dev/sdk"
+//import {ThirdwebSDK} from "@thirdweb-dev/sdk"
 
 async function main() {
 

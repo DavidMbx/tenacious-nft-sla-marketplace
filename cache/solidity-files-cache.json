@@ -733,8 +733,8 @@
       ]
     },
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFT_Badge_Service.sol": {
-      "lastModificationDate": 1690799512638,
-      "contentHash": "61e46bcde934dc575d73d6547df1079d",
+      "lastModificationDate": 1691860989761,
+      "contentHash": "935ad60ba61bf8d8b62bffd9b187a5e7",
       "sourceName": "contracts/NFT_Badge_Service.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -812,8 +812,8 @@
       ]
     },
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFT_Badge_Provider.sol": {
-      "lastModificationDate": 1690799510018,
-      "contentHash": "3c0f2e5d173b691764440e3a5c20163f",
+      "lastModificationDate": 1691861255642,
+      "contentHash": "bf357f0763efa69132bcf3ac59971fc2",
       "sourceName": "contracts/NFT_Badge_Provider.sol",
       "solcConfig": {
         "version": "0.8.4",

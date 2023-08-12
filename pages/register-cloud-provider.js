@@ -1,22 +1,37 @@
 import React, { useState } from 'react';
 import { Input, Button, FormControl, FormLabel, Box, Text ,Flex} from '@chakra-ui/react';
 import { create } from 'ipfs-http-client';
+import {ethers} from 'ethers'
 import { 
   NFT_MARKETPLACE_CONTRACT, 
-  NFT_BADGE_PROVIDER_CONTRACT 
+  NFT_BADGE_PROVIDER_CONTRACT,
+  contractAbi
 } from "../const/addresses";
+const Web3 = require('web3');
 import { Navbar } from '/components/Navbar'
-import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
+import {ThirdwebSDK} from "@thirdweb-dev/sdk"
+import NFT_Badge_Provider from   '../artifacts/contracts/NFT_Badge_Provider.sol/NFT_Badge_Provider.json'
+
+
+
+const fs = require("fs")
+const path = require("path")
+
 
 
 
 export default function RegisterCloudProvider() {
 
 
-  //const sdk = new ThirdwebSDK("localhost");
-  //const contract = sdk.getContract(NFT_BADGE_PROVIDER_CONTRACT, "nft-collection");
+  // Read-only mode - no need of private key
+//const sdk = new ThirdwebSDK("localhost");
+
+const sdk = new ThirdwebSDK("goerli", {
+  clientId: process.env.NEXT_PUBLIC_THIRDWEB_CLIENTID, // Use client id if using on the client side, get it from dashboard settings
+});
   
 
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
@@ -28,6 +43,8 @@ export default function RegisterCloudProvider() {
     const [formInput,updateFormInput]=useState({ cloudProviderName:'', cloudProviderMail:'', cloudProviderPictureURL:''})
     const [cloudProviderPicture, setCloudProviderPicture] = useState(null);
     const cloudProviderAddress= useAddress();
+    const signer = useSigner();
+
 
     const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
     const projectSecret=process.env.NEXT_PUBLIC_PRIVATE_KEY_IPFS_INFURA
@@ -110,11 +127,11 @@ async function uploadToIPFS(file) {
         cloudProviderAddress,cloudProviderName,cloudProviderMail,cloudProviderPictureURL
     })
 
-    const formURI=uploadToIPFS(data)
+    const formURI= await uploadToIPFS(data)
     console.log(data+"\n"+formURI)
 
-    uploadToBlockchain();
-    uploadToSPARQL();
+    uploadToBlockchain(formURI);
+    //uploadToSPARQL();
     
     
 }
@@ -170,24 +187,24 @@ async function checkIfAlreadyCloudProvider() {
 }
 
 
+async function uploadToBlockchain(URI) {
 
-async function uploadToBlockchain() {
 
-  const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
-/*
-  // Custom metadata of the NFTs you want to mint.
-const metadatas = [{
-  cloudProviderAddress: cloudProviderAddress,
-  cloudProviderName: cloudProviderName,
-  cloudProviderMail: cloudProviderMail,
-  cloudProviderPicture: cloudProviderPictureURL
-}];
+  //const contract = await sdk.getContractFromAbi(NFT_BADGE_PROVIDER_CONTRACT,contractAbi);
+ 
+  
+  let contract= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
+  console.log(contract)
+  let transaction= await contract.safeMint(Web3.utils.toChecksumAddress(cloudProviderAddress),URI)
+  let tx= await transaction.wait()
+  let event= tx.events[0]
+  let value=event.args[2]
+  let tokenId=value.toNumber()
+  console.log(event)
+  console.log(value)
+  console.log(tokenId)
 
-const tx = await contract.mintBatchTo(cloudProviderAddress, metadatas);
-const receipt = tx[0].receipt; // same transaction receipt for all minted NFTs
-const firstTokenId = tx[0].id; // token id of the first minted NFT
-const firstNFT = await tx[0].data(); // (optional) fetch details of the first minted NFT
-*/
+ 
 }
 
 async function uploadToSPARQL() {
@@ -212,7 +229,7 @@ async function uploadToSPARQL() {
     cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "".
   }
   
-`;
+`;//Aggiungi tokenUri e address
 
 const responseUpdate=clientSPARQL.query.update(insertQuery)
 console.log(responseUpdate)

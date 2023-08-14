@@ -7,7 +7,7 @@ import {
   NFT_BADGE_PROVIDER_CONTRACT,
   contractAbi
 } from "../const/addresses";
-const Web3 = require('web3');
+//const Web3 = require('web3');
 import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
@@ -95,6 +95,7 @@ const sdk = new ThirdwebSDK("goerli", {
       console.log('Cloud Provider Address:',cloudProviderAddress)
       checkIfAlreadyCloudProvider()
       
+      
 
     };
   
@@ -130,8 +131,8 @@ async function uploadToIPFS(file) {
     const formURI= await uploadToIPFS(data)
     console.log(data+"\n"+formURI)
 
-    uploadToBlockchain(formURI);
-    //uploadToSPARQL();
+    const tokenId=uploadToBlockchain(formURI);
+    //uploadToSPARQL(formURI,tokenId);
     
     
 }
@@ -195,7 +196,7 @@ async function uploadToBlockchain(URI) {
   
   let contract= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
   console.log(contract)
-  let transaction= await contract.safeMint(Web3.utils.toChecksumAddress(cloudProviderAddress),URI)
+  let transaction= await contract.safeMint(cloudProviderAddress,URI)
   let tx= await transaction.wait()
   let event= tx.events[0]
   let value=event.args[2]
@@ -203,11 +204,12 @@ async function uploadToBlockchain(URI) {
   console.log(event)
   console.log(value)
   console.log(tokenId)
+  return tokenId
 
  
 }
 
-async function uploadToSPARQL() {
+async function uploadToSPARQL(tokenURI,tokenId) {
 
   const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
 
@@ -225,11 +227,12 @@ async function uploadToSPARQL() {
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
     cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "".
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "".
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "${tokenURI}".
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasTokenID "${tokenId}".
   }
   
-`;//Aggiungi tokenUri e address
+`;
 
 const responseUpdate=clientSPARQL.query.update(insertQuery)
 console.log(responseUpdate)

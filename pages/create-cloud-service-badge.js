@@ -203,6 +203,7 @@ async function uploadToIPFS(file) {
             cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
             cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "address".
             cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "tokenURI".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "".
         }
         
       `;

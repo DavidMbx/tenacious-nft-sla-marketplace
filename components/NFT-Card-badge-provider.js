@@ -6,12 +6,17 @@ import {
 } from "../const/addresses";
 import { ThirdwebNftMedia, useContract, useValidDirectListings, useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { Box, Flex, Skeleton, Text } from "@chakra-ui/react";
+import NFT_Market from   '../artifacts/contracts/NFTMarket.sol/NFTMarket.json'
+
 
 
 
 
 export default function NFTComponentBadgeProvider({ nft }) {
-    const  {contract: marketplace, isLoading: loadingMarketplace } = useContract(NFT_MARKETPLACE_CONTRACT, "marketplace-v3");
+    
+    let marketplace = new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFT_Market.abi,signer)
+
+    
 
     const { data: directListing, isLoading: loadingDirectListing } = 
         useValidDirectListings(marketplace, {

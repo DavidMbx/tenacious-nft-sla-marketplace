@@ -1,6 +1,6 @@
 import { SimpleGrid, Skeleton, Text } from "@chakra-ui/react";
 import React from "react";
-import NFT from "./NFT";
+import NFTCardProvider from "./NFT-Card-badge-provider";
 import Link from "next/link";
 import { NFT_BADGE_PROVIDER_CONTRACT } from "../const/addresses";
 
@@ -24,14 +24,14 @@ export default function NFTGridBadgeProvider({
                             href={`/token/${NFT_BADGE_PROVIDER_CONTRACT}/${nft.metadata.id}`}
                             key={nft.metadata.id}
                         >
-                        <NFT nft={nft} />
+                        <NFTCardProvider nft={nft} />
                         </Link>
                     ) : (
                         <div
                             key={nft.metadata.id}
                             onClick={() => overrideOnclickBehavior(nft)}
                         >
-                            <NFT nft={nft} />
+                            <NFTCardProvider nft={nft} />
                         </div>
                     ))
             ) : (

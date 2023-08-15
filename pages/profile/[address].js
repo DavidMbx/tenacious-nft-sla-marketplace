@@ -17,15 +17,14 @@ export default function ProfilePage() {
     const address=useAddress();
 
 
-    const signer = useSigner();
-    let nftBadgeProviderCollection= useContract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi)
    
-    let marketplace = new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFT_Market.abi,signer)
+    const {nftBadgeProviderCollection}= useContract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi)
+   
 
-    const {data: ownedNfts, isLoading: loadingOwnedNfts} = useOwnedNFTs(
+    const {ownedNfts, loadingOwnedNfts} = useOwnedNFTs(
         nftBadgeProviderCollection,
-        router.query.address
-    );
+        address
+    )
         console.log(ownedNfts);
     return (
         <Container maxW={"1200px"} p={5}>

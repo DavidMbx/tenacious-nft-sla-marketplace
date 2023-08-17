@@ -40,7 +40,7 @@ const sdk = new ThirdwebSDK("goerli", {
 
     
 
-    const [formInput,updateFormInput]=useState({ cloudProviderName:'', cloudProviderMail:'', cloudProviderPictureURL:''})
+    const [formInput,updateFormInput]=useState({ cloudProviderName:'', cloudProviderMail:'', cloudProviderPictureURI:''})
     const [cloudProviderPicture, setCloudProviderPicture] = useState(null);
     const cloudProviderAddress= useAddress();
     const signer = useSigner();
@@ -73,8 +73,8 @@ const sdk = new ThirdwebSDK("goerli", {
                     progress: (prog) => console.log(`received: ${prog}`)
                 }
                 )
-                const url=`https://tenacious.infura-ipfs.io/${added.path}`
-                updateFormInput({...formInput,cloudProviderPictureURL: url})
+                //const url=`https://tenacious.infura-ipfs.io/${added.path}`
+                updateFormInput({...formInput,cloudProviderPictureURI: added.path})
                 setCloudProviderPicture(file)
                 
 
@@ -121,11 +121,11 @@ async function uploadToIPFS(file) {
   async function createFileJSON() {
        
 
-    const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
-    if(!cloudProviderAddress ||!cloudProviderName ||!cloudProviderMail ||!cloudProviderPictureURL  ) return  console.log(cloudProviderAddress+cloudProviderName+cloudProviderMail+cloudProviderPictureURL)
+    const {cloudProviderName,cloudProviderMail,cloudProviderPictureURI}= formInput
+    if(!cloudProviderAddress ||!cloudProviderName ||!cloudProviderMail ||!cloudProviderPictureURI  ) return  console.log(cloudProviderAddress+cloudProviderName+cloudProviderMail+cloudProviderPictureURI)
 
     const data= JSON.stringify({
-        cloudProviderAddress,cloudProviderName,cloudProviderMail,cloudProviderPictureURL
+        cloudProviderAddress,cloudProviderName,cloudProviderMail,cloudProviderPictureURI
     })
 
     const formURI= await uploadToIPFS(data)
@@ -211,7 +211,7 @@ async function uploadToBlockchain(URI) {
 
 async function uploadToSPARQL(tokenURI,tokenId) {
 
-  const {cloudProviderName,cloudProviderMail,cloudProviderPictureURL}= formInput
+  const {cloudProviderName,cloudProviderMail,cloudProviderPictureURI}= formInput
 
 
   const insertQuery = `
@@ -223,7 +223,7 @@ async function uploadToSPARQL(tokenURI,tokenId) {
     cs:${cloudProviderName.replace(/ /g, "_")} rdf:type cs:CloudProvider.
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasMail "${cloudProviderMail}".
     cs:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type cs:Picture.
-    cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURL}".
+    cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURI}".
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
     cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .

@@ -3,8 +3,8 @@ require('dotenv').config()
 
 
 const fs= require ("fs")
-const privateKey=process.env.NEXT_PUBLIC_PRIVATE_KEY_ACCOUNT;
-const projectId=process.env.NEXT_PUBLIC_PROJECT_ID;
+const privateKey=process.env.NEXT_PUBLIC_PRIVATE_KEY_INFURA;
+const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_INFURA;
 
 
 /** @type import('hardhat/config').HardhatUserConfig */

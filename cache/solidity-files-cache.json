@@ -812,8 +812,8 @@
       ]
     },
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFT_Badge_Provider.sol": {
-      "lastModificationDate": 1691861255642,
-      "contentHash": "bf357f0763efa69132bcf3ac59971fc2",
+      "lastModificationDate": 1692281103626,
+      "contentHash": "b83d85fb86c4e597d21b358a5669a2f6",
       "sourceName": "contracts/NFT_Badge_Provider.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -841,14 +841,49 @@
       "imports": [
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
-        "@openzeppelin/contracts/utils/Counters.sol",
-        "@openzeppelin/contracts/access/Ownable.sol"
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/Counters.sol"
       ],
       "versionPragmas": [
         "^0.8.4"
       ],
       "artifacts": [
         "NFT_Badge_Provider"
+      ]
+    },
+    "/Users/davidecasuccio/tenacious-nft-sla-marketplace/node_modules/@thirdweb-dev/contracts/eip/interface/IERC721Supply.sol": {
+      "lastModificationDate": 1689290277256,
+      "contentHash": "adbce4735df9fbfb62269ee21169bca8",
+      "sourceName": "@thirdweb-dev/contracts/eip/interface/IERC721Supply.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Supply"
       ]
     }
   }

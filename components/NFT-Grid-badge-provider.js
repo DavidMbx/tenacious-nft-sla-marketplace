@@ -22,8 +22,8 @@ export default function NFTGridBadgeProvider({
                 data.map((nft) => 
                     !overrideOnclickBehavior ? (
                         <Link
-                            href={`/token/${NFT_BADGE_PROVIDER_CONTRACT}/${nft.metadata.id}`}
-                            key={nft.metadata.id}
+                            href={`/token/${NFT_BADGE_PROVIDER_CONTRACT}/${nft.badgeProviderTokenId}`}
+                            key={nft.badgeProviderTokenId}
                         >
                         <NFTCardProvider nft={nft} />
                         </Link>

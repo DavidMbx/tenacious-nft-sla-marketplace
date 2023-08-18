@@ -24,7 +24,7 @@ export default function ProfilePage() {
     const userAddress=useAddress()
 
     const [nfts, setNfts]=useState([])
-    const[loadingState,setLoadingState]=useState('not-loaded')
+    const[loadingState,setLoadingState]=useState(true)
     
 
     
@@ -74,7 +74,7 @@ export default function ProfilePage() {
             console.log("Metadati degli NFT dell'utente:", items);
 
             setNfts(items)
-            setLoadingState('loaded')
+            setLoadingState(false)
 
         } catch (error) {
             console.error("Errore durante la chiamata:", error);
@@ -83,51 +83,32 @@ export default function ProfilePage() {
     }
     }
 
-    if (loadingState=='loaded'&& !nfts.length) return(
-        <h1 className="px-20 py-10 text-3xl"> Non ci sono oggetti in vendita nel Marketplace</h1>
-    
-      )
 
     return (
         <Container maxW={"1200px"} p={5}>
-            <Heading>{"Owned NFT(s)"}</Heading>
-            <Text>Browse and manage your NFTs from this collection.</Text>
+            <Flex>
+            <Heading>{"Your NFTs"}</Heading>
             <Button
+            loadingState
             onClick={loadNFTs}
+            ml={6}
             colorScheme="teal"
             borderRadius="md"
-            size="lg"
+           
             boxShadow="lg"
+            variant='outline'
           >
             Load NFTs
           </Button>
+            </Flex>
+            <Text as='b' fontSize='lg'>Virtual Appliance</Text>
+           
+          <NFTGridBadgeProvider
+                data={nfts}
+                isLoading={loadingState}
+                emptyText={"You don't own any NFTs yet from this collection."}
+            />
 
-
-          <div className="flex justify-center">
-      <div className="px-4" style={{maxWidth:'1600px'}}>
-        <div className="grid grid-cols-1 sm_grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
-        {
-          nfts.map((nft,i)=> (
-            <div key={i} className="border shadow rounded-xl overflow-hidden">
-               <img src={nft.cloudProviderPictureURI} />
-               <div className="p-4">
-                <p style={{height:'64px'}} classname="text-2xl font-semibold">{nft.cloudProviderName}</p>
-                <div style={{height:'70px',oveflow: 'hidden'}}>
-                  <p className="text-gray-400">{nft.cloudProviderMail}</p>
-                  </div>
-                  </div>
-                  <div className="p-4 bg-black">
-                  
-                </div>
-            </div>
-          ))
-        }
-
-        </div>
-      </div>
-      
-    </div>
-          
         </Container>
     )
 }

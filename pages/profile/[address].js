@@ -102,13 +102,37 @@ export default function ProfilePage() {
             Load NFTs
           </Button>
             </Flex>
-            <Text as='b' fontSize='lg'>Virtual Appliance</Text>
-           
-          <NFTGridBadgeProvider
+
+
+            <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Cloud Provider NFT Badge</Text>
+                    <NFTGridBadgeProvider
                 data={nfts}
                 isLoading={loadingState}
-                emptyText={"You don't own any NFTs yet from this collection."}
+                emptyText={"You don't own any badge as Cloud Provider"}
             />
+            </Box>
+
+            <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Cloud Service NFT Badge</Text>
+                    <NFTGridBadgeProvider
+                data={nfts}
+                isLoading={loadingState}
+                emptyText={"You don't own any Cloud Service Badge"}
+            />
+            </Box>
+
+            <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Cloud Service SLA NFT </Text>
+                    <NFTGridBadgeProvider
+                data={nfts}
+                isLoading={loadingState}
+                emptyText={"You don't own any Cloud Service SLA NFT"}
+            />
+            </Box>
+
+           
+          
 
         </Container>
     )

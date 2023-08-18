@@ -3,7 +3,6 @@ import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 import NextLink from 'next/link';
 import React, { useEffect } from 'react';
 const SparqlClient = require('sparql-http-client')
-import LogoTenacious from "../public/Tenacious_Logo_Completo.png";
 
 
 

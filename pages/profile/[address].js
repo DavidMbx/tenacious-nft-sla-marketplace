@@ -9,6 +9,7 @@ import {
 } from "../../const/addresses";
 import { useRouter } from "next/router";
 import NFTGridBadgeProvider from "../../components/NFT-Grid-badge-provider";
+
 import NFT_Badge_Provider from   '../../artifacts/contracts/NFT_Badge_Provider.sol/NFT_Badge_Provider.json'
 import NFT_Market from   '../../artifacts/contracts/NFTMarket.sol/NFTMarket.json'
 import {ethers} from 'ethers'

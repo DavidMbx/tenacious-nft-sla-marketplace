@@ -1,8 +1,9 @@
-import {Avatar,Box,Flex,Heading,Link,Text} from "@chakra-ui/react";
+import {Avatar,Box,Flex,Heading,Link,Text,Image} from "@chakra-ui/react";
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 import NextLink from 'next/link';
 import React, { useEffect } from 'react';
 const SparqlClient = require('sparql-http-client')
+import LogoTenacious from "../public/Tenacious_Logo_Completo.png";
 
 
 
@@ -80,10 +81,15 @@ export function Navbar(){
     
     
     return(
-        <Box maxW={"1200px"} m={"auto"} py={"10px"}px={"40px"}>
+        <Box maxW={"1200px"} m={"auto"} py={"10px"}px={"40px"} mt={6}>
         <Flex justifyContent={"space-between"} alignItems={"center"}>
-            <Link as={NextLink} href='/'>
-                <Heading>Tenacious Marketplace</Heading>
+            <Link as={NextLink} href='/' mr={6}>
+            <Image
+            width='400px'
+             objectFit='contain'
+            src="https://imageupload.io/ib/4lWENKf8rPeKDSU_1692366943.png"
+            alt='logoTenacious'
+              />
             </Link>
             <Flex direction={"row"}>
                 <Link as={NextLink} href='/buy' mx={2.5}>

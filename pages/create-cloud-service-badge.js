@@ -8,6 +8,10 @@ import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
+import { 
+  NFT_BADGE_SERVICE_CONTRACT
+} from "../const/addresses";
+import NFT_Badge_Service from   '../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
 
 export default function CreateCloudServiceBadge() {
 
@@ -121,18 +125,32 @@ async function uploadToIPFS(file) {
         const formURI=uploadToIPFS(data)
         console.log(data+"\n"+formURI)
     
-        uploadToBlockchain();
-        uploadToSPARQL(newName);
-        //
+        const tokenId=uploadToBlockchain();
+        uploadToSPARQL(newName,formURI,tokenId);
+        
         
         
     }
 
     async function uploadToBlockchain() {
 
+        
+  let contract= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
+  console.log(contract)
+  let transaction= await contract.safeMint(cloudProviderAddress,URI)
+  let tx= await transaction.wait()
+  let event= tx.events[0]
+  let value=event.args[2]
+  let tokenId=value.toNumber()
+  console.log(event)
+  console.log(value)
+  console.log(tokenId)
+  return tokenId
+
+
     }
 
-    async function uploadToSPARQL(cloudProviderName) {
+    async function uploadToSPARQL(cloudProviderName,tokenURI,tokenId) {
 
         const { cloudServiceType, cloudServicePricingModel, 
             cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
@@ -201,9 +219,9 @@ async function uploadToIPFS(file) {
             cs:CloudService_${cloudServiceID}  cs:offeredBy cs:${cloudProviderName}.
             cs:NFT-Badge_${cloudServiceID}  rdf:type cs:NFT-Badge .
             cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
-            cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "address".
-            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "tokenURI".
-            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "${tokenURI} ".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "${tokenId} ".
         }
         
       `;
@@ -358,9 +376,7 @@ async function uploadToIPFS(file) {
       
     };
 
-    const handleAddServiceType = () => {
-      router.push('/add-new-service-type')
-    };
+
     
 
 
@@ -397,8 +413,9 @@ async function uploadToIPFS(file) {
                       Load your Cloud Service Types
                      </Button>
 
+                     <Link  as={NextLink}  href='/add-new-service-type' >
                      <Button 
-                      onClick={handleAddServiceType}
+                     
                       mt={2}
                       colorScheme="teal"
                       variant='outline'
@@ -408,6 +425,7 @@ async function uploadToIPFS(file) {
                       >
                       Add new Cloud Service Type
                      </Button>
+                     </Link>
                    </Flex>
 
 

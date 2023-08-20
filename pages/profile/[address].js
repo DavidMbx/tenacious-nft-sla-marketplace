@@ -5,12 +5,21 @@ import { useEffect,useState } from 'react'
 import React from "react";
 import { 
     NFT_MARKETPLACE_CONTRACT, 
-    NFT_BADGE_PROVIDER_CONTRACT 
+    NFT_BADGE_PROVIDER_CONTRACT,
+    NFT_BADGE_SERVICE_CONTRACT,
+    NFT_ERC721_CONTRACT 
 } from "../../const/addresses";
+
 import { useRouter } from "next/router";
 import NFTGridBadgeProvider from "../../components/NFT-Grid-badge-provider";
-
 import NFT_Badge_Provider from   '../../artifacts/contracts/NFT_Badge_Provider.sol/NFT_Badge_Provider.json'
+
+import NFTGridBadgeService from "../../components/NFT-Grid-badge-service";
+import NFT_Badge_Service from   '../../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
+
+import NFTGridERC721SLA from "../../components/NFT-Grid-erc721-sla";
+import NFT_ERC721 from   '../../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
+
 import NFT_Market from   '../../artifacts/contracts/NFTMarket.sol/NFTMarket.json'
 import {ethers} from 'ethers'
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
@@ -24,13 +33,16 @@ export default function ProfilePage() {
     const signer = useSigner();
     const userAddress=useAddress()
 
-    const [nfts, setNfts]=useState([])
+    const [nftsProvider, setNftsProvider]=useState([])
+    const [nftsService, setNftsService]=useState([])
+    const [nftsSLA, setNftsSLA]=useState([])
     const[loadingState,setLoadingState]=useState(true)
     
 
     
     
     const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
+    const nftBadgeServiceCollection= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
     let marketplace = new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFT_Market.abi,signer)
 
 
@@ -58,10 +70,10 @@ export default function ProfilePage() {
         
     
             // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
-            const items= await Promise.all(tokenIds.map(async tokenId =>{
+            const itemsCloudProvider= await Promise.all(tokenIds.map(async tokenId =>{
                 const tokenURI = await nftBadgeProviderCollection.tokenURI(tokenId);
                 const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
-                let item={
+                let itemCloudProvider={
                     badgeProviderTokenId:tokenId.toNumber(),
                     cloudProviderAddress: response.data.cloudProviderAddress,
                     cloudProviderMail: response.data.cloudProviderMail,
@@ -69,12 +81,45 @@ export default function ProfilePage() {
                     cloudProviderPictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudProviderPictureURI,
             
                   }
-                return item
+                return itemCloudProvider
             }))
     
-            console.log("Metadati degli NFT dell'utente:", items);
+            console.log("Metadati degli NFT Provider dell'utente:", itemsCloudProvider);
 
-            setNfts(items)
+            setNftsProvider(itemsCloudProvider)
+          
+
+        } catch (error) {
+            console.error("Errore durante la chiamata:", error);
+        }
+
+
+        try {
+
+            // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
+            const tokenIds = await nftBadgeServiceCollection.getUserTokens(userAddress);
+        
+    
+            // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+            const itemsCloudService= await Promise.all(tokenIds.map(async tokenId =>{
+                const tokenURI = await nftBadgeServiceCollection.tokenURI(tokenId);
+                const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+                let itemCloudService={
+
+                    //cambiare tutto ed inserire nuove cose
+                    badgeProviderTokenId:tokenId.toNumber(),
+                    cloudProviderAddress: response.data.cloudProviderAddress,
+                    cloudProviderMail: response.data.cloudProviderMail,
+                    cloudProviderName: response.data.cloudProviderName,
+                    cloudProviderPictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudProviderPictureURI,
+            
+                  }
+                return itemCloudService
+            }))
+    
+            console.log("Metadati degli NFT Provider dell'utente:", itemsCloudProvider);
+
+            setNftsService(itemsCloudService)
             setLoadingState(false)
 
         } catch (error) {
@@ -107,7 +152,7 @@ export default function ProfilePage() {
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Text as='b' fontSize='lg'>Cloud Provider NFT Badge</Text>
                     <NFTGridBadgeProvider
-                data={nfts}
+                data={nftsProvider}
                 isLoading={loadingState}
                 emptyText={"You don't own any badge as Cloud Provider"}
             />
@@ -115,8 +160,8 @@ export default function ProfilePage() {
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Text as='b' fontSize='lg'>Cloud Service NFT Badge</Text>
-                    <NFTGridBadgeProvider
-                data={nfts}
+                    <NFTGridBadgeService
+                data={nftsService}
                 isLoading={loadingState}
                 emptyText={"You don't own any Cloud Service Badge"}
             />
@@ -124,8 +169,8 @@ export default function ProfilePage() {
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Text as='b' fontSize='lg'>Cloud Service SLA NFT </Text>
-                    <NFTGridBadgeProvider
-                data={nfts}
+                    <NFTGridERC721SLA
+                data={nftsSLA}
                 isLoading={loadingState}
                 emptyText={"You don't own any Cloud Service SLA NFT"}
             />

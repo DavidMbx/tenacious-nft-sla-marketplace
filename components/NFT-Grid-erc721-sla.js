@@ -2,7 +2,7 @@ import { SimpleGrid, Skeleton, Text } from "@chakra-ui/react";
 import React from "react";
 import Link from "next/link";
 import { NFT_ERC721_CONTRACT } from "../const/addresses";
-import NFTCardERC721 from "./NFT-Card-erc721";
+import NFTCardERC721 from "./NFT-Card-erc721-sla";
 
 
 

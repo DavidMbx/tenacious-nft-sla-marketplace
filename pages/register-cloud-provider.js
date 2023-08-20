@@ -3,9 +3,7 @@ import { Input, Button, FormControl, FormLabel, Box, Text ,Flex} from '@chakra-u
 import { create } from 'ipfs-http-client';
 import {ethers} from 'ethers'
 import { 
-  NFT_MARKETPLACE_CONTRACT, 
-  NFT_BADGE_PROVIDER_CONTRACT,
-  contractAbi
+  NFT_BADGE_PROVIDER_CONTRACT
 } from "../const/addresses";
 //const Web3 = require('web3');
 import { Navbar } from '/components/Navbar'
@@ -132,7 +130,7 @@ async function uploadToIPFS(file) {
     console.log(data+"\n"+formURI)
 
     const tokenId=uploadToBlockchain(formURI);
-    //uploadToSPARQL(formURI,tokenId);
+    uploadToSPARQL(formURI,tokenId);
     
     
 }

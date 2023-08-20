@@ -733,8 +733,8 @@
       ]
     },
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFT_Badge_Service.sol": {
-      "lastModificationDate": 1691860989761,
-      "contentHash": "935ad60ba61bf8d8b62bffd9b187a5e7",
+      "lastModificationDate": 1692380372257,
+      "contentHash": "c539d3bc2716e3256c680d65ad7cfc75",
       "sourceName": "contracts/NFT_Badge_Service.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -762,8 +762,8 @@
       "imports": [
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
-        "@openzeppelin/contracts/utils/Counters.sol",
-        "@openzeppelin/contracts/access/Ownable.sol"
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/utils/Counters.sol"
       ],
       "versionPragmas": [
         "^0.8.4"

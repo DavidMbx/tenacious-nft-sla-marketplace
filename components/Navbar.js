@@ -1,4 +1,4 @@
-import {Avatar,Box,Flex,Heading,Link,Text,Image} from "@chakra-ui/react";
+import {Avatar,Box,Flex,Heading,Link,Text,Image,Button} from "@chakra-ui/react";
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 import NextLink from 'next/link';
 import React, { useEffect } from 'react';
@@ -10,7 +10,6 @@ export function Navbar(){
 
 
     const address=useAddress();
-    
 
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
     const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
@@ -77,51 +76,58 @@ export function Navbar(){
         checkAndInsertUser();
       }, [address]);
     
-    
-    
-    return(
-        <Box maxW={"1200px"} m={"auto"} py={"10px"}px={"40px"} mt={6}>
-        <Flex justifyContent={"space-between"} alignItems={"center"}>
-            <Link as={NextLink} href='/' mr={6}>
-            <Image
-            width='400px'
-             objectFit='contain'
-            src="https://imageupload.io/ib/4lWENKf8rPeKDSU_1692366943.png"
-            alt='logoTenacious'
-              />
-            </Link>
-            <Flex direction={"row"}>
-                <Link as={NextLink} href='/buy' mx={2.5}>
-                    <Text>Buy</Text>
-                </Link>
-                <Link as={NextLink} href='/sell' mx={2.5}>
-                    <Text>Sell</Text> 
-                </Link>
-                <Link as={NextLink} href='/register-cloud-provider' mx={2.5}>
-                    <Text>Register as Cloud Provider</Text> 
-                </Link>
-                <Link as={NextLink} href='/create-cloud-service-badge' mx={2.5}>
-                    <Text>Create Cloud Service</Text> 
-                </Link>
-            </Flex>
-            <Flex dir={"row"} alignItems={"center"}>
-                <ConnectWallet/>
-                { address && (
 
-                    
-                <>
-                <Link as={NextLink} href={`/profile/${address}`}>
-                <Avatar src='https://bit.ly/broken-link' ml={"20px"}/>
-                </Link>
 
-                {
-                   
-                }
-                    
-                </>
-                  )}
-            </Flex>
-        </Flex>
-    </Box>
+  return (
+<Box maxW={"1200px"} m={"auto"} py={"10px"}px={"40px"} mt={6}>
+<Flex justifyContent={"space-between"}  alignItems={"center"}>
+    <Link as={NextLink} href='/' mr={6}>
+    <Image
+    width='400px'
+     objectFit='contain'
+    src="https://imageupload.io/ib/4lWENKf8rPeKDSU_1692366943.png"
+    alt='logoTenacious'
+      />
+    </Link>
+    <Flex direction={"row"}>
+    <Link as={NextLink} href='/buy' >
+    <Button colorScheme='messenger' variant='ghost' >
+    Buy
+  </Button>
+  </Link>
+
+  <Link as={NextLink} href='/register-cloud-provider' >
+    <Button colorScheme='messenger' variant='ghost' >
+    Register as Cloud Provider
+  </Button>
+  </Link>
+
+  <Link  as={NextLink}  href='/create-cloud-service-badge' >
+    <Button colorScheme='messenger' variant='ghost' >
+    Create Cloud Service
+  </Button>
+  </Link>
+     
+ 
+    </Flex>
+    <Flex dir={"row"} alignItems={"center"} >
+        <ConnectWallet/>
+        { address && (
+
+            
+        <>
+        <Link as={NextLink} href={`/profile/${address}`}>
+        <Avatar src='https://bit.ly/broken-link' ml={"20px"}/>
+        </Link>
+
+        {
+           
+        }
+            
+        </>
+          )}
+    </Flex>
+</Flex>
+</Box>
     )
-};
+              }

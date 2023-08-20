@@ -2,7 +2,7 @@ import { ThirdwebProvider } from "@thirdweb-dev/react";
 import "../styles/globals.css";
 import { ChakraProvider } from "@chakra-ui/react";
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
-import { Navbar } from "../components/Navbar";
+import { Navbar}   from "../components/Navbar";
 
 
 
@@ -17,7 +17,7 @@ function MyApp({ Component, pageProps }) {
     
     <ThirdwebProvider activeChain={activeChain}>
       <ChakraProvider> 
-        <Navbar/>
+      <Navbar/>
       <Component {...pageProps} />
       </ChakraProvider>
     </ThirdwebProvider>

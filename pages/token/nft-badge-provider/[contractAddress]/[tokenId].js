@@ -7,17 +7,20 @@ import {
     NFT_BADGE_PROVIDER_CONTRACT,
     NFT_BADGE_SERVICE_CONTRACT,
     NFT_ERC721_CONTRACT 
-} from "../../const/addresses";
+} from "../../../../const/addresses";
+import NFT_Badge_Provider from   '../../../../artifacts/contracts/NFT_Badge_Provider.sol/NFT_Badge_Provider.json'
 import { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import {ethers} from 'ethers'
 const axios = require('axios');
+import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
+
+
 
 
 export default function TokenPage({ nft, contractMetadata }) {
 
-
-        const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
+       
 
     
     
@@ -142,16 +145,26 @@ export default function TokenPage({ nft, contractMetadata }) {
 
 export const getStaticProps = async (context) => {
     const tokenId = context.params?.tokenId 
-  
-    const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
 
-  
-    const nft = await contract.erc721.get(tokenId);
+    const provider= new ethers.providers.JsonRpcProvider()
+   const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,provider)
+
+    const tokenURI = await nftBadgeProviderCollection.tokenURI(tokenId);
+    const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+    let itemCloudProvider={
+        badgeProviderTokenId:tokenId.toNumber(),
+        cloudProviderAddress: response.data.cloudProviderAddress,
+        cloudProviderMail: response.data.cloudProviderMail,
+        cloudProviderName: response.data.cloudProviderName,
+        cloudProviderPictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudProviderPictureURI,
+
+      }
+    const nft = itemCloudProvider
   
     let contractMetadata;
   
     try {
-      contractMetadata = await contract.metadata.get();
+      contractMetadata = await nftBadgeProviderCollection.metadata.get();
     } catch (e) {}
   
     return {
@@ -163,14 +176,26 @@ export const getStaticProps = async (context) => {
     };
   };
 
+  
   export const getStaticPaths = async () => {
    
+    const provider= new ethers.providers.JsonRpcProvider()
+    const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,provider)
   
-    const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
+    const nfts = await nftBadgeProviderCollection.getAll();
+  
+    const myContract = new web3.eth.Contract(abiJson, contractAddress);
+myContract.getPastEvents('Transfer', {
+    filter: {
+        _from: '0x0000000000000000000000000000000000000000'
+    },
+    fromBlock: 0
+}).then((events) => {
+    for (let event of events) {
+        console.log(event.returnValues._tokenId);
+    }
+});
 
-  
-    const nfts = await contract.erc721.getAll();
-  
     const paths = nfts.map((nft) => {
       return {
         params: {
@@ -184,4 +209,6 @@ export const getStaticProps = async (context) => {
       paths,
       fallback: "blocking", // can also be true or 'blocking'
     };
+    
   };
+  

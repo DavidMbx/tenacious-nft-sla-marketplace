@@ -67,6 +67,7 @@ export default function ProfilePage() {
 
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
             const tokenIds = await nftBadgeProviderCollection.getUserTokens(userAddress);
+            console.log(tokenIds)
         
     
             // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token

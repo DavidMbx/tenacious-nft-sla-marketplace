@@ -107,11 +107,16 @@ export default function ProfilePage() {
                 let itemCloudService={
 
                     //cambiare tutto ed inserire nuove cose
-                    badgeProviderTokenId:tokenId.toNumber(),
-                    cloudProviderAddress: response.data.cloudProviderAddress,
-                    cloudProviderMail: response.data.cloudProviderMail,
-                    cloudProviderName: response.data.cloudProviderName,
-                    cloudProviderPictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudProviderPictureURI,
+                    badgeServiceTokenId:tokenId.toNumber(),
+                    cloudServiceType: response.data.cloudServiceType,
+                    memory: response.data.memory,
+                    storage: response.data.storage,
+                    region: response.data.region,
+                    cpuSpeed: response.data.cpuSpeed,
+                    cpuCores: response.data.cpuCores,
+                    cloudServicePricingModel: response.data.cloudServicePricingModel,
+                    cloudServicePrice: response.data.cloudServicePrice,
+                    cloudServicePictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudServicePictureURI,
             
                   }
                 return itemCloudService

@@ -25,6 +25,7 @@ export default function NFTComponentBadgeProvider({ nft }) {
             <Text fontSize={"small"} color={"darkgray"}>Cloud Provider ID #{nft.badgeProviderTokenId}</Text>
             <Text fontWeight={"bold"}>{nft.cloudProviderName}</Text>
             <Text fontSize={"medium"} >{nft.cloudProviderMail}</Text>
+            <Text fontSize={"medium"} >{nft.cloudProviderAddress}</Text>
 
             <Box>
       

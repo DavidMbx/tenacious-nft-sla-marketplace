@@ -103,7 +103,7 @@ export function Navbar(){
   </Link>
 
   <Link  as={NextLink}  href='/create-cloud-service-badge' >
-    <Button colorScheme='messenger' variant='ghost' >
+    <Button colorScheme='messenger' variant='ghost' mr={2} >
     Create Cloud Service
   </Button>
   </Link>

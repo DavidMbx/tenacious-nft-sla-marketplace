@@ -33,7 +33,7 @@ export default function CreateCloudServiceBadge() {
       const [formInput,updateFormInput]=useState({ cloudServiceType:'', cloudServicePricingModel:'', 
       cloudServicePrice:'',cloudServiceAvailabilityTarget:'',cloudServiceAvailabilityPenalty:'',
       cloudServiceErrorRateTarget:'',cloudServiceErrorRatePenalty:'',
-      cloudServiceResponseTimeTarget:'',cloudServiceResponseTimePenalty:'',cloudServicePictureURL:''})
+      cloudServiceResponseTimeTarget:'',cloudServiceResponseTimePenalty:'',cloudServicePictureURI:''})
 
       const[formVirtualAppliance, updateFormVirtualAppliance]=useState({ memory:'', storage:'', 
       version:'',region:'',cpuSpeed:'',
@@ -85,7 +85,7 @@ async function uploadToIPFS(file) {
                 }
                 )
                 const url=`https://tenacious.infura-ipfs.io/${added.path}`
-                updateFormInput({...formInput,cloudServicePictureURL: url})
+                updateFormInput({...formInput,cloudServicePictureURI: added.path})
                 setCloudServicePicture(file)
                 
 
@@ -99,7 +99,7 @@ async function uploadToIPFS(file) {
         const { cloudServiceType, cloudServicePricingModel, 
         cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
         cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
-        cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURL}= formInput
+        cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURI}= formInput
 
         const{ memory, storage, 
           version,region,cpuSpeed,
@@ -109,7 +109,7 @@ async function uploadToIPFS(file) {
         if(!cloudServiceType||!cloudServicePricingModel ||!cloudServicePrice
             ||!cloudServiceAvailabilityTarget  ||!cloudServiceAvailabilityPenalty 
             ||!cloudServiceErrorRateTarget ||! cloudServiceErrorRatePenalty ||! cloudServiceResponseTimeTarget
-            ||! cloudServiceResponseTimePenalty||! cloudServicePictureURL ||! cloudProviderAddress
+            ||! cloudServiceResponseTimePenalty||! cloudServicePictureURI ||! cloudProviderAddress
             ||! memory ||! storage ||! version ||! region ||! cpuSpeed ||! cpuCores ||! architecture
              ) return  
              console.log("Errore, manca un campo")
@@ -120,7 +120,7 @@ async function uploadToIPFS(file) {
             cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
             cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
             cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty,
-            cloudServicePictureURL
+            cloudServicePictureURI
         })
         const formURI=uploadToIPFS(data)
         console.log(data+"\n"+formURI)
@@ -155,7 +155,7 @@ async function uploadToIPFS(file) {
         const { cloudServiceType, cloudServicePricingModel, 
             cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
             cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
-            cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURL}= formInput
+            cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURI}= formInput
 
 
             const{ memory, storage, 
@@ -166,7 +166,7 @@ async function uploadToIPFS(file) {
            
 
         //Utilizzo come id quello della picture uploadata su IPFS
-        const cloudServiceID=cloudServicePictureURL.slice(33) 
+        const cloudServiceID=cloudServicePictureURI 
         console.log(formInput)
         console.log(formVirtualAppliance)
         console.log(cloudServiceID)

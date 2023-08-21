@@ -17,11 +17,16 @@ export default function NFTComponentBadgeService({ nft }) {
     return (
         <Flex direction={"column"} backgroundColor={"#EEE"} justifyContent={"center"} padding={"2.5"} borderRadius={"6px"} borderColor={"lightgray"} borderWidth={1}>
         <Box borderRadius={"4px"} overflow={"hidden"}>
-        <img src={nft.cloudProviderPictureURI}  height={"100%"} width={"100%"} />
+        <img src={nft.cloudServicePictureURI}  height={"100%"} width={"100%"} />
         </Box>
-        <Text fontSize={"small"} color={"darkgray"}>Cloud Service ID #{nft.badgeProviderTokenId}</Text>
-        <Text fontWeight={"bold"}>{nft.cloudProviderName}</Text>
-        <Text fontSize={"medium"} >{nft.cloudProviderMail}</Text>
+        <Text fontSize={"small"} color={"darkgray"}>Cloud Service ID #{nft.badgeServiceTokenId}</Text>
+        <Text fontWeight={"bold"}>{nft.cloudServiceType}</Text>
+        <Text fontSize={"small"} >Memory: {nft.memory}, Storage: {nft.storage}</Text>
+        <Text fontSize={"small"} >CPU Speed: {nft.cpuSpeed}, Core: {nft.cpuCores}</Text>
+        <Text fontSize={"small"} >Region: {nft.region} </Text>
+        <Text fontSize={"medium"} >{nft.cloudServicePricingModel}</Text>
+        <Text fontWeight={"bold"}>{nft.cloudServicePrice}</Text>
+
 
         <Box>
   

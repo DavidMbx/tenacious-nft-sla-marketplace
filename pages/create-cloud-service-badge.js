@@ -5,7 +5,8 @@ import { useRouter } from 'next/router'
 import NextLink from 'next/link';
 import { create } from 'ipfs-http-client';
 import { Navbar } from '/components/Navbar'
-import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet,useAddress,useSigner } from "@thirdweb-dev/react";
+import {ethers} from 'ethers'
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
 import { 
@@ -17,6 +18,7 @@ export default function CreateCloudServiceBadge() {
 
 
   const router = useRouter()
+  const signer = useSigner();
 
 
    // Stato per memorizzare le opzioni del Select
@@ -125,14 +127,14 @@ async function uploadToIPFS(file) {
         const formURI=uploadToIPFS(data)
         console.log(data+"\n"+formURI)
     
-        const tokenId=uploadToBlockchain();
+        const tokenId=await uploadToBlockchain(formURI);
         uploadToSPARQL(newName,formURI,tokenId);
         
         
         
     }
 
-    async function uploadToBlockchain() {
+    async function uploadToBlockchain(URI) {
 
         
   let contract= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
@@ -215,11 +217,12 @@ async function uploadToIPFS(file) {
             cs:VirtualAppliance_${cloudServiceID} cs:hasRegion cs:${region}.
             cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
             cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
-            cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURL} " .
+            cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURI} " .
             cs:CloudService_${cloudServiceID}  cs:offeredBy cs:${cloudProviderName}.
             cs:NFT-Badge_${cloudServiceID}  rdf:type cs:NFT-Badge .
             cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
             cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasOwner cs:Address_${cloudProviderAddress} .
             cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "${tokenURI} ".
             cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "${tokenId} ".
         }

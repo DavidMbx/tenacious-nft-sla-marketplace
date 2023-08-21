@@ -5,7 +5,7 @@ import {
     NFT_BADGE_SERVICE_CONTRACT 
 } from "../const/addresses";
 import { ThirdwebNftMedia, useContract, useValidDirectListings, useValidEnglishAuctions } from "@thirdweb-dev/react";
-import { Box, Flex, Skeleton, Text } from "@chakra-ui/react";
+import { Box, Flex, Skeleton, Text ,Image} from "@chakra-ui/react";
 
 
 
@@ -16,16 +16,16 @@ export default function NFTComponentBadgeService({ nft }) {
 
     return (
         <Flex direction={"column"} backgroundColor={"#EEE"} justifyContent={"center"} padding={"2.5"} borderRadius={"6px"} borderColor={"lightgray"} borderWidth={1}>
-        <Box borderRadius={"4px"} overflow={"hidden"}>
-        <img src={nft.cloudServicePictureURI}  height={"100%"} width={"100%"} />
+        <Box  borderRadius={"4px"}  overflow={"hidden"} height="200px"  >
+        <Image src={nft.cloudServicePictureURI} height={"100%"} width={"100%"} objectFit='contain'  />
         </Box>
-        <Text fontSize={"small"} color={"darkgray"}>Cloud Service ID #{nft.badgeServiceTokenId}</Text>
-        <Text fontWeight={"bold"}>{nft.cloudServiceType}</Text>
-        <Text fontSize={"small"} >Memory: {nft.memory}, Storage: {nft.storage}</Text>
-        <Text fontSize={"small"} >CPU Speed: {nft.cpuSpeed}, Core: {nft.cpuCores}</Text>
+        <Text fontSize={"small"} color={"darkgray"} mt={2}>Cloud Service ID #{nft.badgeServiceTokenId}</Text>
+        <Text fontWeight={"bold"}>{nft.cloudServiceType.replace('_',' ')}</Text>
+        <Text fontSize={"small"} mt={2} >Memory: {nft.memory} GB, Storage: {nft.storage} GB</Text>
+        <Text fontSize={"small"} >CPU Speed: {nft.cpuSpeed} GHz, Core: {nft.cpuCores}</Text>
         <Text fontSize={"small"} >Region: {nft.region} </Text>
-        <Text fontSize={"medium"} >{nft.cloudServicePricingModel}</Text>
-        <Text fontWeight={"bold"}>{nft.cloudServicePrice}</Text>
+        <Text fontSize={"small"} >Pricing Model: {nft.cloudServicePricingModel}</Text>
+        <Text fontWeight={"bold"} mt={4}>{nft.cloudServicePrice} ETH per Hour</Text>
 
 
         <Box>

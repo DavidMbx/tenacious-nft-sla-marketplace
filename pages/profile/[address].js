@@ -122,8 +122,7 @@ export default function ProfilePage() {
                 return itemCloudService
             }))
     
-            console.log("Metadati degli NFT Provider dell'utente:", itemsCloudProvider);
-
+            console.log("Metadati degli NFT Provider dell'utente:", itemsCloudService);
             setNftsService(itemsCloudService)
             setLoadingState(false)
 
@@ -155,7 +154,7 @@ export default function ProfilePage() {
 
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-                    <Text as='b' fontSize='lg'>Cloud Provider NFT Badge</Text>
+                    <Text as='b' fontSize='lg'>Cloud Provider Badge</Text>
                     <NFTGridBadgeProvider
                 data={nftsProvider}
                 isLoading={loadingState}
@@ -164,7 +163,7 @@ export default function ProfilePage() {
             </Box>
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-                    <Text as='b' fontSize='lg'>Cloud Service NFT Badge</Text>
+                    <Text as='b' fontSize='lg'>Cloud Service Badge </Text>
                     <NFTGridBadgeService
                 data={nftsService}
                 isLoading={loadingState}
@@ -173,7 +172,7 @@ export default function ProfilePage() {
             </Box>
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-                    <Text as='b' fontSize='lg'>Cloud Service SLA NFT </Text>
+                    <Text as='b' fontSize='lg'>Cloud Service SLA </Text>
                     <NFTGridERC721SLA
                 data={nftsSLA}
                 isLoading={loadingState}

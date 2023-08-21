@@ -22,7 +22,7 @@ export default function NFTGridBadgeService({
             data.map((nft) => 
                 !overrideOnclickBehavior ? (
                     <Link
-                        href={`/token/${NFT_BADGE_SERVICE_CONTRACT}/${nft.badgeServiceTokenId}`}
+                        href={`/token/nft-badge-service/${NFT_BADGE_SERVICE_CONTRACT}/${nft.badgeServiceTokenId}`}
                         key={nft.badgeServiceTokenId}
                     >
                     <NFTCardService nft={nft} />

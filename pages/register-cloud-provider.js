@@ -129,7 +129,7 @@ async function uploadToIPFS(file) {
     const formURI= await uploadToIPFS(data)
     console.log(data+"\n"+formURI)
 
-    const tokenId=uploadToBlockchain(formURI);
+    const tokenId= await uploadToBlockchain(formURI);
     uploadToSPARQL(formURI,tokenId);
     
     
@@ -224,6 +224,7 @@ async function uploadToSPARQL(tokenURI,tokenId) {
     cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURI}".
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
     cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
+    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")}  rdf:type cs:NFT-Badge .
     cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
     cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "${tokenURI}".
     cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".

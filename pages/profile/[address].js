@@ -1,4 +1,4 @@
-import { Container, Heading, Text } from "@chakra-ui/react";
+import { Container, Heading, Text ,Image} from "@chakra-ui/react";
 import { useContract, useOwnedNFTs, useNFT } from "@thirdweb-dev/react";
 import { Input, Button, FormControl, FormLabel, Box ,Flex} from '@chakra-ui/react';
 import { useEffect,useState } from 'react'
@@ -107,7 +107,7 @@ export default function ProfilePage() {
                 const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
                 let itemCloudService={
 
-                    //cambiare tutto ed inserire nuove cose
+                    
                     badgeServiceTokenId:tokenId.toNumber(),
                     cloudServiceType: response.data.cloudServiceType,
                     memory: response.data.memory,
@@ -155,7 +155,16 @@ export default function ProfilePage() {
 
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-                    <Text as='b' fontSize='lg'>Cloud Provider Badge</Text>
+            <Flex alignItems={"center"}>
+                            <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
+                                <Image
+                                    src={"https://imageupload.io/ib/S2StK64vxTX544v_1692715755.png"}
+                                    height="32px"
+                                    width="32px"
+                                />
+                            </Box>
+                            <Text fontWeight={"bold"}>Cloud Provider Badge NFT</Text>
+                        </Flex>
                     <NFTGridBadgeProvider
                 data={nftsProvider}
                 isLoading={loadingState}
@@ -164,7 +173,16 @@ export default function ProfilePage() {
             </Box>
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-                    <Text as='b' fontSize='lg'>Cloud Service Badge </Text>
+            <Flex alignItems={"center"}>
+                            <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
+                                <Image
+                                    src={"https://imageupload.io/ib/9CgNf9vqyjOab0q_1692719074.png"}
+                                    height="32px"
+                                    width="32px"
+                                />
+                            </Box>
+                            <Text fontWeight={"bold"}>Cloud Service Badge NFT</Text>
+                        </Flex>
                     <NFTGridBadgeService
                 data={nftsService}
                 isLoading={loadingState}
@@ -173,7 +191,16 @@ export default function ProfilePage() {
             </Box>
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-                    <Text as='b' fontSize='lg'>Cloud Service SLA </Text>
+            <Flex alignItems={"center"}>
+                            <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
+                                <Image
+                                    src={"https://imageupload.io/ib/3cCSQgrtrs0XR6r_1692719274.png"}
+                                    height="32px"
+                                    width="32px"
+                                />
+                            </Box>
+                            <Text fontWeight={"bold"}>Cloud Service SLA NFT</Text>
+                        </Flex>
                     <NFTGridERC721SLA
                 data={nftsSLA}
                 isLoading={loadingState}

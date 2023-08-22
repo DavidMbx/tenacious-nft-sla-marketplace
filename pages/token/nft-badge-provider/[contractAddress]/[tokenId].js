@@ -1,4 +1,4 @@
-import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text } from "@chakra-ui/react";
+import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image} from "@chakra-ui/react";
 import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
 import React, { useState } from "react";
@@ -18,9 +18,8 @@ import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 
 
 
-export default function TokenPage({ nft, contractMetadata }) {
+export default function TokenPageProvider({ nft, contractMetadata }) {
 
-       
 
     
     
@@ -28,30 +27,49 @@ export default function TokenPage({ nft, contractMetadata }) {
         <Container maxW={"1200px"} p={5} my={5}>
             <SimpleGrid columns={2} spacing={6}>
                 <Stack spacing={"20px"}>
-                    <Box borderRadius={"6px"} overflow={"hidden"}>
-                        <Skeleton isLoaded={!loadingMarketplace && !loadingDirectListing}>
-                            <ThirdwebNftMedia
-                                metadata={nft.metadata}
-                                width="100%"
-                                height="100%"
-                            />
+                <Flex borderWidth={1}  borderRadius={"4px"}  width="100%" height="500px"  
+            justifyContent="center" >
+                        <Skeleton isLoaded={true} >
+                        <Image src={nft.cloudProviderPictureURI}  height={"100%"} width={"100%"} objectFit='contain'  alignItems="center"
+            justifyContent="center" />
                         </Skeleton>
-                    </Box>
+                    </Flex>
+                    
                     <Box>
-                        <Text fontWeight={"bold"}>Description:</Text>
-                        <Text>{nft.metadata.description}</Text>
-                    </Box>
-                    <Box>
-                        <Text fontWeight={"bold"}>Traits:</Text>
-                        <SimpleGrid columns={2} spacing={4}>
-                        {Object.entries(nft?.metadata?.attributes || {}).map(
-                        ([key, value]) => (
-                            <Flex key={key} direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
-                                <Text fontSize={"small"}>{value.trait_type}</Text>
-                                <Text fontSize={"small"} fontWeight={"bold"}>{value.value}</Text>
-                            </Flex>
-                        )
-                        )}
+                        <Text fontWeight={"bold"}>Attributes:</Text>
+                        <SimpleGrid columns={2} spacing={4} mt={3}>
+                     
+                            <Box direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token ID</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.badgeProviderTokenId}</Text>
+                            </Box>
+                         
+                            <Box key='ciao' direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Name</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudProviderName}</Text>
+                            </Box>
+
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Mail</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudProviderMail}</Text>
+                            </Box>
+                            
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Picture URI</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.cloudProviderPictureURI.replace('https://ipfs.io/ipfs/','')}</Text>
+                            </Box>
+
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token URI</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.tokenURI}</Text>
+                            </Box>
+
+
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"} overflow='auto'>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Contract Address</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{NFT_BADGE_PROVIDER_CONTRACT}</Text>
+                            </Box>
+                       
                         </SimpleGrid>
                     </Box>
                 </Stack>
@@ -60,82 +78,40 @@ export default function TokenPage({ nft, contractMetadata }) {
                     {contractMetadata && (
                         <Flex alignItems={"center"}>
                             <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
-                                <MediaRenderer
-                                    src={contractMetadata.image}
+                                <Image
+                                    src={"https://imageupload.io/ib/S2StK64vxTX544v_1692715755.png"}
                                     height="32px"
                                     width="32px"
                                 />
                             </Box>
-                            <Text fontWeight={"bold"}>{contractMetadata.name}</Text>
+                            <Text fontWeight={"bold"}>Cloud Provider Badge NFT</Text>
                         </Flex>
                     )}
                     <Box mx={2.5}>
-                        <Text fontSize={"4xl"} fontWeight={"bold"}>{nft.metadata.name}</Text>
+                        <Text fontSize={"4xl"} fontWeight={"bold"}>{nft.cloudProviderName}</Text>
                         <Link
-                            href={`/profile/${nft.owner}`}
+                            href={`/profile/${nft.cloudProviderAddress}`}
                         >
                             <Flex direction={"row"} alignItems={"center"}>
                                 <Avatar  src='https://bit.ly/broken-link' h={"24px"} w={"24px"} mr={"10px"}/>
-                                <Text fontSize={"small"}>{nft.owner.slice(0,6)}...{nft.owner.slice(-4)}</Text>
+                                <Text fontSize={"small"}>{nft.cloudProviderAddress.slice(0,6)}...{nft.cloudProviderAddress.slice(-4)}</Text>
                             </Flex>
                         </Link>
                     </Box>
                     
                     <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
                         <Text color={"darkgray"}>Price:</Text>
-                        <Skeleton isLoaded={!loadingMarketplace && !loadingDirectListing}>
-                            {directListing && directListing[0] ? (
-                                <Text fontSize={"3xl"} fontWeight={"bold"}>
-                                    {directListing[0]?.currencyValuePerToken.displayValue}
-                                    {" " + directListing[0]?.currencyValuePerToken.symbol}
-                                </Text>
-                            ) : auctionListing && auctionListing[0] ? (
-                                <Text fontSize={"3xl"} fontWeight={"bold"}>
-                                    {auctionListing[0]?.buyoutCurrencyValue.displayValue}
-                                    {" " + auctionListing[0]?.buyoutCurrencyValue.symbol}
-                                </Text>
-                            ) : (
-                                <Text fontSize={"3xl"} fontWeight={"bold"}>Not for sale</Text>
-                            )}
+                        <Skeleton isLoaded={true}>
+                  
+                                <Text fontSize={"xl"} fontWeight={"bold"}>
+                                    This type of NFT is a Badge: it cannot be sold or transferred </Text>
+                           
                         </Skeleton>
-                        <Skeleton isLoaded={!loadingAuction}>
-                            {auctionListing && auctionListing[0] && (
-                                <Flex direction={"column"}>
-                                    <Text color={"darkgray"}>Bids starting from</Text>
-                                <Text fontSize={"3xl"} fontWeight={"bold"}>
-                                    {auctionListing[0]?.minimumBidCurrencyValue.displayValue}
-                                    {" " + auctionListing[0]?.minimumBidCurrencyValue.symbol}
-                                </Text>
-                                <Text></Text>
-                                </Flex>
-                            )}
-                        </Skeleton>
+               
                     </Stack>
-                    <Skeleton isLoaded={!loadingMarketplace || !loadingDirectListing || !loadingAuction}>
-                        <Stack spacing={5}>
-                            <Web3Button
-                                contractAddress={MARKETPLACE_ADDRESS}
-                                action={async () => buyListing()}
-                                isDisabled={(!auctionListing || !auctionListing[0]) && (!directListing || !directListing[0])}
-                            >Buy at asking price</Web3Button>
-                            <Text textAlign={"center"}>or</Text>
-                            <Flex direction={"column"}>
-                                <Input
-                                    mb={5}
-                                    defaultValue={
-                                        auctionListing?.[0]?.minimumBidCurrencyValue?.displayValue || 0
-                                    }
-                                    type={"number"}
-                                    onChange={(e) => setBidValue(e.target.value)}
-                                />
-                                <Web3Button
-                                    contractAddress={MARKETPLACE_ADDRESS}
-                                    action={async () => await createBidOffer()}
-                                    isDisabled={!auctionListing || !auctionListing[0]}
-                                >Place Bid</Web3Button>
-                            </Flex>
-                        </Stack>
-                    </Skeleton>
+                   
+
+      
                 </Stack>
             </SimpleGrid>
             
@@ -152,7 +128,8 @@ export const getStaticProps = async (context) => {
     const tokenURI = await nftBadgeProviderCollection.tokenURI(tokenId);
     const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
     let itemCloudProvider={
-        badgeProviderTokenId:tokenId.toNumber(),
+        tokenURI:tokenURI,
+        badgeProviderTokenId:tokenId,
         cloudProviderAddress: response.data.cloudProviderAddress,
         cloudProviderMail: response.data.cloudProviderMail,
         cloudProviderName: response.data.cloudProviderName,
@@ -164,7 +141,8 @@ export const getStaticProps = async (context) => {
     let contractMetadata;
   
     try {
-      contractMetadata = await nftBadgeProviderCollection.metadata.get();
+      contractMetadata = nftBadgeProviderCollection.address;
+      
     } catch (e) {}
   
     return {
@@ -182,25 +160,32 @@ export const getStaticProps = async (context) => {
     const provider= new ethers.providers.JsonRpcProvider()
     const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,provider)
   
-    const nfts = await nftBadgeProviderCollection.getAll();
+    const tokenIds=[]
   
-    const myContract = new web3.eth.Contract(abiJson, contractAddress);
-myContract.getPastEvents('Transfer', {
-    filter: {
-        _from: '0x0000000000000000000000000000000000000000'
-    },
-    fromBlock: 0
-}).then((events) => {
-    for (let event of events) {
-        console.log(event.returnValues._tokenId);
-    }
-});
+    const events = await nftBadgeProviderCollection.queryFilter('Transfer', 0);
 
-    const paths = nfts.map((nft) => {
+    console.log(events);
+
+ // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+ const itemsCloudProvider= await Promise.all(tokenIds.map(async tokenId =>{
+    const tokenURI = await nftBadgeProviderCollection.tokenURI(tokenId);
+    const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+    let itemCloudProvider={
+        badgeProviderTokenId:tokenURI,
+        cloudProviderAddress: response.data.cloudProviderAddress,
+        cloudProviderMail: response.data.cloudProviderMail,
+        cloudProviderName: response.data.cloudProviderName,
+        cloudProviderPictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudProviderPictureURI,
+
+      }
+    return itemCloudProvider
+}))
+
+    const paths = itemsCloudProvider.map((nft) => {
       return {
         params: {
-          contractAddress: NFT_COLLECTION_ADDRESS,
-          tokenId: nft.metadata.id,
+          contractAddress: NFT_BADGE_PROVIDER_CONTRACT,
+          tokenId: nft.badgeProviderTokenId,
         },
       };
     });

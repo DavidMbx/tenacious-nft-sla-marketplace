@@ -1,7 +1,8 @@
-import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image} from "@chakra-ui/react";
+import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image,Button} from "@chakra-ui/react";
 import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
 import React, { useState } from "react";
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon } from '@chakra-ui/icons'
 import { 
     NFT_MARKETPLACE_CONTRACT, 
     NFT_BADGE_PROVIDER_CONTRACT,
@@ -20,7 +21,8 @@ import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 
 export default function TokenPageProvider({ nft, contractMetadata }) {
 
-
+    const address=useAddress()
+    
     
     
     return (
@@ -53,23 +55,29 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
                                 <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Mail</Text>
                                 <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudProviderMail}</Text>
                             </Box>
-                            
-                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
-                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Picture URI</Text>
-                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.cloudProviderPictureURI.replace('https://ipfs.io/ipfs/','')}</Text>
-                            </Box>
-
-                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
-                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token URI</Text>
-                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.tokenURI}</Text>
-                            </Box>
-
 
                             <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"} overflow='auto'>
                                 <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Contract Address</Text>
                                 <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{NFT_BADGE_PROVIDER_CONTRACT}</Text>
                             </Box>
                        
+                            
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                            <Link href={nft.cloudProviderPictureURI} isExternal>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Picture URI <ExternalLinkIcon mx='2px' />  </Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.cloudProviderPictureURI.replace('https://ipfs.io/ipfs/','')}</Text>
+                                </Link>
+                            </Box>
+
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                            <Link href={`https://ipfs.io/ipfs/${nft.tokenURI}`} isExternal>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token URI <ExternalLinkIcon mx='2px' />  </Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.tokenURI}</Text>
+                                </Link>
+                            </Box>
+
+
+                         
                         </SimpleGrid>
                     </Box>
                 </Stack>
@@ -103,13 +111,51 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
                         <Text color={"darkgray"}>Price:</Text>
                         <Skeleton isLoaded={true}>
                   
-                                <Text fontSize={"xl"} fontWeight={"bold"}>
-                                    This type of NFT is a Badge: it cannot be sold or transferred </Text>
+                        <Text fontSize={"md"} fontWeight={"bold"} mt={5}>
+                                    This type of NFT is a Badge, it cannot be sold or transferred but you can: </Text>
                            
                         </Skeleton>
                
                     </Stack>
-                   
+
+
+                                        
+                    { address==nft.cloudProviderAddress ? (
+
+                    <Flex justifyContent="center" alignItems="center">
+
+                    
+                    <Button
+                    leftIcon={<EditIcon />}
+                    mr={4}
+                    mt={2}
+                    colorScheme="messenger"
+                    borderRadius="md"
+                    size='lg'
+                    boxShadow="lg"
+                    >
+                    Update Cloud Provider
+                    </Button>
+
+                    
+                    <Button 
+                    leftIcon={<DeleteIcon />}
+                    mt={2}
+                    colorScheme="red"
+                    borderRadius="md"
+                    size='lg'
+                    boxShadow="lg"
+                    >
+                    Delete Cloud Provider
+                    </Button>
+
+
+                    </Flex>
+
+
+                    ) :(
+                    <></>
+                    ) }
 
       
                 </Stack>

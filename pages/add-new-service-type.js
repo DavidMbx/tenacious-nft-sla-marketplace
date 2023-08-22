@@ -5,6 +5,7 @@ import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
 
 
 
@@ -222,6 +223,7 @@ const handleAddNewServiceType= () => {
 
                     <Button
                       onClick={createOptionsCategory}
+                      leftIcon={<RepeatIcon />}
                       mt={2}
                       mr={2}
                       colorScheme="teal"
@@ -243,8 +245,9 @@ const handleAddNewServiceType= () => {
     
               <Button
                 onClick={handleAddNewServiceType}
+                leftIcon={<AddIcon />}
                 mt={6}
-                colorScheme="teal"
+                colorScheme="green"
                 borderRadius="md"
                 size="lg"
                 boxShadow="lg"

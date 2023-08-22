@@ -1,6 +1,10 @@
-import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image,Button} from "@chakra-ui/react";
-import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, useValidEnglishAuctions } from "@thirdweb-dev/react";
+import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image,Button,DatePicker,
+    FormLabel,NumberInput,NumberInputField,NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper, FormControl} from "@chakra-ui/react";
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,TriangleDownIcon } from '@chakra-ui/icons'
+import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, 
+    useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
+
 import React, { useState } from "react";
 import { 
     NFT_MARKETPLACE_CONTRACT, 
@@ -21,7 +25,20 @@ import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 export default function TokenPageService({ nft, contractMetadata }) {
 
 
+    const address=useAddress()
+    const [showNegotiaton, setShowNegotiation] = useState(false);
+
+    const handleNegotiate = () => {
+        setShowNegotiation(!showNegotiaton);
+    };
+
+    const handleBuyCloudService = () => {
+        
+    };
     
+    const [formNegotiation,updateFormNegotiation]=useState({ hoursToBuy:'0', maxPenalty:'', 
+    slaEndingDate:'',totalPrice:'0'})
+    console.log(formNegotiation)
     
     return (
         <Container maxW={"1200px"} p={5} my={5}>
@@ -78,9 +95,22 @@ export default function TokenPageService({ nft, contractMetadata }) {
                          
                          
                             <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
-                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Picture URI</Text>
-                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.cloudServicePictureURI}</Text>
+                            <Link href={nft.cloudServicePictureURI} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Picture URI  <ExternalLinkIcon mx='2px' />  </Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.cloudServicePictureURI.replace('https://ipfs.io/ipfs/','')}  
+                               
+                                </Text>
+                                </Link>
                             </Box>
+
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                            <Link href={`https://ipfs.io/ipfs/${nft.tokenURI}`} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token URI  <ExternalLinkIcon mx='2px' /> </Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.tokenURI}</Text>
+                               
+                                </Link>
+                            </Box>
+
 
                             <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"} overflow='auto'>
                                 <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Contract Address</Text>
@@ -130,10 +160,14 @@ export default function TokenPageService({ nft, contractMetadata }) {
                
                     </Stack>
 
-                    <Flex justifyContent="center" alignItems="center">
-                    <Button
-    
 
+                    { address==nft.cloudServiceOwner ? (
+
+                    <Flex justifyContent="center" alignItems="center">
+
+                       
+                    <Button
+                     leftIcon={<EditIcon />}
                     mr={4}
                       mt={2}
                       colorScheme="messenger"
@@ -146,7 +180,7 @@ export default function TokenPageService({ nft, contractMetadata }) {
 
                      
                      <Button 
-                     
+                      leftIcon={<DeleteIcon />}
                       mt={2}
                       colorScheme="red"
                       borderRadius="md"
@@ -158,6 +192,90 @@ export default function TokenPageService({ nft, contractMetadata }) {
                     
                     
                    </Flex>
+
+
+                    ) :(
+
+                        <Button 
+                        onClick={handleNegotiate}
+                        leftIcon={<TriangleDownIcon />}
+                        mt={2}
+                        colorScheme="green"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Negotiate & Buy this Cloud Service
+                       </Button>
+
+                    ) }
+
+                {showNegotiaton  && (
+
+            
+                    <>
+                    <FormControl isRequired>
+                    <FormLabel mt={4} >Hours to Buy</FormLabel>
+                    <NumberInput min={0}  precision={0} step={1}>
+                    <NumberInputField 
+                    placeholder="Hours"
+                    onChange={e=> updateFormNegotiation({...formNegotiation,hoursToBuy: e.target.value,totalPrice:nft.cloudServicePrice*e.target.value})}/>
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+                    </FormControl>
+
+                    <Box mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Termination Terms</Text>
+
+                    <FormControl isRequired>
+                    <FormLabel mt={4} >Max Penalty in a month</FormLabel>
+                    <NumberInput min={0}  precision={2} step={0.01}>
+                    <NumberInputField 
+                    placeholder="ETH"
+                    onChange={e=> updateFormNegotiation({...formNegotiation,maxPenalty: e.target.value})}/>
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+                    </FormControl>
+
+                    <FormLabel  mt={4} >SLA Ending Date (optional)</FormLabel>
+                    <Input 
+                        type="date"
+                        placeholder="Insert a date"
+                        onChange={e=> updateFormNegotiation({...formNegotiation,slaEndingDate: e.target.value})}
+                    />
+
+                    </Box>
+
+                    <Text fontSize={"xl"} fontWeight={"bold"}>
+                        You have to pay {formNegotiation.totalPrice} ETH  </Text>
+
+                        <Button 
+                        onClick={handleBuyCloudService}
+                        leftIcon={<AddIcon />}
+                        mt={2}
+                        colorScheme="green"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                         Buy this Cloud Service for {formNegotiation.totalPrice} ETH
+                       </Button>
+
+                    </>
+                        )}
+
+                     
+
+
+
+
+                  
       
                 </Stack>
             </SimpleGrid>
@@ -175,9 +293,10 @@ export const getStaticProps = async (context) => {
 
     const tokenURI = await nftBadgeServiceCollection.tokenURI(tokenId);
     const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+    
     let itemCloudService={
 
-       
+        tokenURI:tokenURI,
         badgeServiceTokenId:tokenId,
         cloudServiceOwner:cloudServiceOwner,
         cloudServiceType: response.data.cloudServiceType,

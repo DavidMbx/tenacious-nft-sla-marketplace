@@ -12,6 +12,7 @@ require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
 import {ThirdwebSDK} from "@thirdweb-dev/sdk"
 import NFT_Badge_Provider from   '../artifacts/contracts/NFT_Badge_Provider.sol/NFT_Badge_Provider.json'
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
 
 
 
@@ -270,9 +271,10 @@ console.log(responseUpdate)
           )}
           
           <Button
+          leftIcon={<AddIcon />}
             onClick={handleRegister}
             mt={6}
-            colorScheme="teal"
+            colorScheme="green"
             borderRadius="md"
             size="lg"
             boxShadow="lg"

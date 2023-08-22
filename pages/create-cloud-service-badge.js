@@ -13,6 +13,7 @@ import {
   NFT_BADGE_SERVICE_CONTRACT
 } from "../const/addresses";
 import NFT_Badge_Service from   '../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
 
 export default function CreateCloudServiceBadge() {
 
@@ -404,6 +405,7 @@ async function uploadToIPFS(file) {
 
                   <Flex>
                     <Button
+                     leftIcon={<RepeatIcon />}
                       onClick={createOptions}
                       mt={2}
                       mr={2}
@@ -418,6 +420,7 @@ async function uploadToIPFS(file) {
 
                      <Link  as={NextLink}  href='/add-new-service-type' >
                      <Button 
+                      leftIcon={<AddIcon />}
                      
                       mt={2}
                       colorScheme="teal"
@@ -642,9 +645,10 @@ async function uploadToIPFS(file) {
           )}
           
           <Button
+           leftIcon={<AddIcon />}
             onClick={handleCreateCloudService}
             mt={7}
-            colorScheme="teal"
+            colorScheme="green"
             borderRadius="md"
             size="lg"
             boxShadow="lg"

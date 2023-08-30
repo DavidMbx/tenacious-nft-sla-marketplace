@@ -5,6 +5,7 @@ import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNex
     useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
 const SparqlClient = require('sparql-http-client')
+import { create } from 'ipfs-http-client';
 
 import React, { useState } from "react";
 import { 
@@ -136,7 +137,7 @@ async function uploadToIPFS(file) {
             }=formNegotiation
           const cloudServiceTokenURI=nft.tokenURI
 
-          const slaIstanceId=address+nft.cloudServiceOwner+(Math.random()*1000).toString()
+          const slaIstanceId=tokenURI
           
       
       
@@ -146,23 +147,33 @@ async function uploadToIPFS(file) {
         PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
       
         INSERT DATA {
-          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer
-          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address}
-          cs:Parties_${address+nft.cloudServiceOwner} rdf:type cs:Parties
-          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA
-          //continuare da qui
-
-          cs:${cloudProviderName.replace(/ /g, "_")} rdf:type cs:CloudProvider.
-          cs:${cloudProviderName.replace(/ /g, "_")} cs:hasMail "${cloudProviderMail}".
-          cs:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type cs:Picture.
-          cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURI}".
-          cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
-          cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
-          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")}  rdf:type cs:NFT-Badge .
-          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
-          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "${tokenURI}".
-          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".
-          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasTokenID "${tokenId}".
+          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer .
+          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address} .
+          cs:Parties_${address+nft.cloudServiceOwner} rdf:type cs:Parties .
+          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA .
+          cs:Terms_${slaIstanceId} rdf:type cs:Terms .
+          cs:ServiceDefinitionTerms_${slaIstanceId} rdf:type cs:ServiceDefinitionTerms .
+          cs:TerminationTerms_${slaIstanceId} rdf:type cs:TerminationTerms .
+          cs:ViolationCausing_${slaIstanceId} rdf:type cs:ViolationCausing .
+          cs:SLAEnding_${slaIstanceId} rdf:type cs:SLAEnding_${slaIstanceId} .
+          cs:CloudSLA_${slaIstanceId} cs:hasTerms cs:Terms_${slaIstanceId} .
+          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+nft.cloudServiceOwner} .
+          cs:Parties_${address+nft.cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
+          cs:Parties_${address+nft.cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
+          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${nft.cloudServicePictureURI} .
+          cs:Terms_${slaIstanceId} cs:hasTTerms cs:TerminationTerms_${slaIstanceId} .
+          cs:Terms_${slaIstanceId} cs:hasSDTerms cs:ServiceDefinitionTerms_${slaIstanceId} .
+          cs:ServiceDefinitionTerms_${slaIstanceId} cs:hoursAvailable "${hoursToBuy}" .
+          cs:ViolationCausing_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId}  .
+          cs:SLAEnding_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId} .
+          cs:ViolationCausing_${slaIstanceId} cs:maxViolationNumber "${maxPenalty}"  .
+          cs:SLAEnding_${slaIstanceId} cs:hasDate "${slaEndingDate}" .
+          cs:NFT_ERC721_${slaIstanceId} rdf:type cs:NFT-ERC-721 .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasCloudSLA cs:CloudSLA_${slaIstanceId}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasAddress "${NFT_ERC721_CONTRACT}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
         }
         
       `;
@@ -195,7 +206,7 @@ async function uploadToIPFS(file) {
                             </Box>
                             <Box direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
                                 <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Name</Text>
-                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudServiceType.replace('_',' ')}</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudServiceType.replace(/_/g,' ')}</Text>
                             </Box>
                           
                             <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
@@ -270,7 +281,7 @@ async function uploadToIPFS(file) {
                         </Flex>
                     )}
                     <Box mx={2.5}>
-                        <Text fontSize={"4xl"} fontWeight={"bold"}>{nft.cloudServiceType.replace('_',' ')}</Text>
+                        <Text fontSize={"4xl"} fontWeight={"bold"}>{nft.cloudServiceType.replace(/_/g, ' ')}</Text>
                         <Link
                             href={`/profile/${nft.cloudServiceOwner}`}
                         >

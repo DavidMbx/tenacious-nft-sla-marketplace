@@ -773,8 +773,8 @@
       ]
     },
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFT_ERC721.sol": {
-      "lastModificationDate": 1689710288880,
-      "contentHash": "8a91cfcdc4fa049bdf60a4481f6ffbf0",
+      "lastModificationDate": 1693404264299,
+      "contentHash": "1d3612c7e59cb41049e4aad8243fc535",
       "sourceName": "contracts/NFT_ERC721.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -802,6 +802,7 @@
       "imports": [
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
         "@openzeppelin/contracts/utils/Counters.sol"
       ],
       "versionPragmas": [

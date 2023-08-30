@@ -4,6 +4,7 @@ import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,TriangleDownIcon } from '@
 import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, 
     useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
+const SparqlClient = require('sparql-http-client')
 
 import React, { useState } from "react";
 import { 
@@ -13,6 +14,7 @@ import {
     NFT_ERC721_CONTRACT 
 } from "../../../../const/addresses";
 import NFT_Badge_Service from   '../../../../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
+import NFT_ERC721 from   '../../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
 import { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import {ethers} from 'ethers'
@@ -26,30 +28,151 @@ export default function TokenPageService({ nft, contractMetadata }) {
 
 
     const address=useAddress()
+    const signer=useSigner()
     const [showNegotiaton, setShowNegotiation] = useState(false);
 
     const [formNegotiation,updateFormNegotiation]=useState({ hoursToBuy:'0', maxPenalty:'', 
     slaEndingDate:'',totalPrice:'0'})
-    console.log(formNegotiation)
+    
+
+    const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
+    const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
+    const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+
+
+    const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
+    const projectSecret=process.env.NEXT_PUBLIC_PRIVATE_KEY_IPFS_INFURA
+    const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret,'utf8').toString('base64');
+    
+    
+    // Configura il client IPFS
+    const client = create({
+        host: 'ipfs.infura.io',
+        port: 5001,
+        protocol: 'https',
+        headers: {
+          authorization: auth
+        },
+      });
     
 
     const handleNegotiate = () => {
         setShowNegotiation(!showNegotiaton);
     };
 
-    const handleBuyCloudService = () => {
+     async function handleBuyCloudService() {
+
+        
+  // Esempio di output dei dati per la demo
+  console.log('Cloud SLA Form:', formNegotiation);
+  createFileJSON()
+       
+             
+
+               
+        
+    }
+
+    // Funzione per caricare un file su IPFS
+async function uploadToIPFS(file) {
+    try {
+      const { cid } = await client.add(file); // Carica il file su IPFS
+  
+      console.log('File caricato su IPFS. CID:', cid.toString());
+      const url= `https://nftslamarket.infura-ipfs.io/${cid.path}`
+      return cid.toString(); // Restituisci l'hash IPFS del file
+    } catch (error) {
+      console.error('Errore durante il caricamento su IPFS:', error);
+      return null;
+    }
+  }
+
+    async function createFileJSON() {
+       
 
         const{ hoursToBuy, maxPenalty, 
             slaEndingDate,totalPrice
             }=formNegotiation
-          
+          const cloudServiceTokenURI=nft.tokenURI
+          const originalPrice=totalPrice
           if(!hoursToBuy||!maxPenalty ||!totalPrice
                ) return  
                console.log("Errore, manca un campo")
 
-               
+        const data= JSON.stringify({
+            cloudServiceTokenURI,hoursToBuy,maxPenalty,slaEndingDate,originalPrice
+        })
+    
+        const formURI= await uploadToIPFS(data)
+        console.log(data+"\n"+formURI)
+    
+        const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,totalPrice);
+        uploadToSPARQL(formURI,tokenId);
         
-    };
+        
+    }
+
+    async function uploadToBlockchain(URI,cloudServiceOwner,priceMint) {
+
+        let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+        console.log(contract)
+        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,priceMint)
+        let tx= await transaction.wait()
+        let event= tx.events[0]
+        let value=event.args[2]
+        let tokenId=value.toNumber()
+        console.log(event)
+        console.log(value)
+        console.log(tokenId)
+        return tokenId
+
+      
+    }
+
+    async function uploadToSPARQL(tokenURI,tokenId) {
+
+        const{ hoursToBuy, maxPenalty, 
+            slaEndingDate,totalPrice
+            }=formNegotiation
+          const cloudServiceTokenURI=nft.tokenURI
+
+          const slaIstanceId=address+nft.cloudServiceOwner+(Math.random()*1000).toString()
+          
+      
+      
+        const insertQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      
+        INSERT DATA {
+          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer
+          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address}
+          cs:Parties_${address+nft.cloudServiceOwner} rdf:type cs:Parties
+          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA
+          //continuare da qui
+
+          cs:${cloudProviderName.replace(/ /g, "_")} rdf:type cs:CloudProvider.
+          cs:${cloudProviderName.replace(/ /g, "_")} cs:hasMail "${cloudProviderMail}".
+          cs:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type cs:Picture.
+          cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURI}".
+          cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
+          cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
+          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")}  rdf:type cs:NFT-Badge .
+          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
+          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "${tokenURI}".
+          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".
+          cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasTokenID "${tokenId}".
+        }
+        
+      `;
+      
+      const responseUpdate=clientSPARQL.query.update(insertQuery)
+      console.log(responseUpdate)
+      
+      
+      
+      }
     
    
     return (

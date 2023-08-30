@@ -10,9 +10,12 @@ contract NFT_ERC721 is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+    address contractAddress;
 
     mapping(address => uint256[]) private _userTokens;
-    constructor() ERC721("SLA NFT", "SLA") {}
+    constructor(address marketplaceAddress) ERC721("SLA NFT", "SL") {
+        contractAddress=marketplaceAddress;
+    }
 
     function safeMintAndPay(address to, string memory uri,address payable originalOwner,uint256 mintPrice) public payable {
         

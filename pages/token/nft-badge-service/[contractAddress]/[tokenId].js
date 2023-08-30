@@ -14,7 +14,7 @@ import {
     NFT_ERC721_CONTRACT 
 } from "../../../../const/addresses";
 import NFT_Badge_Service from   '../../../../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
-import NFT_ERC721 from   '../../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
+import NFT_ERC721 from   '../../../../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
 import { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import {ethers} from 'ethers'

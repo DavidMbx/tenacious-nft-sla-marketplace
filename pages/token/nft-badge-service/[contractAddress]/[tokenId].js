@@ -28,18 +28,30 @@ export default function TokenPageService({ nft, contractMetadata }) {
     const address=useAddress()
     const [showNegotiaton, setShowNegotiation] = useState(false);
 
+    const [formNegotiation,updateFormNegotiation]=useState({ hoursToBuy:'0', maxPenalty:'', 
+    slaEndingDate:'',totalPrice:'0'})
+    console.log(formNegotiation)
+    
+
     const handleNegotiate = () => {
         setShowNegotiation(!showNegotiaton);
     };
 
     const handleBuyCloudService = () => {
+
+        const{ hoursToBuy, maxPenalty, 
+            slaEndingDate,totalPrice
+            }=formNegotiation
+          
+          if(!hoursToBuy||!maxPenalty ||!totalPrice
+               ) return  
+               console.log("Errore, manca un campo")
+
+               
         
     };
     
-    const [formNegotiation,updateFormNegotiation]=useState({ hoursToBuy:'0', maxPenalty:'', 
-    slaEndingDate:'',totalPrice:'0'})
-    console.log(formNegotiation)
-    
+   
     return (
         <Container maxW={"1200px"} p={5} my={5}>
             <SimpleGrid columns={2} spacing={6}>

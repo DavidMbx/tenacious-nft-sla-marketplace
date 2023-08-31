@@ -24,7 +24,7 @@ export default function NFTComponentBadgeProvider({ nft }) {
         <Image src={nft.cloudProviderPictureURI} height={"100%"} width={"100%"} objectFit='contain'  />
         </Box>
             <Text fontSize={"small"} color={"darkgray"} mt={2 }>Cloud Provider ID #{nft.badgeProviderTokenId}</Text>
-            <Text fontWeight={"bold"}>{nft.cloudProviderName.replace('_',' ')}</Text>
+            <Text fontWeight={"bold"}>{nft.cloudProviderName.replace(/_/g,' ')}</Text>
             <Text fontSize={"medium"} >{nft.cloudProviderMail}</Text>
             <Text fontSize={"small"} >{nft.cloudProviderAddress}</Text>
            

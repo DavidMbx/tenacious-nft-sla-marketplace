@@ -20,7 +20,7 @@ export default function NFTComponentBadgeService({ nft }) {
         <Image src={nft.cloudServicePictureURI} height={"100%"} width={"100%"} objectFit='contain'  />
         </Box>
         <Text fontSize={"small"} color={"darkgray"} mt={2}>Cloud Service ID #{nft.badgeServiceTokenId}</Text>
-        <Text fontWeight={"bold"}>{nft.cloudServiceType.replace('_',' ')}</Text>
+        <Text fontWeight={"bold"}>{nft.cloudServiceType.replace(/_/g,' ')}</Text>
         <Text fontSize={"small"} mt={2} >Memory: {nft.memory} GB, Storage: {nft.storage} GB</Text>
         <Text fontSize={"small"} >CPU Speed: {nft.cpuSpeed} GHz, Core: {nft.cpuCores}</Text>
         <Text fontSize={"small"} >Region: {nft.region} </Text>

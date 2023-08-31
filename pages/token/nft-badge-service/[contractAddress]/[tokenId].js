@@ -140,8 +140,9 @@ async function uploadToIPFS(file) {
             slaEndingDate,totalPrice
             }=formNegotiation
           const cloudServiceTokenURI=nft.tokenURI
-          const cloudServicePictureURI=nft.cloudServicePictureURI
+          const cloudServicePictureURI=nft.cloudServicePictureURI.replace("https://ipfs.io/ipfs/","")
           const cloudServiceOwner=nft.cloudServiceOwner
+          console.log(cloudServicePictureURI)
 
           const slaIstanceId=tokenURI
           

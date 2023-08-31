@@ -32,6 +32,8 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     const signer=useSigner()
     const [showFragment, setShowFragment] = useState(false);
     const [priceText, setpriceText] = useState(" ETH");
+    const [tokenOnMarket,setTokenOnMarket]=useState(false)
+
     console.log(nft)
 
     const [formFragmentation,updateFormFragmentation]=useState({ numberFragment:'',hoursSingleFragment:''})
@@ -64,12 +66,18 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
      async function handleFragmentSLA() {
 
+        let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+        console.log(contract)
+      
+        let transaction= await contract.burn(nft.erc721SLATokenId)
+        let tx= await transaction.wait()
+        console.log(tx)
         
-
-    //createFileJSON()
+    for(let i=0;i<formFragmentation.numberFragment;i++){
+        await createFileJSON()
        
+    }       
              
-
                
         
     }
@@ -116,12 +124,14 @@ async function uploadToIPFS(file) {
     async function createFileJSON() {
        
 
-       /* const{ hoursToBuy, maxPenalty, 
-            slaEndingDate,totalPrice
-            }=formNegotiation*/
-          const cloudServiceTokenURI=nft.tokenURI
-          const originalPrice=totalPrice
-          if(!hoursToBuy||!maxPenalty ||!totalPrice
+
+            const hoursToBuy=formFragmentation.hoursSingleFragment
+            const maxPenalty=nft.maxPenalty
+            const slaEndingDate=nft.slaEndingDate
+          const cloudServiceTokenURI=nft.cloudServiceTokenURI
+          const originalPrice=(nft.totalPrice/formFragmentation.numberFragment).toFixed(2)
+
+          if(!hoursToBuy||!maxPenalty ||!originalPrice
                ) return  
                console.log("Errore, manca un campo")
 
@@ -132,7 +142,7 @@ async function uploadToIPFS(file) {
         const formURI= await uploadToIPFS(data)
         console.log(data+"\n"+formURI)
     
-        const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,totalPrice);
+        const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,nft.totalPrice);
         uploadToSPARQL(formURI,tokenId);
         
         
@@ -144,8 +154,8 @@ async function uploadToIPFS(file) {
         let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
         console.log(contract)
       
-        const price= ethers.utils.parseUnits(priceMint.toString(),'ether')
-        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,price,{value:price})
+    
+        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,0,{value:0})
         let tx= await transaction.wait()
         let event= tx.events[0]
         let value=event.args[2]
@@ -160,10 +170,13 @@ async function uploadToIPFS(file) {
 
     async function uploadToSPARQL(tokenURI,tokenId) {
 
-        /*const{ hoursToBuy, maxPenalty, 
-            slaEndingDate,totalPrice
-            }=formNegotiation*/
-          const cloudServiceTokenURI=nft.tokenURI
+        const hoursToBuy=formFragmentation.hoursSingleFragment
+        const maxPenalty=nft.maxPenalty
+        const slaEndingDate=nft.slaEndingDate
+    
+      const originalPrice=(nft.totalPrice/formFragmentation.numberFragment).toFixed(2)
+
+          const cloudServiceTokenURI=nft.cloudServiceTokenURI
           const cloudServicePictureURI=nft.cloudServicePictureURI.replace("https://ipfs.io/ipfs/","")
           const cloudServiceOwner=nft.cloudServiceOwner
           console.log(cloudServicePictureURI)
@@ -494,6 +507,7 @@ export const getStaticProps = async (context) => {
     const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
     const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
     const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+
     
     let itemCloudSLA={
 
@@ -507,6 +521,8 @@ export const getStaticProps = async (context) => {
         maxPenalty: response.data.maxPenalty,
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
+        cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
+
 
 
       }
@@ -559,6 +575,7 @@ export const getStaticProps = async (context) => {
         maxPenalty: response.data.maxPenalty,
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
+        cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
 
 
       }

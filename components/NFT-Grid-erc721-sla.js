@@ -23,8 +23,8 @@ export default function NFTGridERC721({
             data.map((nft) => 
                 !overrideOnclickBehavior ? (
                     <Link
-                        href={`/token/nft-sla-erc721/${NFT_ERC721_CONTRACT}/${nft.slaTokenId}`}
-                        key={nft.slaTokenId}
+                        href={`/token/nft-sla-erc721/${NFT_ERC721_CONTRACT}/${nft.erc721SLATokenId}`}
+                        key={nft.erc721SLATokenId}
                     >
                     <NFTCardERC721 nft={nft} />
                     </Link>

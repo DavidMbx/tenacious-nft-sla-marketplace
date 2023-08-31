@@ -43,6 +43,7 @@ export default function ProfilePage() {
     
     const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
     const nftBadgeServiceCollection= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
+    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
     let marketplace = new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFT_Market.abi,signer)
 
 
@@ -63,6 +64,8 @@ export default function ProfilePage() {
        
        console.log(userAddress)
         
+
+       //Ricerca di tutti i CloudProvider NFT
         try {
 
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
@@ -95,6 +98,7 @@ export default function ProfilePage() {
         }
 
 
+        //Ricerca di tutti i CloudService NFT
         try {
 
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
@@ -123,8 +127,46 @@ export default function ProfilePage() {
                 return itemCloudService
             }))
     
-            console.log("Metadati degli NFT Provider dell'utente:", itemsCloudService);
+            console.log("Metadati degli NFT Service dell'utente:", itemsCloudService);
             setNftsService(itemsCloudService)
+            setLoadingState(false)
+
+        } catch (error) {
+            console.error("Errore durante la chiamata:", error);
+        }
+
+
+        //Ricerca di tutti i CloudSLA NFT
+        try {
+
+            // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
+            const tokenIds = await nftERC721_SLACollection.getUserTokens(userAddress);
+        
+    
+            // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+            const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
+                const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+                const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+                const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+              
+                let itemCloudSLA={
+
+                    
+                    erc721SLATokenId:tokenId.toNumber(),
+                    cloudServiceName: responseCloudService.data.cloudServiceType,
+                    cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+                    cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+                    hoursToBuy: response.data.hoursToBuy,
+                    maxPenalty: response.data.maxPenalty,
+                    slaEndingDate: response.data.slaEndingDate,
+                    originalPrice: response.data.originalPrice,
+            
+                  }
+                return itemCloudSLA
+            }))
+    
+            console.log("Metadati degli NFT SLA dell'utente:", itemsCloudSLA);
+            setNftsSLA(itemsCloudSLA)
             setLoadingState(false)
 
         } catch (error) {

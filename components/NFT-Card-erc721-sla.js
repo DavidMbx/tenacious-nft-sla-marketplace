@@ -5,13 +5,14 @@ import {
     NFT_ERC721_CONTRACT 
 } from "../const/addresses";
 import { ThirdwebNftMedia, useContract, useValidDirectListings, useValidEnglishAuctions } from "@thirdweb-dev/react";
-import { Box, Flex, Skeleton, Text } from "@chakra-ui/react";
+import { Box, Flex, Skeleton, Text,Image } from "@chakra-ui/react";
 
 
 
 
 export default function NFTComponentERC721({ nft }) {
-    const  {contract: marketplace, isLoading: loadingMarketplace } = useContract(NFT_MARKETPLACE_CONTRACT, "marketplace-v3");
+    
+    /*const  {contract: marketplace, isLoading: loadingMarketplace } = useContract(NFT_MARKETPLACE_CONTRACT, "marketplace-v3");
 
     const { data: directListing, isLoading: loadingDirectListing } = 
         useValidDirectListings(marketplace, {
@@ -26,40 +27,22 @@ export default function NFTComponentERC721({ nft }) {
             tokenId: nft.metadata.id,
         });
 
+        */
     return (
         <Flex direction={"column"} backgroundColor={"#EEE"} justifyContent={"center"} padding={"2.5"} borderRadius={"6px"} borderColor={"lightgray"} borderWidth={1}>
-            <Box borderRadius={"4px"} overflow={"hidden"}>
-                <ThirdwebNftMedia metadata={nft.metadata} height={"100%"} width={"100%"} />
-            </Box>
-            <Text fontSize={"small"} color={"darkgray"}>Token ID #{nft.metadata.id}</Text>
-            <Text fontWeight={"bold"}>{nft.metadata.name}</Text>
+        <Box  borderRadius={"4px"}  overflow={"hidden"} height="200px"  >
+        <Image src={nft.cloudServicePictureURI} height={"100%"} width={"100%"} objectFit='contain'  />
+        </Box>
+        <Text fontSize={"small"} color={"darkgray"} mt={2}>Cloud SLA ID #{nft.erc721SLATokenId}</Text>
+        <Text fontWeight={"bold"}>{nft.cloudServiceName.replace(/_/g,' ')+" SLA #"+nft.erc721SLATokenId}</Text>
+        <Text fontSize={"small"} mt={2} >Ending Date: {nft.slaEndingDate}</Text>
+        <Text fontSize={"small"} >Max Penalty in a Month: {nft.maxPenalty} ETH</Text>
+        <Text fontSize={"small"} >Original Price: {nft.originalPrice} ETH </Text>
+        <Text fontWeight={"bold"} mt={4}>{"Hours Available: "+nft.hoursToBuy} </Text>
 
-            <Box>
-                {loadingMarketplace || loadingDirectListing || loadingAuction ? (
-                    <Skeleton></Skeleton>
-                ) : directListing && directListing[0] ? (
-                    <Box>
-                        <Flex direction={"column"}>
-                            <Text fontSize={"small"}>Price</Text>
-                            <Text fontSize={"small"}>{`${directListing[0]?.currencyValuePerToken.displayValue} ${directListing[0]?.currencyValuePerToken.symbol}`}</Text>
-                        </Flex>
-                    </Box>
-                ) : auctionListing && auctionListing[0] ? (
-                    <Box>
-                        <Flex direction={"column"}>
-                            <Text fontSize={"small"}>Minimum Bid</Text>
-                            <Text fontSize={"small"}>{`${auctionListing[0]?.minimumBidCurrencyValue.displayValue} ${auctionListing[0]?.minimumBidCurrencyValue.symbol}`}</Text>
-                        </Flex>
-                    </Box>
-                ) : (
-                    <Box>
-                        <Flex direction={"column"}>
-                            <Text fontSize={"small"}>Price</Text>
-                            <Text fontSize={"small"}>Not Listed</Text>
-                        </Flex>
-                    </Box>
-                )}
-            </Box>
-        </Flex>
+        <Box>
+  
+        </Box>
+    </Flex>
     )
 };

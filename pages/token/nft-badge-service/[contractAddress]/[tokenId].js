@@ -31,6 +31,7 @@ export default function TokenPageService({ nft, contractMetadata }) {
     const address=useAddress()
     const signer=useSigner()
     const [showNegotiaton, setShowNegotiation] = useState(false);
+    console.log(nft)
 
     const [formNegotiation,updateFormNegotiation]=useState({ hoursToBuy:'0', maxPenalty:'', 
     slaEndingDate:'',totalPrice:'0'})
@@ -115,9 +116,12 @@ async function uploadToIPFS(file) {
 
     async function uploadToBlockchain(URI,cloudServiceOwner,priceMint) {
 
+
         let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
         console.log(contract)
-        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,priceMint)
+      
+        const price= ethers.utils.parseUnits(priceMint.toString(),'ether')
+        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,price,{value:price})
         let tx= await transaction.wait()
         let event= tx.events[0]
         let value=event.args[2]
@@ -136,6 +140,8 @@ async function uploadToIPFS(file) {
             slaEndingDate,totalPrice
             }=formNegotiation
           const cloudServiceTokenURI=nft.tokenURI
+          const cloudServicePictureURI=nft.cloudServicePictureURI
+          const cloudServiceOwner=nft.cloudServiceOwner
 
           const slaIstanceId=tokenURI
           
@@ -149,7 +155,7 @@ async function uploadToIPFS(file) {
         INSERT DATA {
           cs:CloudConsumer_${address} rdf:type cs:CloudConsumer .
           cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address} .
-          cs:Parties_${address+nft.cloudServiceOwner} rdf:type cs:Parties .
+          cs:Parties_${address+cloudServiceOwner} rdf:type cs:Parties .
           cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA .
           cs:Terms_${slaIstanceId} rdf:type cs:Terms .
           cs:ServiceDefinitionTerms_${slaIstanceId} rdf:type cs:ServiceDefinitionTerms .
@@ -157,10 +163,9 @@ async function uploadToIPFS(file) {
           cs:ViolationCausing_${slaIstanceId} rdf:type cs:ViolationCausing .
           cs:SLAEnding_${slaIstanceId} rdf:type cs:SLAEnding_${slaIstanceId} .
           cs:CloudSLA_${slaIstanceId} cs:hasTerms cs:Terms_${slaIstanceId} .
-          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+nft.cloudServiceOwner} .
-          cs:Parties_${address+nft.cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
-          cs:Parties_${address+nft.cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
-          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${nft.cloudServicePictureURI} .
+          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+cloudServiceOwner} .
+          cs:Parties_${address+cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
+          cs:Parties_${address+cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
           cs:Terms_${slaIstanceId} cs:hasTTerms cs:TerminationTerms_${slaIstanceId} .
           cs:Terms_${slaIstanceId} cs:hasSDTerms cs:ServiceDefinitionTerms_${slaIstanceId} .
           cs:ServiceDefinitionTerms_${slaIstanceId} cs:hoursAvailable "${hoursToBuy}" .
@@ -174,6 +179,7 @@ async function uploadToIPFS(file) {
           cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
           cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
           cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
+          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${cloudServicePictureURI} .
         }
         
       `;

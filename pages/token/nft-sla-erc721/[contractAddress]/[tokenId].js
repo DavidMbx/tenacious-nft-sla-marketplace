@@ -1,0 +1,500 @@
+import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image,Button,DatePicker,
+    FormLabel,NumberInput,NumberInputField,NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper, FormControl} from "@chakra-ui/react";
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,TriangleDownIcon,LinkIcon } from '@chakra-ui/icons'
+import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, 
+    useValidEnglishAuctions } from "@thirdweb-dev/react";
+import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
+const SparqlClient = require('sparql-http-client')
+import { create } from 'ipfs-http-client';
+
+import React, { useState } from "react";
+import { 
+    NFT_MARKETPLACE_CONTRACT, 
+    NFT_BADGE_PROVIDER_CONTRACT,
+    NFT_BADGE_SERVICE_CONTRACT,
+    NFT_ERC721_CONTRACT 
+} from "../../../../const/addresses";
+import NFT_Badge_Service from   '../../../../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
+import NFT_ERC721 from   '../../../../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
+import { GetStaticPaths, GetStaticProps } from "next";
+import Link from "next/link";
+import {ethers} from 'ethers'
+const axios = require('axios');
+import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
+
+
+
+
+export default function TokenPageSLA({ nft, contractMetadata }) {
+
+
+    const address=useAddress()
+    const signer=useSigner()
+    const [showFragment, setShowFragment] = useState(false);
+    console.log(nft)
+
+    const [formFragmentation,updateFormFragmentation]=useState({ numberFragment:'',hoursSingleFragment:''})
+    
+
+    const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
+    const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
+    const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+
+
+    const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
+    const projectSecret=process.env.NEXT_PUBLIC_PRIVATE_KEY_IPFS_INFURA
+    const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret,'utf8').toString('base64');
+    
+    
+    // Configura il client IPFS
+    const client = create({
+        host: 'ipfs.infura.io',
+        port: 5001,
+        protocol: 'https',
+        headers: {
+          authorization: auth
+        },
+      });
+    
+
+    const handleFragment = () => {
+        setShowFragment(!showFragment);
+    };
+
+     async function handleFragmentSLA() {
+
+        
+
+    //createFileJSON()
+       
+             
+
+               
+        
+    }
+
+    // Funzione per caricare un file su IPFS
+async function uploadToIPFS(file) {
+    try {
+      const { cid } = await client.add(file); // Carica il file su IPFS
+  
+      console.log('File caricato su IPFS. CID:', cid.toString());
+      const url= `https://nftslamarket.infura-ipfs.io/${cid.path}`
+      return cid.toString(); // Restituisci l'hash IPFS del file
+    } catch (error) {
+      console.error('Errore durante il caricamento su IPFS:', error);
+      return null;
+    }
+  }
+
+    async function createFileJSON() {
+       
+
+       /* const{ hoursToBuy, maxPenalty, 
+            slaEndingDate,totalPrice
+            }=formNegotiation*/
+          const cloudServiceTokenURI=nft.tokenURI
+          const originalPrice=totalPrice
+          if(!hoursToBuy||!maxPenalty ||!totalPrice
+               ) return  
+               console.log("Errore, manca un campo")
+
+        const data= JSON.stringify({
+            cloudServiceTokenURI,hoursToBuy,maxPenalty,slaEndingDate,originalPrice
+        })
+    
+        const formURI= await uploadToIPFS(data)
+        console.log(data+"\n"+formURI)
+    
+        const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,totalPrice);
+        uploadToSPARQL(formURI,tokenId);
+        
+        
+    }
+
+    async function uploadToBlockchain(URI,cloudServiceOwner,priceMint) {
+
+
+        let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+        console.log(contract)
+      
+        const price= ethers.utils.parseUnits(priceMint.toString(),'ether')
+        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,price,{value:price})
+        let tx= await transaction.wait()
+        let event= tx.events[0]
+        let value=event.args[2]
+        let tokenId=value.toNumber()
+        console.log(event)
+        console.log(value)
+        console.log(tokenId)
+        return tokenId
+
+      
+    }
+
+    async function uploadToSPARQL(tokenURI,tokenId) {
+
+        /*const{ hoursToBuy, maxPenalty, 
+            slaEndingDate,totalPrice
+            }=formNegotiation*/
+          const cloudServiceTokenURI=nft.tokenURI
+          const cloudServicePictureURI=nft.cloudServicePictureURI.replace("https://ipfs.io/ipfs/","")
+          const cloudServiceOwner=nft.cloudServiceOwner
+          console.log(cloudServicePictureURI)
+
+          const slaIstanceId=tokenURI
+          
+      
+      
+        const insertQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      
+        INSERT DATA {
+          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer .
+          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address} .
+          cs:Parties_${address+cloudServiceOwner} rdf:type cs:Parties .
+          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA .
+          cs:Terms_${slaIstanceId} rdf:type cs:Terms .
+          cs:ServiceDefinitionTerms_${slaIstanceId} rdf:type cs:ServiceDefinitionTerms .
+          cs:TerminationTerms_${slaIstanceId} rdf:type cs:TerminationTerms .
+          cs:ViolationCausing_${slaIstanceId} rdf:type cs:ViolationCausing .
+          cs:SLAEnding_${slaIstanceId} rdf:type cs:SLAEnding_${slaIstanceId} .
+          cs:CloudSLA_${slaIstanceId} cs:hasTerms cs:Terms_${slaIstanceId} .
+          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+cloudServiceOwner} .
+          cs:Parties_${address+cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
+          cs:Parties_${address+cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
+          cs:Terms_${slaIstanceId} cs:hasTTerms cs:TerminationTerms_${slaIstanceId} .
+          cs:Terms_${slaIstanceId} cs:hasSDTerms cs:ServiceDefinitionTerms_${slaIstanceId} .
+          cs:ServiceDefinitionTerms_${slaIstanceId} cs:hoursAvailable "${hoursToBuy}" .
+          cs:ViolationCausing_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId}  .
+          cs:SLAEnding_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId} .
+          cs:ViolationCausing_${slaIstanceId} cs:maxViolationNumber "${maxPenalty}"  .
+          cs:SLAEnding_${slaIstanceId} cs:hasDate "${slaEndingDate}" .
+          cs:NFT_ERC721_${slaIstanceId} rdf:type cs:NFT-ERC-721 .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasCloudSLA cs:CloudSLA_${slaIstanceId}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasAddress "${NFT_ERC721_CONTRACT}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
+          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${cloudServicePictureURI} .
+        }
+        
+      `;
+      
+      const responseUpdate=clientSPARQL.query.update(insertQuery)
+      console.log(responseUpdate)
+      
+      
+      
+      }
+    
+   
+    return (
+        <Container maxW={"1200px"} p={5} my={5}>
+            <SimpleGrid columns={2} spacing={6}>
+                <Stack spacing={"20px"}>
+                    <Flex borderWidth={1}  borderRadius={"4px"}  width="100%" height="500px" justifyContent="center" >
+                        <Skeleton isLoaded={true} >
+                        <Image src={nft.cloudServicePictureURI}  height={"100%"} width={"100%"} objectFit='contain' />
+                        </Skeleton>
+                    </Flex>
+                    
+                    <Box>
+                        <Text fontWeight={"bold"}>Attributes:</Text>
+                        <SimpleGrid columns={2} spacing={4} mt={3}>
+                     
+                            <Box direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token ID</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.erc721SLATokenId}</Text>
+                            </Box>
+                            <Box direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Name</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudServiceName.replace(/_/g,' ')+" SLA"}</Text>
+                            </Box>
+                          
+                       
+
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Hours Available</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.hoursToBuy} hours</Text>
+                            </Box>
+                         
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Max Penalty</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.maxPenalty} ETH</Text>
+                            </Box>
+                         
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>SLA Ending Date</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.slaEndingDate}</Text>
+                            </Box>
+                         
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Cloud SLA Original Price</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.originalPrice} ETH</Text>
+                            </Box>
+
+
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"}>
+                            <Link href={`https://ipfs.io/ipfs/${nft.cloudServiceTokenURI}`} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Cloud Service Original URI <ExternalLinkIcon mx='2px' /></Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{nft.cloudServiceTokenURI}</Text>
+                            </Link>
+                            </Box>
+                         
+                          
+                         
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                            <Link href={nft.cloudServicePictureURI} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Picture URI  <ExternalLinkIcon mx='2px' />  </Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.cloudServicePictureURI.replace('https://ipfs.io/ipfs/','')}  
+                               
+                                </Text>
+                                </Link>
+                            </Box>
+
+                            <Box borderWidth={1} p={"8px"} borderRadius={"4px"} >
+                            <Link href={`https://ipfs.io/ipfs/${nft.tokenURI}`} >
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Token URI  <ExternalLinkIcon mx='2px' /> </Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize='small' fontWeight={"bold"} whiteSpace="pre-wrap" >{nft.tokenURI}</Text>
+                               
+                                </Link>
+                            </Box>
+
+
+                            <Box  direction={"column"} alignItems={"center"} justifyContent={"center"} borderWidth={1} p={"8px"} borderRadius={"4px"} overflow='auto'>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"}>Contract Address</Text>
+                                <Text textAlign="center" verticalAlign="middle" fontSize={"small"} fontWeight={"bold"}>{NFT_ERC721_CONTRACT}</Text>
+                            </Box>
+                       
+                        </SimpleGrid>
+                    </Box>
+                </Stack>
+                
+                <Stack spacing={"20px"}>
+                    {contractMetadata && (
+                        <Flex alignItems={"center"}>
+                            <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
+                                <Image
+                                    src={"https://imageupload.io/ib/3cCSQgrtrs0XR6r_1692719274.png"}
+                                    height="32px"
+                                    width="32px"
+                                />
+                            </Box>
+                            <Text fontWeight={"bold"}>Cloud Service SLA NFT</Text>
+                        </Flex>
+                    )}
+                    <Box mx={2.5}>
+                        <Text fontSize={"4xl"} fontWeight={"bold"}>{nft.cloudServiceName.replace(/_/g, ' ')+" SLA #"+nft.erc721SLATokenId}</Text>
+                        <Link
+                            href={`/profile/${nft.cloudSLAOwner}`}
+                        >
+                            <Flex direction={"row"} alignItems={"center"}>
+                                <Avatar  src='https://bit.ly/broken-link' h={"24px"} w={"24px"} mr={"10px"}/>
+                                <Text fontSize={"small"}>{nft.cloudSLAOwner.slice(0,6)}...{nft.cloudSLAOwner.slice(-4)}</Text>
+                            </Flex>
+                        </Link>
+                    </Box>
+                    
+                    <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
+                        <Text color={"darkgray"}>Price: </Text>
+                        <Skeleton isLoaded={true}>
+                  
+                     
+                        <Text fontSize={"xl"} fontWeight={"bold"}>
+                        ETH </Text>
+                        <Text fontSize={"md"} fontWeight={"bold"} mt={5}>
+                                    This NFT is not on the Market </Text>
+                           
+                        </Skeleton>
+               
+                    </Stack>
+
+
+                    { address==nft.cloudSLAOwner ? (
+
+                        <Button 
+                        onClick={handleFragment}
+                        leftIcon={<TriangleDownIcon />}
+                        mt={2}
+                        colorScheme="messenger"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Fragment this Cloud Service SLA Contract
+                        </Button>
+
+                    ) :(
+
+                        <Button 
+                        
+                        leftIcon={<TriangleDownIcon />}
+                        mt={2}
+                        colorScheme="green"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Buy this Cloud Service SLA Contract for ETH
+                        </Button>
+                    ) }
+
+                {showFragment  && (
+
+            
+                    <>
+                    
+
+
+                    <Box mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                    <Text as='b' fontSize='lg'>Fragmentation</Text>
+
+                    <FormControl isRequired>
+                    <FormLabel mt={4} >Number of Fragments</FormLabel>
+                    <NumberInput min={0}  precision={0} step={1}>
+                    <NumberInputField 
+                    placeholder="e.g. 4"
+                    onChange={e=> updateFormFragmentation({...formFragmentation,numberFragment: e.target.value,hoursSingleFragment:(nft.hoursToBuy/e.target.value).toFixed(2)})}/>
+                        <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                        </NumberInputStepper>
+                    </NumberInput>
+                    </FormControl>
+
+        
+            
+                    </Box>
+
+                    <Text fontSize={"xl"} fontWeight={"bold"}>
+                        You will have {formFragmentation.numberFragment} Cloud SLA of {formFragmentation.hoursSingleFragment} hours each    </Text>
+
+                        <Button 
+                        onClick={handleFragmentSLA}
+                        leftIcon={<LinkIcon />}
+                        mt={2}
+                        colorScheme="messenger"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                         Fragment this in {formFragmentation.numberFragment} SLA of {formFragmentation.hoursSingleFragment} hours each 
+                       </Button>
+
+                    </>
+                        )}
+
+                     
+
+
+
+
+                  
+      
+                </Stack>
+            </SimpleGrid>
+            
+        </Container>
+    )
+};
+
+export const getStaticProps = async (context) => {
+    const tokenId = context.params?.tokenId 
+
+    const provider= new ethers.providers.JsonRpcProvider()
+   const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
+   const cloudSLAOwner=await nftERC721_SLACollection.ownerOf(tokenId)
+
+    const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+    const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+    const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+    
+    let itemCloudSLA={
+
+        tokenURI:tokenURI,
+        cloudSLAOwner:cloudSLAOwner,
+        erc721SLATokenId:tokenId,
+        cloudServiceName: responseCloudService.data.cloudServiceType,
+        cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+        cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+        hoursToBuy: response.data.hoursToBuy,
+        maxPenalty: response.data.maxPenalty,
+        slaEndingDate: response.data.slaEndingDate,
+        originalPrice: response.data.originalPrice,
+
+
+      }
+    const nft = itemCloudSLA
+  
+    let contractMetadata;
+  
+    try {
+      contractMetadata = nftERC721_SLACollection.address;
+      
+    } catch (e) {}
+  
+    return {
+      props: {
+        nft,
+        contractMetadata: contractMetadata || null,
+      },
+      revalidate: 1, // https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration
+    };
+  };
+
+  
+  export const getStaticPaths = async () => {
+   
+    const provider= new ethers.providers.JsonRpcProvider()
+    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
+  
+    const tokenIds=[]
+  
+    const events = await nftERC721_SLACollection.queryFilter('Transfer', 0);
+
+    console.log(events);
+
+   // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+   const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
+    const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+    const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+    const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+    
+    let itemCloudSLA={
+
+        tokenURI:tokenURI,
+        cloudSLAOwner:cloudSLAOwner,
+
+        erc721SLATokenId:tokenId.toNumber(),
+        cloudServiceName: responseCloudService.data.cloudServiceType,
+        cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+        cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+        hoursToBuy: response.data.hoursToBuy,
+        maxPenalty: response.data.maxPenalty,
+        slaEndingDate: response.data.slaEndingDate,
+        originalPrice: response.data.originalPrice,
+
+
+      }
+    return itemCloudSLA
+}))
+
+    const paths = itemsCloudSLA.map((nft) => {
+      return {
+        params: {
+          contractAddress: NFT_ERC721_CONTRACT,
+          tokenId: nft.erc721SLATokenId,
+        },
+      };
+    });
+  
+    return {
+      paths,
+      fallback: "blocking", // can also be true or 'blocking'
+    };
+    
+  };
+  

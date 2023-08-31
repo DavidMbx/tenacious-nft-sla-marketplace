@@ -26,6 +26,8 @@ import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 import {create } from 'ipfs-http-client'
 const axios = require('axios');
 
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
+
 export default function ProfilePage() {
     
     
@@ -187,7 +189,7 @@ export default function ProfilePage() {
             ml={6}
             colorScheme="teal"
             borderRadius="md"
-           
+            leftIcon={<RepeatIcon />}
             boxShadow="lg"
             variant='outline'
           >

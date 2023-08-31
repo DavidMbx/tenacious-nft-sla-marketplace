@@ -1,6 +1,6 @@
 import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image,Button,DatePicker,
     FormLabel,NumberInput,NumberInputField,NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper, FormControl} from "@chakra-ui/react";
-import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,TriangleDownIcon,LinkIcon } from '@chakra-ui/icons'
+import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,TriangleDownIcon,LinkIcon,MinusIcon } from '@chakra-ui/icons'
 import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, 
     useValidEnglishAuctions } from "@thirdweb-dev/react";
 import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
@@ -31,6 +31,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     const address=useAddress()
     const signer=useSigner()
     const [showFragment, setShowFragment] = useState(false);
+    const [priceText, setpriceText] = useState(" ETH");
     console.log(nft)
 
     const [formFragmentation,updateFormFragmentation]=useState({ numberFragment:'',hoursSingleFragment:''})
@@ -72,6 +73,31 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
                
         
     }
+
+
+        async function handleBuy() {
+
+                                  
+    
+                   
+            
+        }
+
+        async function handleRemove() {
+
+                                  
+    
+                   
+            
+        }
+
+        async function handleSell() {
+
+                                  
+    
+                   
+            
+        }
 
     // Funzione per caricare un file su IPFS
 async function uploadToIPFS(file) {
@@ -304,16 +330,33 @@ async function uploadToIPFS(file) {
                   
                      
                         <Text fontSize={"xl"} fontWeight={"bold"}>
-                        ETH </Text>
-                        <Text fontSize={"md"} fontWeight={"bold"} mt={5}>
-                                    This NFT is not on the Market </Text>
+                            {priceText}  </Text>
+                       
                            
                         </Skeleton>
                
                     </Stack>
 
 
-                    { address==nft.cloudSLAOwner ? (
+                    { address==nft.cloudSLAOwner && address==""  ? (
+                         
+                 
+                         <>
+
+                    
+                        <Button 
+                        onClick={handleSell}
+                        leftIcon={<MinusIcon />}
+                        mt={2}
+                        colorScheme="red"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Sell this Cloud Service SLA Contract
+                        </Button>
+
+
 
                         <Button 
                         onClick={handleFragment}
@@ -326,11 +369,46 @@ async function uploadToIPFS(file) {
                         >
                         Fragment this Cloud Service SLA Contract
                         </Button>
+                        </>
+                    ) 
+                     :(address==nft.cloudSLAOwner && !address=="" ) ?(
 
-                    ) :(
+
+                        <>
+
+                    
+                        <Button 
+                        onClick={handleRemove}
+                        leftIcon={<MinusIcon />}
+                        mt={2}
+                        colorScheme="green"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Remove this Cloud Service SLA Contract from Market
+                        </Button>
+
+
 
                         <Button 
-                        
+                        onClick={handleFragment}
+                        leftIcon={<TriangleDownIcon />}
+                        mt={2}
+                        colorScheme="messenger"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Fragment this Cloud Service SLA Contract
+                        </Button>
+                        </>
+
+                   
+                    ):(!address==nft.cloudSLAOwner && address=="" ) ?(
+                        <>
+                             <Button 
+                         onClick={handleBuy}
                         leftIcon={<TriangleDownIcon />}
                         mt={2}
                         colorScheme="green"
@@ -340,6 +418,11 @@ async function uploadToIPFS(file) {
                         >
                         Buy this Cloud Service SLA Contract for ETH
                         </Button>
+                        </>
+                    ):(
+                        <>
+                        
+                        </>
                     ) }
 
                 {showFragment  && (

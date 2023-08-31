@@ -15,6 +15,7 @@ import Link from "next/link";
 import {ethers} from 'ethers'
 const axios = require('axios');
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
+const SparqlClient = require('sparql-http-client')
 
 
 
@@ -22,6 +23,63 @@ import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 export default function TokenPageProvider({ nft, contractMetadata }) {
 
     const address=useAddress()
+    const signer=useSigner()
+    
+    const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
+    const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
+    const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+
+
+
+
+
+
+    async function handleDeleteCloudProvider() {
+
+        
+        let contract= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
+        console.log(contract)
+      
+        let transaction= await contract.burn(nft.badgeProviderTokenId)
+        let tx= await transaction.wait()
+        console.log(tx)
+        await deleteFromSPARQL(nft.tokenURI,nft.badgeProviderTokenId)
+        
+              
+          }
+
+          async function deleteFromSPARQL(tokenURI,tokenId) {
+
+            const {cloudProviderName,cloudProviderMail,cloudProviderPictureURI,cloudProviderAddress}= nft
+          
+          
+            const deleteQuery = `
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+          
+            INSERT DATA {
+              cs:${cloudProviderName.replace(/ /g, "_")} rdf:type cs:CloudProvider.
+              cs:${cloudProviderName.replace(/ /g, "_")} cs:hasMail "${cloudProviderMail}".
+              cs:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type cs:Picture.
+              cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURI.replace("https://ipfs.io/ipfs/","")}".
+              cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
+              cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
+              cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")}  rdf:type cs:NFT-Badge .
+              cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
+              cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "${tokenURI}".
+              cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".
+              cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasTokenID "${tokenId}".
+            }
+            
+          `;
+          
+          const responseUpdate=clientSPARQL.query.update(deleteQuery)
+          console.log(responseUpdate)
+          
+          
+          
+          }
     
     
     
@@ -122,23 +180,11 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
                                         
                     { address==nft.cloudProviderAddress ? (
 
-                    <Flex justifyContent="center" alignItems="center">
-
                     
-                    <Button
-                    leftIcon={<EditIcon />}
-                    mr={4}
-                    mt={2}
-                    colorScheme="messenger"
-                    borderRadius="md"
-                    size='lg'
-                    boxShadow="lg"
-                    >
-                    Update Cloud Provider
-                    </Button>
-
                     
+                   
                     <Button 
+                    onClick={handleDeleteCloudProvider}
                     leftIcon={<DeleteIcon />}
                     mt={2}
                     colorScheme="red"
@@ -150,7 +196,7 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
                     </Button>
 
 
-                    </Flex>
+                  
 
 
                     ) :(
@@ -217,7 +263,8 @@ export const getStaticProps = async (context) => {
     const tokenURI = await nftBadgeProviderCollection.tokenURI(tokenId);
     const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
     let itemCloudProvider={
-        badgeProviderTokenId:tokenURI,
+        tokenURI:tokenURI,
+        badgeProviderTokenId:tokenId,
         cloudProviderAddress: response.data.cloudProviderAddress,
         cloudProviderMail: response.data.cloudProviderMail,
         cloudProviderName: response.data.cloudProviderName,

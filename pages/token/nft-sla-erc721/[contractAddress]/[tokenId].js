@@ -72,6 +72,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
         let transaction= await contract.burn(nft.erc721SLATokenId)
         let tx= await transaction.wait()
         console.log(tx)
+        await deleteFromSPARQL(nft.tokenURI,nft.erc721SLATokenId)
         
     for(let i=0;i<formFragmentation.numberFragment;i++){
         await createFileJSON()
@@ -129,7 +130,7 @@ async function uploadToIPFS(file) {
             const maxPenalty=nft.maxPenalty
             const slaEndingDate=nft.slaEndingDate
           const cloudServiceTokenURI=nft.cloudServiceTokenURI
-          const originalPrice=(nft.totalPrice/formFragmentation.numberFragment).toFixed(2)
+          const originalPrice=(nft.originalPrice/formFragmentation.numberFragment).toFixed(2)
 
           if(!hoursToBuy||!maxPenalty ||!originalPrice
                ) return  
@@ -142,7 +143,7 @@ async function uploadToIPFS(file) {
         const formURI= await uploadToIPFS(data)
         console.log(data+"\n"+formURI)
     
-        const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,nft.totalPrice);
+        const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,nft.originalPrice);
         uploadToSPARQL(formURI,tokenId);
         
         
@@ -174,7 +175,7 @@ async function uploadToIPFS(file) {
         const maxPenalty=nft.maxPenalty
         const slaEndingDate=nft.slaEndingDate
     
-      const originalPrice=(nft.totalPrice/formFragmentation.numberFragment).toFixed(2)
+      const originalPrice=(nft.originalPrice/formFragmentation.numberFragment).toFixed(2)
 
           const cloudServiceTokenURI=nft.cloudServiceTokenURI
           const cloudServicePictureURI=nft.cloudServicePictureURI.replace("https://ipfs.io/ipfs/","")
@@ -223,6 +224,67 @@ async function uploadToIPFS(file) {
       `;
       
       const responseUpdate=clientSPARQL.query.update(insertQuery)
+      console.log(responseUpdate)
+      
+      
+      
+      }
+
+      async function deleteFromSPARQL(tokenURI,tokenId) {
+
+        const hoursToBuy=nft.hoursToBuy
+        const maxPenalty=nft.maxPenalty
+        const slaEndingDate=nft.slaEndingDate
+    
+      const originalPrice=nft.originalPrice
+
+          const cloudServiceTokenURI=nft.cloudServiceTokenURI
+          const cloudServicePictureURI=nft.cloudServicePictureURI.replace("https://ipfs.io/ipfs/","")
+          const cloudServiceOwner=nft.cloudServiceOwner
+          console.log(cloudServicePictureURI)
+
+          const slaIstanceId=tokenURI
+          
+      
+      
+        const deleteQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      
+        DELETE DATA {
+          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer .
+          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address} .
+          cs:Parties_${address+cloudServiceOwner} rdf:type cs:Parties .
+          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA .
+          cs:Terms_${slaIstanceId} rdf:type cs:Terms .
+          cs:ServiceDefinitionTerms_${slaIstanceId} rdf:type cs:ServiceDefinitionTerms .
+          cs:TerminationTerms_${slaIstanceId} rdf:type cs:TerminationTerms .
+          cs:ViolationCausing_${slaIstanceId} rdf:type cs:ViolationCausing .
+          cs:SLAEnding_${slaIstanceId} rdf:type cs:SLAEnding_${slaIstanceId} .
+          cs:CloudSLA_${slaIstanceId} cs:hasTerms cs:Terms_${slaIstanceId} .
+          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+cloudServiceOwner} .
+          cs:Parties_${address+cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
+          cs:Parties_${address+cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
+          cs:Terms_${slaIstanceId} cs:hasTTerms cs:TerminationTerms_${slaIstanceId} .
+          cs:Terms_${slaIstanceId} cs:hasSDTerms cs:ServiceDefinitionTerms_${slaIstanceId} .
+          cs:ServiceDefinitionTerms_${slaIstanceId} cs:hoursAvailable "${hoursToBuy}" .
+          cs:ViolationCausing_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId}  .
+          cs:SLAEnding_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId} .
+          cs:ViolationCausing_${slaIstanceId} cs:maxViolationNumber "${maxPenalty}"  .
+          cs:SLAEnding_${slaIstanceId} cs:hasDate "${slaEndingDate}" .
+          cs:NFT_ERC721_${slaIstanceId} rdf:type cs:NFT-ERC-721 .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasCloudSLA cs:CloudSLA_${slaIstanceId}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasAddress "${NFT_ERC721_CONTRACT}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
+          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${cloudServicePictureURI} .
+        }
+        
+      `;
+      
+      const responseUpdate=clientSPARQL.query.update(deleteQuery)
       console.log(responseUpdate)
       
       

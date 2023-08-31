@@ -75,6 +75,20 @@ export default function TokenPageService({ nft, contractMetadata }) {
         
     }
 
+    async function handleDeleteCloudService() {
+
+        
+        let contract= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
+        console.log(contract)
+      
+        let transaction= await contract.burn(nft.badgeServiceTokenId)
+        let tx= await transaction.wait()
+        console.log(tx)
+        await deleteFromSPARQL(nft.tokenURI,nft.badgeServiceTokenId)
+        
+              
+          }
+
     // Funzione per caricare un file su IPFS
 async function uploadToIPFS(file) {
     try {
@@ -189,6 +203,86 @@ async function uploadToIPFS(file) {
       console.log(responseUpdate)
       
       
+      
+      }
+
+
+      async function deleteFromSPARQL(tokenURI,tokenId) {
+
+        const { cloudServiceType, cloudServicePricingModel, 
+            cloudServicePrice,cloudServiceAvailabilityTarget,cloudServiceAvailabilityPenalty,
+            cloudServiceErrorRateTarget,cloudServiceErrorRatePenalty,
+            cloudServiceResponseTimeTarget,cloudServiceResponseTimePenalty, cloudServicePictureURI,memory, storage, 
+            version,region,cpuSpeed,
+            cpuCores,architecture}= nft
+
+
+           
+    
+
+
+        //Utilizzo come id quello della picture uploadata su IPFS
+        const cloudServiceID=cloudServicePictureURI.replace("https://ipfs.io/ipfs/","") 
+       
+    
+        //
+        const deleteQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      
+        DELETE DATA {
+            cs:CloudService_${cloudServiceID} rdf:type cs:CloudService .
+            cs:Price_${cloudServiceID} cs:currency "Eth".
+            cs:Price_${cloudServiceID}  cs:value "${cloudServicePrice}".
+            cs:PricingModel_${cloudServiceID}  rdf:type cs:${cloudServicePricingModel}.
+            cs:PricingModel_${cloudServiceID}  rdf:type cs:PricingModel.
+            cs:PricingModel_${cloudServiceID}  cs:hasPrice cs:Price_${cloudServiceID} .
+            cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
+            cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
+            cs:Availability_${cloudServiceID}  rdf:type cs:Availability.
+            cs:ErrorRate_${cloudServiceID}  rdf:type cs:ErrorRate.
+            cs:ResponseTime_${cloudServiceID}  rdf:type cs:ResponseTime.
+            cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget} ".
+            cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget} ".
+            cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget} ".
+            cs:Penalty_${cloudServiceID} rdf:type cs:Penalty .
+            cs:SLO_${cloudServiceID} rdf:type cs:SLO .
+            cs:SLO_${cloudServiceID} cs:hasAvailability cs:Availability_${cloudServiceID} .
+            cs:SLO_${cloudServiceID} cs:hasErrorRate cs:ErrorRate_${cloudServiceID}  .
+            cs:SLO_${cloudServiceID} cs:hasResponseTime cs:ResponseTime_${cloudServiceID} .
+            cs:SLO_${cloudServiceID} cs:hasPenalty cs:Penalty_${cloudServiceID} .
+            cs:Penalty_${cloudServiceID} cs:penaltyValueAvailability "${cloudServiceAvailabilityPenalty}" .
+            cs:Penalty_${cloudServiceID} cs:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}" . 
+            cs:Penalty_${cloudServiceID} cs:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}" .
+            cs:Penalty_${cloudServiceID} cs:currency "Ether" .
+            cs:VirtualAppliance_${cloudServiceID} rdf:type cs:VirtualAppliance .
+            cs:ImageType_${cloudServiceID} rdf:type cs:ImageType .
+            cs:CloudService_${cloudServiceID} cs:hasImage cs:ImageType_${cloudServiceID}.
+            cs:CloudService_${cloudServiceID} cs:hasAppliance cs:VirtualAppliance_${cloudServiceID}.
+            cs:VirtualAppliance_${cloudServiceID} cs:memory "${memory}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:storage "${storage}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:version "${version}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:cpuSpeed "${cpuSpeed}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:cpuCores "${cpuCores}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:architecture "${architecture.replace(/ /g, "_")}" .
+            cs:VirtualAppliance_${cloudServiceID} cs:hasRegion cs:${region}.
+            cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
+            cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
+            cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURI} " .
+            cs:NFT-Badge_${cloudServiceID}  rdf:type cs:NFT-Badge .
+            cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
+            cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasOwner cs:Address_${nft.cloudProviderAddress} .
+            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "${tokenURI} ".
+            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "${tokenId} ".
+        }
+        
+      `;
+      
+      const responseUpdate=clientSPARQL.query.update(deleteQuery)
+      
+      console.log(responseUpdate)
       
       }
     
@@ -316,23 +410,11 @@ async function uploadToIPFS(file) {
 
                     { address==nft.cloudServiceOwner ? (
 
-                    <Flex justifyContent="center" alignItems="center">
-
                        
-                    <Button
-                     leftIcon={<EditIcon />}
-                    mr={4}
-                      mt={2}
-                      colorScheme="messenger"
-                      borderRadius="md"
-                      size='lg'
-                      boxShadow="lg"
-                      >
-                      Update Cloud Service
-                     </Button>
-
+                   
                      
                      <Button 
+                     onClick={handleDeleteCloudService}
                       leftIcon={<DeleteIcon />}
                       mt={2}
                       colorScheme="red"
@@ -344,7 +426,7 @@ async function uploadToIPFS(file) {
                      </Button>
                     
                     
-                   </Flex>
+                   
 
 
                     ) :(
@@ -462,6 +544,15 @@ export const getStaticProps = async (context) => {
         cloudServicePrice: response.data.cloudServicePrice,
         cloudServicePictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudServicePictureURI,
 
+        cloudServiceAvailabilityTarget:response.data.cloudServiceAvailabilityTarget,
+        cloudServiceAvailabilityPenalty:response.data.cloudServiceAvailabilityPenalty,
+        cloudServiceErrorRateTarget:response.data.cloudServiceErrorRateTarget,
+        cloudServiceErrorRatePenalty:response.data.cloudServiceErrorRatePenalty,
+        cloudServiceResponseTimeTarget:response.data.cloudServiceResponseTimeTarget,
+        cloudServiceResponseTimePenalty:response.data.cloudServiceResponseTimePenalty,
+        architecture: response.data.architecture,
+        version: response.data.version,
+
       }
     const nft = itemCloudService
   
@@ -510,6 +601,14 @@ export const getStaticProps = async (context) => {
         cloudServicePricingModel: response.data.cloudServicePricingModel,
         cloudServicePrice: response.data.cloudServicePrice,
         cloudServicePictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudServicePictureURI,
+        cloudServiceAvailabilityTarget:response.data.cloudServiceAvailabilityTarget,
+        cloudServiceAvailabilityPenalty:response.data.cloudServiceAvailabilityPenalty,
+        cloudServiceErrorRateTarget:response.data.cloudServiceErrorRateTarget,
+        cloudServiceErrorRatePenalty:response.data.cloudServiceErrorRatePenalty,
+        cloudServiceResponseTimeTarget:response.data.cloudServiceResponseTimeTarget,
+        cloudServiceResponseTimePenalty:response.data.cloudServiceResponseTimePenalty,
+        architecture: response.data.architecture,
+        version: response.data.version,
 
       }
     return itemCloudService

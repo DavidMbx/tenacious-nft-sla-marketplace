@@ -16,6 +16,7 @@ import {
 } from "../../../../const/addresses";
 import NFT_Badge_Service from   '../../../../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
 import NFT_ERC721 from   '../../../../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
+import NFTMarket from   '../../../../artifacts/contracts/NFTMarket.sol/NFTMarket.json'
 import { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
 import {ethers} from 'ethers'
@@ -32,6 +33,8 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     const signer=useSigner()
     const [showFragment, setShowFragment] = useState(false);
     const [priceText, setpriceText] = useState(" ETH");
+    const [priceToSellForm, setPriceToSellForm] = useState();
+    const [showPriceForm, setShowPriceForm] = useState(false);
     const [tokenOnMarket,setTokenOnMarket]=useState(false)
 
     console.log(nft)
@@ -102,7 +105,32 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         async function handleSell() {
 
-                                  
+        
+            setShowPriceForm(!showPriceForm)
+    
+                   
+            
+        }
+
+        async function handleSellCloudSLA() {
+
+        
+          
+            let contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
+            let contractERC721= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+            console.log(contractERC721)
+            console.log(contractMarketplace)
+          
+            const price= ethers.utils.parseUnits(priceToSellForm.toString(),'ether')
+            let listingPrice=await contractMarketplace.getListingPrice()
+            listingPrice=listingPrice.toString()
+
+            const txApproval = await contractERC721.setApprovalForAll(NFT_MARKETPLACE_CONTRACT, true);
+            await txApproval.wait();
+           
+            let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value:listingPrice})
+            let tx= await transaction.wait()
+            console.log(tx)
     
                    
             
@@ -413,7 +441,7 @@ async function uploadToIPFS(file) {
                     </Stack>
 
 
-                    { address==nft.cloudSLAOwner && address==""  ? (
+                    { address==nft.cloudSLAOwner && !address==""  ? (
                          
                  
                          <>
@@ -446,7 +474,7 @@ async function uploadToIPFS(file) {
                         </Button>
                         </>
                     ) 
-                     :(address==nft.cloudSLAOwner && !address=="" ) ?(
+                     :(address==nft.cloudSLAOwner && address=="" ) ?(
 
 
                         <>
@@ -544,6 +572,51 @@ async function uploadToIPFS(file) {
 
                     </>
                         )}
+
+                        {showPriceForm  && (
+
+                                    
+                        <>
+
+
+
+                        <Box mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+                        <Text as='b' fontSize='lg'>Price Cloud SLA NFT</Text>
+
+                        <FormControl isRequired>
+                        <FormLabel mt={4} >Price</FormLabel>
+                        <NumberInput min={0.001}  precision={3} step={1}>
+                        <NumberInputField 
+                        placeholder="e.g. 10"
+                        onChange={e=> setPriceToSellForm(e.target.value)}/>
+                            <NumberInputStepper>
+                            <NumberIncrementStepper />
+                            <NumberDecrementStepper />
+                            </NumberInputStepper>
+                        </NumberInput>
+                        </FormControl>
+
+
+
+                        </Box>
+
+                        <Text fontSize={"xl"} fontWeight={"bold"}>
+                            You will sell this Cloud SLA NFT for {priceToSellForm} ETH    </Text>
+
+                            <Button 
+                        onClick={handleSellCloudSLA}
+                        leftIcon={<MinusIcon />}
+                        mt={2}
+                        colorScheme="red"
+                        borderRadius="md"
+                        size='lg'
+                        boxShadow="lg"
+                        >
+                        Sell this Cloud Service SLA Contract NFT for {priceToSellForm} ETH 
+                        </Button>
+
+                        </>
+                            )}
 
                      
 

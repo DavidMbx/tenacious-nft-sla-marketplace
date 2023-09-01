@@ -19,7 +19,7 @@ contract NFTMarket is ReentrancyGuard {
     //Not sold= itemIds-itemSold 
 
 
-    uint256 listingPrice = 0.025 ether;
+    uint256 listingPrice = 0 ether;
     address payable owner;
 
     constructor()  {

@@ -773,8 +773,8 @@
       ]
     },
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFT_ERC721.sol": {
-      "lastModificationDate": 1693649026993,
-      "contentHash": "d952f2bcf9bd66428469713e19be6e02",
+      "lastModificationDate": 1693651543985,
+      "contentHash": "df677bffffe872fca5a613b98ebc9031",
       "sourceName": "contracts/NFT_ERC721.sol",
       "solcConfig": {
         "version": "0.8.4",

@@ -36,8 +36,10 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     const [priceToSellForm, setPriceToSellForm] = useState();
     const [showPriceForm, setShowPriceForm] = useState(false);
     const [tokenOnMarket,setTokenOnMarket]=useState(false)
+    const [marketItems,setMarketItems]=useState()
 
     console.log(nft)
+    console.log("market"+marketItems)
 
     const [formFragmentation,updateFormFragmentation]=useState({ numberFragment:'',hoursSingleFragment:''})
     
@@ -637,6 +639,10 @@ export const getStaticProps = async (context) => {
 
     const provider= new ethers.providers.JsonRpcProvider()
    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
+   const marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
+   const marketItems=await marketContract.fetchMarketItems()
+   
+
    const cloudSLAOwner=await nftERC721_SLACollection.ownerOf(tokenId)
 
     const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
@@ -657,6 +663,7 @@ export const getStaticProps = async (context) => {
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
         cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
+        marketItems: marketItems.tokenId(0),
 
 
 
@@ -684,6 +691,9 @@ export const getStaticProps = async (context) => {
    
     const provider= new ethers.providers.JsonRpcProvider()
     const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
+    const marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
+    const marketItems=await marketContract.fetchMarketItems()
+    
   
     const tokenIds=[]
   
@@ -711,6 +721,7 @@ export const getStaticProps = async (context) => {
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
         cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
+        marketItems: marketItems.tokenId(0),
 
 
       }

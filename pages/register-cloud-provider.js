@@ -93,7 +93,7 @@ const sdk = new ThirdwebSDK("goerli", {
       console.log('Cloud Provider Picture:', cloudProviderPicture);
       console.log('Cloud Provider Address:',cloudProviderAddress)
       checkIfAlreadyCloudProvider()
-      createFileJSON()
+      
       
 
     };

@@ -62,9 +62,12 @@ contract NFT_ERC721 is ERC721, ERC721URIStorage, Ownable {
 
 
     function _afterTokenTransfer(address from, address to, uint256 tokenId,uint256 batchSize) internal override  {
+    
+     if (!(from == address(0)) && !(to == address(0))) {
+            _userTokens[to].push(tokenId);
+            _removeTokenFromUser(from, tokenId);
+     }
 
-   _userTokens[to].push(tokenId);
-    _removeTokenFromUser(from, tokenId);
     
     }
 

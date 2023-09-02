@@ -61,6 +61,14 @@ contract NFT_ERC721 is ERC721, ERC721URIStorage, Ownable {
     }
 
 
+    function _afterTokenTransfer(address from, address to, uint256 tokenId,uint256 batchSize) internal override  {
+
+   _userTokens[to].push(tokenId);
+    _removeTokenFromUser(from, tokenId);
+    
+    }
+
+
 
     // The following functions are overrides required by Solidity.
 

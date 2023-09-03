@@ -161,6 +161,9 @@ async function uploadToIPFS(file) {
             const slaEndingDate=nft.slaEndingDate
           const cloudServiceTokenURI=nft.cloudServiceTokenURI
           const originalPrice=(nft.originalPrice/formFragmentation.numberFragment).toFixed(2)
+          console.log(hoursToBuy)
+          console.log(maxPenalty)
+          console.log(originalPrice)
 
           if(!hoursToBuy||!maxPenalty ||!originalPrice
                ) return  
@@ -640,7 +643,7 @@ export const getStaticProps = async (context) => {
     const provider= new ethers.providers.JsonRpcProvider()
    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
    const marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
-   const marketItems=await marketContract.fetchMarketItems()
+   const marketItem=await marketContract.getMarketItemById(tokenId)
    
 
    const cloudSLAOwner=await nftERC721_SLACollection.ownerOf(tokenId)
@@ -662,9 +665,9 @@ export const getStaticProps = async (context) => {
         maxPenalty: response.data.maxPenalty,
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
+        marketItem: marketItem.sold,
         cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
-        marketItems: marketItems.tokenId(0),
-
+        
 
 
       }
@@ -691,8 +694,8 @@ export const getStaticProps = async (context) => {
    
     const provider= new ethers.providers.JsonRpcProvider()
     const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
-    const marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
-    const marketItems=await marketContract.fetchMarketItems()
+  
+   
     
   
     const tokenIds=[]
@@ -711,7 +714,6 @@ export const getStaticProps = async (context) => {
 
         tokenURI:tokenURI,
         cloudSLAOwner:cloudSLAOwner,
-
         erc721SLATokenId:tokenId.toNumber(),
         cloudServiceName: responseCloudService.data.cloudServiceType,
         cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
@@ -721,7 +723,8 @@ export const getStaticProps = async (context) => {
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
         cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
-        marketItems: marketItems.tokenId(0),
+        marketItem: marketItem.sold,
+      
 
 
       }

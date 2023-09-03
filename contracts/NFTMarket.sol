@@ -68,6 +68,10 @@ contract NFTMarket is ReentrancyGuard {
       return listingPrice;
     }
 
+    function getMarketItemById(uint256 _itemId) public view returns (MarketItem memory) {
+    return idToMarketItem[_itemId];
+}
+
     
     //Funzione per creare un oggetto da zero e metterlo sul mercato
     function createMarketItem(

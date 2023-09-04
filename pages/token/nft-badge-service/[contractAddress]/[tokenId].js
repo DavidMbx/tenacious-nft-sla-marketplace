@@ -208,6 +208,7 @@ async function uploadToIPFS(file) {
           cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
           cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
           cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
+          cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "false"  .
           cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${cloudServicePictureURI} .
         }
         

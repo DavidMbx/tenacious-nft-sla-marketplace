@@ -184,7 +184,7 @@ export default function ProfilePage() {
             <Flex>
             <Heading>{"Your NFTs"}</Heading>
             <Button
-            loadingState
+            
             onClick={loadNFTs}
             ml={6}
             colorScheme="teal"

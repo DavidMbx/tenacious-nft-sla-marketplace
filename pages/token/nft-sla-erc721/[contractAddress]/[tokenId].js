@@ -42,11 +42,11 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     const [priceText, setpriceText] = useState(" ETH");
     const [priceToSellForm, setPriceToSellForm] = useState();
     const [showPriceForm, setShowPriceForm] = useState(false);
-    const [tokenOnMarket,setTokenOnMarket]=useState(false)
-    const [marketItems,setMarketItems]=useState()
+    const [tokenOnMarket,setTokenOnMarket]=useState(nft.cloudSLAOwner==NFT_MARKETPLACE_CONTRACT)
+    
 
     console.log(nft)
-    console.log("market"+marketItems)
+    
 
     const [formFragmentation,updateFormFragmentation]=useState({ numberFragment:'',hoursSingleFragment:''})
 
@@ -106,7 +106,17 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         async function handleBuy() {
 
-                                  
+        let contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
+        let contractERC721= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+        console.log(contractERC721)
+        console.log(contractMarketplace)
+        const price= ethers.utils.parseUnits(nft.marketItemPrice.toString(),'ether')
+        const transaction=await contractMarketplace.createMarketSale(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,{value:price})
+        const tx=await transaction.wait()
+        console.log(tx)
+        await updateToSPARQL(nft.tokenURI)
+        setSuccess({state:true,message:"You sucessfully bought this Cloud SLA NFT"})
+
     
                    
             
@@ -148,6 +158,9 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
             let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value:listingPrice})
             let tx= await transaction.wait()
             console.log(tx)
+
+            await updateToSPARQLSelling(nft.tokenURI)
+            
             setSuccess({state:true,message:"Cloud Service SLA NFT successfully listed on the marketplace!"})
     
                    
@@ -339,6 +352,97 @@ async function uploadToIPFS(file) {
       
       
       }
+
+      async function updateToSPARQL(tokenURI) {
+
+  
+
+          const slaIstanceId=tokenURI
+          
+      
+      
+        const deleteQuery = `
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      
+        DELETE DATA {
+
+          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${nft.marketItemSeller}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "true"  .
+   
+        }
+ 
+        
+      `;
+      const insertQuery = `
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    
+     
+      INSERT DATA{
+
+          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
+          cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "false"  .
+
+      }
+      
+    `;
+      
+      const responseDelete=clientSPARQL.query.update(deleteQuery)
+      console.log(responseDelete)
+      const responseInsert=clientSPARQL.query.update(insertQuery)
+      console.log(responseInsert)
+      
+      
+      
+      
+      }
+      async function updateToSPARQLSelling(tokenURI) {
+
+  
+
+        const slaIstanceId=tokenURI
+        
+    
+    
+      const deleteQuery = `
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    
+      DELETE DATA {
+
+        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "false"  .
+ 
+      }
+
+      
+    `;
+    const insertQuery = `
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+  
+   
+    INSERT DATA{
+
+        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "true"  .
+
+    }
+    
+  `;
+    
+    const responseDelete=clientSPARQL.query.update(deleteQuery)
+    console.log(responseDelete)
+    const responseInsert=clientSPARQL.query.update(insertQuery)
+    console.log(responseInsert)
+    
+    
+    
+    
+    }
     
    
     return (
@@ -448,18 +552,7 @@ async function uploadToIPFS(file) {
                         </Link>
                     </Box>
                     
-                    <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
-                        <Text color={"darkgray"}>Price: </Text>
-                        <Skeleton isLoaded={true}>
-                  
-                     
-                        <Text fontSize={"xl"} fontWeight={"bold"}>
-                            {priceText}  </Text>
-                       
-                           
-                        </Skeleton>
-               
-                    </Stack>
+                    
 
 
                     {success.state && 
@@ -471,93 +564,131 @@ async function uploadToIPFS(file) {
                         }
 
 
-                    { address==nft.cloudSLAOwner && !address==""  ? (
+                    { !tokenOnMarket &&  (
                          
                  
                          <>
+                            {address==nft.cloudSLAOwner  && 
 
-                    
-                        <Button 
-                        onClick={handleSell}
-                        leftIcon={<MinusIcon />}
-                        mt={2}
-                        colorScheme="red"
-                        borderRadius="md"
-                        size='lg'
-                        boxShadow="lg"
-                        >
-                        Sell this Cloud Service SLA Contract
-                        </Button>
+                                <>
 
+                                <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
+                                <Text color={"darkgray"}>Price: </Text>
+                                <Skeleton isLoaded={true}>
+                                <Text fontSize={"xl"} fontWeight={"bold"}>
+                                {"This item is not listed on the markeplace"}  </Text>
+                                </Skeleton>
+                                </Stack>
 
-
-                        <Button 
-                        onClick={handleFragment}
-                        leftIcon={<TriangleDownIcon />}
-                        mt={2}
-                        colorScheme="messenger"
-                        borderRadius="md"
-                        size='lg'
-                        boxShadow="lg"
-                        >
-                        Fragment this Cloud Service SLA Contract
-                        </Button>
-                        </>
-                    ) 
-                     :(address==nft.cloudSLAOwner && address=="" ) ?(
-
-
-                        <>
-
-                    
-                        <Button 
-                        onClick={handleRemove}
-                        leftIcon={<MinusIcon />}
-                        mt={2}
-                        colorScheme="green"
-                        borderRadius="md"
-                        size='lg'
-                        boxShadow="lg"
-                        >
-                        Remove this Cloud Service SLA Contract from Market
-                        </Button>
+                                <Button 
+                                onClick={handleSell}
+                                leftIcon={<MinusIcon />}
+                                mt={2}
+                                colorScheme="red"
+                                borderRadius="md"
+                                size='lg'
+                                boxShadow="lg"
+                                >
+                                Sell this Cloud Service SLA Contract
+                                </Button>
 
 
 
-                        <Button 
-                        onClick={handleFragment}
-                        leftIcon={<TriangleDownIcon />}
-                        mt={2}
-                        colorScheme="messenger"
-                        borderRadius="md"
-                        size='lg'
-                        boxShadow="lg"
-                        >
-                        Fragment this Cloud Service SLA Contract
-                        </Button>
-                        </>
+                                <Button 
+                                onClick={handleFragment}
+                                leftIcon={<TriangleDownIcon />}
+                                mt={2}
+                                colorScheme="messenger"
+                                borderRadius="md"
+                                size='lg'
+                                boxShadow="lg"
+                                >
+                                Fragment this Cloud Service SLA Contract
+                                </Button>
+                                </>
 
+                            }
+                            {address!=nft.cloudSLAOwner  && address!=nft.marketItemSeller && 
+
+                                <>
+
+                                <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
+                                <Text color={"darkgray"}>Price: </Text>
+                                <Skeleton isLoaded={true}>
+                                <Text fontSize={"xl"} fontWeight={"bold"}>
+                                {"This item is not listed on the markeplace"}  </Text>
+                                </Skeleton>
+                                </Stack>
+
+                                </>
+                            }
+                            
                    
-                    ):(!address==nft.cloudSLAOwner && address=="" ) ?(
-                        <>
-                             <Button 
-                         onClick={handleBuy}
-                        leftIcon={<TriangleDownIcon />}
-                        mt={2}
-                        colorScheme="green"
-                        borderRadius="md"
-                        size='lg'
-                        boxShadow="lg"
-                        >
-                        Buy this Cloud Service SLA Contract for ETH
-                        </Button>
-                        </>
-                    ):(
-                        <>
-                        
                         </>
                     ) }
+                     
+                    {tokenOnMarket  &&
+                           
+                           <>
+                            {address==nft.marketItemSeller  && 
 
+                                <>
+                                <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
+                                <Text color={"darkgray"}>Price: </Text>
+                                <Skeleton isLoaded={true}>
+                                <Text fontSize={"xl"} fontWeight={"bold"}>
+                                {nft.marketItemPrice+" ETH"}  </Text>
+                                </Skeleton>
+                                </Stack>
+
+                            
+                                <Button 
+                                onClick={handleRemove}
+                                leftIcon={<MinusIcon />}
+                                mt={2}
+                                colorScheme="green"
+                                borderRadius="md"
+                                size='lg'
+                                boxShadow="lg"
+                                >
+                                Remove this SLA Contract from Marketplace
+                                </Button>
+
+                                </>
+                            
+                            }
+
+                            {address!=nft.marketItemSeller  && 
+
+                            <>
+
+                            <Stack backgroundColor={"#EEE"} p={2.5} borderRadius={"6px"}>
+                            <Text color={"darkgray"}>Price: </Text>
+                            <Skeleton isLoaded={true}>
+                            <Text fontSize={"xl"} fontWeight={"bold"}>
+                            {nft.marketItemPrice+" ETH"}  </Text>
+                            </Skeleton>
+                            </Stack>
+                            
+                             <Button 
+                            onClick={handleBuy}
+                            leftIcon={<TriangleDownIcon />}
+                            mt={2}
+                            colorScheme="green"
+                            borderRadius="md"
+                            size='lg'
+                            boxShadow="lg"
+                            >
+                            Buy this Cloud Service SLA Contract for ETH
+                            </Button>
+                        
+                            </>
+                            }
+                         
+                         </>
+                    }
+
+                      
                 {showFragment  && (
 
             
@@ -690,7 +821,11 @@ export const getStaticProps = async (context) => {
         maxPenalty: response.data.maxPenalty,
         slaEndingDate: response.data.slaEndingDate,
         originalPrice: response.data.originalPrice,
-        marketItem: marketItem.sold,
+        marketItemSold: marketItem.sold,
+        marketItemSeller: marketItem.seller,
+        marketItemOwner: marketItem.owner,
+        marketItemSeller: marketItem.seller,
+        marketItemPrice: ethers.utils.formatUnits(marketItem.price.toString(),'ether'),
         cloudServiceOwner:responseCloudService.data.cloudProviderAddress,
         
 

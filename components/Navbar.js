@@ -14,7 +14,7 @@ export function Navbar(){
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
     const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
     const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
-    
+ 
 
 
     useEffect(() => {
@@ -111,7 +111,8 @@ export function Navbar(){
  
     </Flex>
     <Flex dir={"row"} alignItems={"center"} >
-        <ConnectWallet/>
+        <ConnectWallet
+        clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENTID}/>
         { address && (
 
             

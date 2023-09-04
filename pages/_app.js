@@ -15,7 +15,9 @@ function MyApp({ Component, pageProps }) {
   
   return (
     
-    <ThirdwebProvider activeChain={activeChain}>
+    <ThirdwebProvider activeChain={activeChain}
+    clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENTID}
+   >
       <ChakraProvider> 
       <Navbar/>
       <Component {...pageProps} />

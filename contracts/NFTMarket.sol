@@ -128,6 +128,26 @@ contract NFTMarket is ReentrancyGuard {
       payable(owner).transfer(listingPrice);
     }
 
+
+    // Funzione per rimuovere un NFT dal mercato
+    function removeMarketItem(uint256 itemId) public nonReentrant {
+      // Ottieni l'oggetto dal mapping
+      MarketItem storage item = idToMarketItem[itemId];
+
+      // Verifica che l'item esista e che l'utente attuale sia il venditore
+      require(item.itemId > 0, "Item does not exist");
+      require(item.seller == msg.sender, "You are not the seller");
+
+      // Verifica che l'item non sia già stato venduto
+      require(!item.sold, "Item is already sold");
+
+      // Trasferisci il NFT indietro al venditore
+      IERC721(item.nftContract).transferFrom(address(this), msg.sender, item.tokenId);
+
+      // Rimborsa eventuali costi di inserimento al venditore
+      payable(msg.sender).transfer(listingPrice);
+    }
+
 //Funzione che ritorna gli nft di tutto il marketplace
 
 function fetchMarketItems() public view returns (MarketItem[] memory){

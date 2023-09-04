@@ -124,7 +124,14 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         async function handleRemove() {
 
-                                  
+            let contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
+            console.log(contractMarketplace)
+            const price= ethers.utils.parseUnits(nft.marketItemPrice.toString(),'ether')
+            const transaction=await contractMarketplace.removeMarketItem(nft.erc721SLATokenId)
+            const tx=await transaction.wait()
+            console.log(tx)
+            await updateToSPARQLSelling(nft.tokenURI,false)
+            setSuccess({state:true,message:"You sucessfully removed this Cloud SLA NFT from the marketplace"})           
     
                    
             
@@ -159,7 +166,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
             let tx= await transaction.wait()
             console.log(tx)
 
-            await updateToSPARQLSelling(nft.tokenURI)
+            await updateToSPARQLSelling(nft.tokenURI,true)
             
             setSuccess({state:true,message:"Cloud Service SLA NFT successfully listed on the marketplace!"})
     
@@ -399,7 +406,7 @@ async function uploadToIPFS(file) {
       
       
       }
-      async function updateToSPARQLSelling(tokenURI) {
+      async function updateToSPARQLSelling(tokenURI,selling) {
 
   
 
@@ -414,7 +421,7 @@ async function uploadToIPFS(file) {
     
       DELETE DATA {
 
-        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "false"  .
+        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "${!selling}"  .
  
       }
 
@@ -428,7 +435,7 @@ async function uploadToIPFS(file) {
    
     INSERT DATA{
 
-        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "true"  .
+        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "${selling}"  .
 
     }
     

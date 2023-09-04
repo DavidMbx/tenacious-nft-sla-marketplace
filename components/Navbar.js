@@ -90,9 +90,9 @@ export function Navbar(){
       />
     </Link>
     <Flex direction={"row"}>
-    <Link as={NextLink} href='/buy' >
+    <Link as={NextLink} href='/search' >
     <Button colorScheme='messenger' variant='ghost' >
-    Buy
+    Search
   </Button>
   </Link>
 

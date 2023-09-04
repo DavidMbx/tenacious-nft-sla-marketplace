@@ -28,6 +28,7 @@ const axios = require('axios');
 
 import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
 
+
 export default function ProfilePage() {
     
     
@@ -38,6 +39,7 @@ export default function ProfilePage() {
     const [nftsProvider, setNftsProvider]=useState([])
     const [nftsService, setNftsService]=useState([])
     const [nftsSLA, setNftsSLA]=useState([])
+    const [nftsSLAOnSale, setNftsSLAOnSale]=useState([])
     const[loadingState,setLoadingState]=useState(true)
     
 
@@ -73,7 +75,8 @@ export default function ProfilePage() {
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
             const tokenIds = await nftBadgeProviderCollection.getUserTokens(userAddress);
             console.log(tokenIds)
-        
+
+           
     
             // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
             const itemsCloudProvider= await Promise.all(tokenIds.map(async tokenId =>{
@@ -143,6 +146,18 @@ export default function ProfilePage() {
 
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
             const tokenIds = await nftERC721_SLACollection.getUserTokens(userAddress);
+
+            const marketItems=await marketplace.fetchMarketItems()
+
+            // Supponiamo che marketItems sia l'array di oggetti di tipo MarketItem
+                const myMarketItems = marketItems.filter(item => {
+                    return item.owner.toLowerCase() === NFT_MARKETPLACE_CONTRACT.toLowerCase() &&
+                        item.seller.toLowerCase() === userAddress.toLowerCase();
+                });
+                
+               
+                
+        
         
     
             // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
@@ -166,9 +181,33 @@ export default function ProfilePage() {
                   }
                 return itemCloudSLA
             }))
+
+               // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+               const itemsCloudSLAOnSale= await Promise.all(myMarketItems.map(async myMarketItem =>{
+                const tokenURI = await nftERC721_SLACollection.tokenURI(myMarketItem.tokenId);
+                const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+                const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+              
+                let itemCloudSLAOnSale={
+
+                    
+                    erc721SLATokenId:myMarketItem.tokenId.toNumber(),
+                    cloudServiceName: responseCloudService.data.cloudServiceType,
+                    cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+                    cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+                    hoursToBuy: response.data.hoursToBuy,
+                    maxPenalty: response.data.maxPenalty,
+                    slaEndingDate: response.data.slaEndingDate,
+                    originalPrice: response.data.originalPrice,
+            
+                  }
+                return itemCloudSLAOnSale
+            }))
     
             console.log("Metadati degli NFT SLA dell'utente:", itemsCloudSLA);
+            console.log("Metadati degli NFT SLA dell'utente sul mercato:", itemsCloudSLAOnSale);
             setNftsSLA(itemsCloudSLA)
+            setNftsSLAOnSale(itemsCloudSLAOnSale)
             setLoadingState(false)
 
         } catch (error) {
@@ -245,10 +284,17 @@ export default function ProfilePage() {
                             </Box>
                             <Text fontWeight={"bold"}>Cloud Service SLA NFT</Text>
                         </Flex>
-                    <NFTGridERC721SLA
-                data={nftsSLA}
-                isLoading={loadingState}
-                emptyText={"You don't own any Cloud Service SLA NFT"}
+                        <Text mt={4} fontWeight={"bold"}>On Sale:</Text>
+                        <NFTGridERC721SLA
+                        data={nftsSLAOnSale}
+                        isLoading={loadingState}
+                        emptyText={"You don't have any Cloud Service SLA NFT on sale"}
+                    />
+                    <Text fontWeight={"bold"}>Not on sale:</Text>
+                            <NFTGridERC721SLA
+                        data={nftsSLA}
+                        isLoading={loadingState}
+                        emptyText={"You don't own any Cloud Service SLA NFT"}
             />
             </Box>
 

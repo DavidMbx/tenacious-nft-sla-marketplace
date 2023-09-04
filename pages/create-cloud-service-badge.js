@@ -14,6 +14,14 @@ import {
 } from "../const/addresses";
 import NFT_Badge_Service from   '../artifacts/contracts/NFT_Badge_Service.sol/NFT_Badge_Service.json'
 import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+} from '@chakra-ui/react'
+
+
 
 export default function CreateCloudServiceBadge() {
 
@@ -30,6 +38,8 @@ export default function CreateCloudServiceBadge() {
         const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
         const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
         const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+
+        const [registerCPSuccess, setRegisterCPSuccess]=useState(false)
   
       
   
@@ -129,7 +139,8 @@ async function uploadToIPFS(file) {
         console.log(data+"\n"+formURI)
     
         const tokenId=await uploadToBlockchain(formURI);
-        uploadToSPARQL(newName,formURI,tokenId);
+        await uploadToSPARQL(newName,formURI,tokenId);
+        setRegisterCPSuccess(true)
         
         
         
@@ -308,6 +319,10 @@ async function uploadToIPFS(file) {
   
       };
 
+      const reloadPage = () => {
+        window.location.reload();
+      };
+
 
 
        // Funzione per creare il vettore dei service types in base alle query sparql
@@ -388,11 +403,17 @@ async function uploadToIPFS(file) {
     return (
         <Flex justifyContent="center" alignItems="center" height="190vh">
           <Box w="50%" p={4} >
-            <FormControl isRequired>
 
 
-        
-                <FormLabel>Cloud Service Type</FormLabel>
+          {registerCPSuccess && 
+
+          <Alert status='success'>
+          <AlertIcon />
+            Cloud Service successfully created!
+          </Alert>
+            }
+            <FormControl isRequired>        
+                <FormLabel mt={4}>Cloud Service Type</FormLabel>
                     <Select 
                     placeholder='Select Cloud Service Type'
                     onChange={e=> updateFormInput({...formInput,cloudServiceType: e.target.value})} >

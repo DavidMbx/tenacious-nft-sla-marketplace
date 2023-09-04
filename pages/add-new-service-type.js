@@ -6,6 +6,13 @@ import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 require('dotenv').config({ path:"./.env"})
 const SparqlClient = require('sparql-http-client')
 import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+} from '@chakra-ui/react'
+
 
 
 
@@ -15,6 +22,7 @@ export default function AddNewServiceType() {
 
 
         const [formInput,updateFormInput]=useState({ serviceTypeName:'', serviceCategory:''})
+        const [successAddService,setSuccessAddService]=useState(false)
 
         const cloudProviderAddress= useAddress();
         
@@ -185,6 +193,8 @@ async function uploadToSPARQL(cloudProviderName) {
   const responseUpdate=clientSPARQL.query.update(insertQuery)
   
   console.log(responseUpdate)
+  setSuccessAddService(true)
+
   
   }
 
@@ -207,10 +217,17 @@ const handleAddNewServiceType= () => {
     return (
         <Flex justifyContent="center" alignItems="center" height="60vh">
           <Box w="50%" p={4} >
-            <FormControl isRequired>
 
+          {successAddService && 
+
+          <Alert status='success'>
+          <AlertIcon />
+            New Service Type successfully added!
+          </Alert>
+            }
+            <FormControl isRequired>
         
-            <FormLabel>Cloud Service Category</FormLabel>
+            <FormLabel mt={4}>Cloud Service Category</FormLabel>
                     <Select 
                     placeholder='Select Cloud Service Category'
                     onChange={e=> updateFormInput({...formInput,serviceCategory: e.target.value})} >

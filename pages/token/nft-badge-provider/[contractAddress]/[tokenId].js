@@ -16,7 +16,13 @@ import {ethers} from 'ethers'
 const axios = require('axios');
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 const SparqlClient = require('sparql-http-client')
-
+import {
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
+  } from '@chakra-ui/react'
+  
 
 
 
@@ -28,6 +34,7 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
     const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
     const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+    const [deleteCPSuccess,setDeleteCPSuccess]=useState(false)
 
 
 
@@ -44,6 +51,7 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
         let tx= await transaction.wait()
         console.log(tx)
         await deleteFromSPARQL(nft.tokenURI,nft.badgeProviderTokenId)
+        setDeleteCPSuccess(true)
         
               
           }
@@ -181,8 +189,15 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
                     { address==nft.cloudProviderAddress ? (
 
                     
-                    
-                   
+                    <>
+                    {deleteCPSuccess && 
+
+                        <Alert  mt={2} status='success'>
+                        <AlertIcon />
+                        Cloud Provider Badge successfully deleted!
+                        </Alert>
+                        }
+
                     <Button 
                     onClick={handleDeleteCloudProvider}
                     leftIcon={<DeleteIcon />}
@@ -194,7 +209,7 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
                     >
                     Delete Cloud Provider
                     </Button>
-
+                    </>
 
                   
 

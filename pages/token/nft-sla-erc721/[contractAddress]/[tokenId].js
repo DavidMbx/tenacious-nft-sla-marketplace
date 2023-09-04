@@ -22,6 +22,13 @@ import Link from "next/link";
 import {ethers} from 'ethers'
 const axios = require('axios');
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
+import {
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
+  } from '@chakra-ui/react'
+  
 
 
 
@@ -42,6 +49,9 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     console.log("market"+marketItems)
 
     const [formFragmentation,updateFormFragmentation]=useState({ numberFragment:'',hoursSingleFragment:''})
+
+    const [success,setSuccess]=useState({state:false,message:""})
+   
     
 
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
@@ -71,18 +81,23 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
      async function handleFragmentSLA() {
 
+   
+      if(!formFragmentation.numberFragment=="" && !formFragmentation.numberFragment=="0"){
         let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
         console.log(contract)
-      
         let transaction= await contract.burn(nft.erc721SLATokenId)
         let tx= await transaction.wait()
         console.log(tx)
         await deleteFromSPARQL(nft.tokenURI,nft.erc721SLATokenId)
         
-    for(let i=0;i<formFragmentation.numberFragment;i++){
-        await createFileJSON()
-       
-    }       
+        for(let i=0;i<formFragmentation.numberFragment;i++){
+            await createFileJSON()
+            }   
+            setSuccess({state:true,message:"Cloud Service SLA NFT successfully fragmented in "+formFragmentation.numberFragment+" fragments!"})
+        }
+        else{
+            console.log("Inserisci un numero valido di frammentazione ")
+        }   
              
                
         
@@ -133,6 +148,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
             let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value:listingPrice})
             let tx= await transaction.wait()
             console.log(tx)
+            setSuccess({state:true,message:"Cloud Service SLA NFT successfully listed on the marketplace!"})
     
                    
             
@@ -444,6 +460,15 @@ async function uploadToIPFS(file) {
                         </Skeleton>
                
                     </Stack>
+
+
+                    {success.state && 
+
+                        <Alert  mt={2} status='success'>
+                        <AlertIcon />
+                        {success.message}
+                        </Alert>
+                        }
 
 
                     { address==nft.cloudSLAOwner && !address==""  ? (

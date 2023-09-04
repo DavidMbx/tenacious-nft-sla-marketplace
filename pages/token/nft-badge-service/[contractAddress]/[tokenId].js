@@ -22,6 +22,14 @@ import Link from "next/link";
 import {ethers} from 'ethers'
 const axios = require('axios');
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
+import {
+    Alert,
+    AlertIcon,
+    AlertTitle,
+    AlertDescription,
+  } from '@chakra-ui/react'
+  
+  
 
 
 
@@ -41,6 +49,9 @@ export default function TokenPageService({ nft, contractMetadata }) {
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
     const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
     const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+
+    const [deletedSuccess,setDeletedSuccess]=useState(false)
+    const [negotiateSuccess,setNegotiateSuccess]=useState(false)
 
 
     const projectId=process.env.NEXT_PUBLIC_PROJECT_ID_IPFS_INFURA
@@ -86,6 +97,7 @@ export default function TokenPageService({ nft, contractMetadata }) {
         let tx= await transaction.wait()
         console.log(tx)
         await deleteFromSPARQL(nft.tokenURI,nft.badgeServiceTokenId)
+        setDeletedSuccess(true)
         
               
           }
@@ -124,7 +136,8 @@ async function uploadToIPFS(file) {
         console.log(data+"\n"+formURI)
     
         const tokenId=await uploadToBlockchain(formURI,nft.cloudServiceOwner,totalPrice);
-        uploadToSPARQL(formURI,tokenId);
+        await uploadToSPARQL(formURI,tokenId);
+        setNegotiateSuccess(true)
         
         
     }
@@ -411,6 +424,16 @@ async function uploadToIPFS(file) {
 
                     { address==nft.cloudServiceOwner ? (
 
+                    <>
+
+                        {deletedSuccess && 
+
+                            <Alert  mt={2} status='success'>
+                            <AlertIcon />
+                            Cloud Service Badge successfully deleted!
+                            </Alert>
+                            }
+
                        
                    
                      
@@ -425,12 +448,25 @@ async function uploadToIPFS(file) {
                       >
                       Delete Cloud Service
                      </Button>
+
+                     </>
                     
                     
                    
 
 
                     ) :(
+
+
+                        <>
+
+                        {negotiateSuccess  && 
+
+                            <Alert mt={2} status='success'>
+                            <AlertIcon />
+                            Cloud Service SLA successfully negotiated and created!
+                            </Alert>
+                            }
 
                         <Button 
                         onClick={handleNegotiate}
@@ -443,6 +479,8 @@ async function uploadToIPFS(file) {
                         >
                         Negotiate & Buy this Cloud Service
                        </Button>
+
+                       </>
 
                     ) }
 

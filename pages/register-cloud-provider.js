@@ -13,6 +13,13 @@ const SparqlClient = require('sparql-http-client')
 import {ThirdwebSDK} from "@thirdweb-dev/sdk"
 import NFT_Badge_Provider from   '../artifacts/contracts/NFT_Badge_Provider.sol/NFT_Badge_Provider.json'
 import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+} from '@chakra-ui/react'
+
 
 
 
@@ -41,6 +48,7 @@ const sdk = new ThirdwebSDK("goerli", {
 
     const [formInput,updateFormInput]=useState({ cloudProviderName:'', cloudProviderMail:'', cloudProviderPictureURI:''})
     const [cloudProviderPicture, setCloudProviderPicture] = useState(null);
+    const [registerSuccess, setRegisterSuccess]=useState(false) 
     const cloudProviderAddress= useAddress();
     const signer = useSigner();
 
@@ -131,7 +139,8 @@ async function uploadToIPFS(file) {
     console.log(data+"\n"+formURI)
 
     const tokenId= await uploadToBlockchain(formURI);
-    uploadToSPARQL(formURI,tokenId);
+    await uploadToSPARQL(formURI,tokenId);
+    setRegisterSuccess(true)
     
     
 }
@@ -246,8 +255,16 @@ console.log(responseUpdate)
   return (
     <Flex justifyContent="center" alignItems="center" height="60vh">
       <Box w="50%" p={4} >
+
+      {registerSuccess && 
+
+        <Alert status='success'>
+        <AlertIcon />
+          Cloud Provider successfully registered!
+        </Alert>
+          }
         <FormControl isRequired>
-          <FormLabel>Cloud Provider Name</FormLabel>
+          <FormLabel mt={4} >Cloud Provider Name </FormLabel>
           <Input
             placeholder="Cloud Provider Name"
             onChange={e=> updateFormInput({...formInput,cloudProviderName: e.target.value})}

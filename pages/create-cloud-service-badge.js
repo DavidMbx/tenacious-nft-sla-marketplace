@@ -401,8 +401,11 @@ async function uploadToIPFS(file) {
 
 
     return (
-        <Flex justifyContent="center" alignItems="center" height="190vh">
+        <Flex justifyContent="center" alignItems="center" >
           <Box w="50%" p={4} >
+          <Heading mt={4} size='lg' >Create new Cloud Service</Heading>
+      <Text mt={1} size='md' color='grey' >Create a new cloud service NFT Badge to store in the blockchain and an entity to store in the RDF Triplestore </Text>
+
 
 
           {registerCPSuccess && 
@@ -413,7 +416,7 @@ async function uploadToIPFS(file) {
           </Alert>
             }
             <FormControl isRequired>        
-                <FormLabel mt={4}>Cloud Service Type</FormLabel>
+                <FormLabel mt={8}>Cloud Service Type</FormLabel>
                     <Select 
                     placeholder='Select Cloud Service Type'
                     onChange={e=> updateFormInput({...formInput,cloudServiceType: e.target.value})} >

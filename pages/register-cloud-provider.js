@@ -253,10 +253,11 @@ console.log(responseUpdate)
 
 
   return (
-    <Flex justifyContent="center" alignItems="center" height="60vh">
+    <Flex justifyContent="center" alignItems="center" >
       <Box w="50%" p={4} >
 
-      <Heading size='lg' >Register as Cloud Provider</Heading>
+      <Heading mt={4} size='lg' >Register new Cloud Provider</Heading>
+      <Text mt={1} size='md' color='grey' >Create a new provider NFT Badge to store in the blockchain and an entity to store in the RDF Triplestore </Text>
 
       {registerSuccess && 
 
@@ -266,7 +267,7 @@ console.log(responseUpdate)
         </Alert>
           }
         <FormControl isRequired>
-          <FormLabel mt={4} >Cloud Provider Name </FormLabel>
+          <FormLabel mt={8} >Cloud Provider Name </FormLabel>
           <Input
             placeholder="Cloud Provider Name"
             onChange={e=> updateFormInput({...formInput,cloudProviderName: e.target.value})}

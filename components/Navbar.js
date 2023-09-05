@@ -1,4 +1,4 @@
-import {Avatar,Box,Flex,Heading,Link,Text,Image,Button,Stack} from "@chakra-ui/react";
+import {Avatar,Box,Flex,Heading,Link,Text,Image,Button,Stack,Divider} from "@chakra-ui/react";
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 import NextLink from 'next/link';
 import React, { useEffect } from 'react';
@@ -135,6 +135,8 @@ export function Navbar(){
 
     </Stack>
 </Flex>
+<Divider mt={4} orientation='horizontal' />
 </Box>
+
     )
               }

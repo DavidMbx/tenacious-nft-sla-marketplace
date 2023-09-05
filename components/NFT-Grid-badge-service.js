@@ -15,7 +15,7 @@ export default function NFTGridBadgeService({
 
         <SimpleGrid columns={4} spacing={6} w={"100%"} padding={2.5} my={5}>
         {isLoading ? (
-            [...Array(20)].map((_, index) => (
+            [...Array(10)].map((_, index) => (
                 <Skeleton key={index} height={"312px"} width={"100%"} />
             )) 
         ) : data && data.length > 0 ? (

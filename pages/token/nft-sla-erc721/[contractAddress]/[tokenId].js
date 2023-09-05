@@ -1,5 +1,5 @@
 import { Avatar, Box, Container, Flex, Input, SimpleGrid, Skeleton, Stack, Text ,Image,Button,DatePicker,
-    FormLabel,NumberInput,NumberInputField,NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper, FormControl} from "@chakra-ui/react";
+    FormLabel,NumberInput,NumberInputField,NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper, FormControl, LightMode} from "@chakra-ui/react";
 import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,TriangleDownIcon,LinkIcon,MinusIcon } from '@chakra-ui/icons'
 import { MediaRenderer, ThirdwebNftMedia, Web3Button, useContract, useMinimumNextBid, useValidDirectListings, 
     useValidEnglishAuctions } from "@thirdweb-dev/react";
@@ -141,6 +141,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         
             setShowPriceForm(!showPriceForm)
+       
     
                    
             
@@ -157,12 +158,18 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
           
             const price= ethers.utils.parseUnits(priceToSellForm.toString(),'ether')
             let listingPrice=await contractMarketplace.getListingPrice()
-            listingPrice=listingPrice.toString()
+            listingPrice=ethers.utils.parseUnits(listingPrice.toString(),'ether')
+            console.log(listingPrice)
 
+            if(!contractERC721.isApprovedForAll(address, NFT_MARKETPLACE_CONTRACT)){
             const txApproval = await contractERC721.setApprovalForAll(NFT_MARKETPLACE_CONTRACT, true);
             await txApproval.wait();
+            }
+
+         
            
-            let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value:listingPrice})
+            let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value: listingPrice})
+            console.log(transaction)
             let tx= await transaction.wait()
             console.log(tx)
 
@@ -819,9 +826,11 @@ export const getStaticProps = async (context) => {
     const tokenId = context.params?.tokenId  
 
     const provider= new ethers.providers.JsonRpcProvider()
+   
    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
-   const marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
+   let marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
    const marketItem=await marketContract.getMarketItemById(tokenId)
+   console.log(marketContract)
    
 
    const cloudSLAOwner=await nftERC721_SLACollection.ownerOf(tokenId)

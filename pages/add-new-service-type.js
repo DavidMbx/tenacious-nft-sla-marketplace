@@ -218,7 +218,7 @@ const handleAddNewServiceType= () => {
         <Flex justifyContent="center" alignItems="center" >
           <Box w="50%" p={4} >
 
-          <Heading mt={4} size='lg' >Add new Servic Type</Heading>
+          <Heading mt={4} size='lg' >Add new Service Type</Heading>
       <Text mt={1} size='md' color='grey' >Add a new cloud service type with name and category to RDF Triplestore, you can use this to create a new cloud service later  </Text>
 
 

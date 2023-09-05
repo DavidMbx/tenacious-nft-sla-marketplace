@@ -118,7 +118,7 @@ export function Navbar(){
             
         <>
         <Link as={NextLink} href={`/profile/${address}`}>
-        <Avatar src='https://bit.ly/broken-link' ml={"20px"}/>
+        <Avatar ml={"20px"}/>
         </Link>
 
         {

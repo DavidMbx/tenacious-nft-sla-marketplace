@@ -402,7 +402,7 @@ async function uploadToIPFS(file) {
                             href={`/profile/${nft.cloudServiceOwner}`}
                         >
                             <Flex direction={"row"} alignItems={"center"}>
-                                <Avatar  src='https://bit.ly/broken-link' h={"24px"} w={"24px"} mr={"10px"}/>
+                                <Avatar   h={"24px"} w={"24px"} mr={"10px"}/>
                                 <Text fontSize={"small"}>{nft.cloudServiceOwner.slice(0,6)}...{nft.cloudServiceOwner.slice(-4)}</Text>
                             </Flex>
                         </Link>

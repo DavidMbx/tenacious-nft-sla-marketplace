@@ -147,7 +147,8 @@ export default function ProfilePage() {
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
             const tokenIds = await nftERC721_SLACollection.getUserTokens(userAddress);
 
-            const marketItems=await marketplace.fetchMarketItems()
+            const marketItems=await marketplace.fetchMyNfts()
+            console.log(marketItems)
 
             // Supponiamo che marketItems sia l'array di oggetti di tipo MarketItem
                 const myMarketItems = marketItems.filter(item => {
@@ -238,7 +239,7 @@ export default function ProfilePage() {
 
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-            <Flex alignItems={"center"}>
+            <Flex >
                             <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
                                 <Image
                                     src={"https://imageupload.io/ib/S2StK64vxTX544v_1692715755.png"}
@@ -256,7 +257,7 @@ export default function ProfilePage() {
             </Box>
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-            <Flex alignItems={"center"}>
+            <Flex>
                             <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
                                 <Image
                                     src={"https://imageupload.io/ib/9CgNf9vqyjOab0q_1692719074.png"}
@@ -274,7 +275,7 @@ export default function ProfilePage() {
             </Box>
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-            <Flex alignItems={"center"}>
+            <Flex >
                             <Box borderRadius={"4px"} overflow={"hidden"} mr={"10px"}>
                                 <Image
                                     src={"https://imageupload.io/ib/3cCSQgrtrs0XR6r_1692719274.png"}

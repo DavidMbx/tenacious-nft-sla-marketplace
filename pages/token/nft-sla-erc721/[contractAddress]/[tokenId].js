@@ -549,14 +549,29 @@ async function uploadToIPFS(file) {
                     )}
                     <Box mx={2.5}>
                         <Text fontSize={"4xl"} fontWeight={"bold"}>{nft.cloudServiceName.replace(/_/g, ' ')+" SLA #"+nft.erc721SLATokenId}</Text>
-                        <Link
-                            href={`/profile/${nft.cloudSLAOwner}`}
-                        >
-                            <Flex direction={"row"} alignItems={"center"}>
-                                <Avatar  src='https://bit.ly/broken-link' h={"24px"} w={"24px"} mr={"10px"}/>
-                                <Text fontSize={"small"}>{nft.cloudSLAOwner.slice(0,6)}...{nft.cloudSLAOwner.slice(-4)}</Text>
-                            </Flex>
+                        
+                        {tokenOnMarket && 
+                         <Link
+                         href={`/profile/${nft.marketItemSeller}`}
+                            >
+                         <Flex direction={"row"} alignItems={"center"}>
+                             <Avatar   h={"24px"} w={"24px"} mr={"10px"}/>
+                             <Text fontSize={"small"}>{nft.marketItemSeller.slice(0,6)}...{nft.marketItemSeller.slice(-4)}</Text>
+                         </Flex>
                         </Link>
+                        }
+
+                        {!tokenOnMarket && 
+                         <Link
+                         href={`/profile/${nft.cloudSLAOwner}`}
+                            >
+                         <Flex direction={"row"} alignItems={"center"}>
+                             <Avatar   h={"24px"} w={"24px"} mr={"10px"}/>
+                             <Text fontSize={"small"}>{nft.cloudSLAOwner.slice(0,6)}...{nft.cloudSLAOwner.slice(-4)}</Text>
+                         </Flex>
+                        </Link>
+                        }
+                       
                     </Box>
                     
                     

@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from 'react';
-import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Select,Checkbox} from '@chakra-ui/react';
+import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Select,Checkbox,Heading} from '@chakra-ui/react';
 import { create } from 'ipfs-http-client';
 import { Navbar } from '/components/Navbar'
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
@@ -215,8 +215,12 @@ const handleAddNewServiceType= () => {
   };
 
     return (
-        <Flex justifyContent="center" alignItems="center" height="60vh">
+        <Flex justifyContent="center" alignItems="center" >
           <Box w="50%" p={4} >
+
+          <Heading mt={4} size='lg' >Add new Servic Type</Heading>
+      <Text mt={1} size='md' color='grey' >Add a new cloud service type with name and category to RDF Triplestore, you can use this to create a new cloud service later  </Text>
+
 
           {successAddService && 
 
@@ -227,7 +231,7 @@ const handleAddNewServiceType= () => {
             }
             <FormControl isRequired>
         
-            <FormLabel mt={4}>Cloud Service Category</FormLabel>
+            <FormLabel mt={8}>Cloud Service Category</FormLabel>
                     <Select 
                     placeholder='Select Cloud Service Category'
                     onChange={e=> updateFormInput({...formInput,serviceCategory: e.target.value})} >

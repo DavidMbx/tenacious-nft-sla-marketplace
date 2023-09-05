@@ -87,7 +87,7 @@ export function Navbar(){
 
   return (
 <Box maxW={"1350px"} m={"auto"} py={"10px"}px={"40px"} mt={6}>
-<Flex justifyContent={"space-between"}  alignItems={"center"}>
+<Flex justifyContent={"space-between"}  align={"center"}>
 <Stack direction='row' spacing={3} align='center'>
     <Link as={NextLink} href='/' mr={6}>
     <Image
@@ -116,7 +116,7 @@ export function Navbar(){
   </Button>
   </Link>
      
-  <Flex dir={"row"} alignItems={"center"} >
+  <Flex dir={"row"} align={"center"} >
         <ConnectWallet
         clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENTID}/>
         { address && (

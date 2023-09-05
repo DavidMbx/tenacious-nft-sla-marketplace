@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 import "hardhat/console.sol";
 
-contract NFTMarketplace is ERC721URIStorage {
+contract NFTMarket is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsSold;
@@ -112,6 +112,10 @@ contract NFTMarketplace is ERC721URIStorage {
       _transfer(address(this), msg.sender, tokenId);
       payable(owner).transfer(listingPrice);
       payable(seller).transfer(msg.value);
+    }
+
+    function getMarketItemById(uint256 tokenId) public view returns (MarketItem memory) {
+    return idToMarketItem[tokenId];
     }
 
     /* Returns all unsold market items */

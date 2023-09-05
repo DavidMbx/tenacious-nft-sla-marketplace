@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFTMarket.sol": {
-      "lastModificationDate": 1693859019454,
-      "contentHash": "627231945d7b34db9e9d258b9f5fa27d",
+      "lastModificationDate": 1693928723780,
+      "contentHash": "2386d169a15b248b935d5b87fb151a8f",
       "sourceName": "contracts/NFTMarket.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -32,7 +32,6 @@
         "@openzeppelin/contracts/utils/Counters.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
         "@openzeppelin/contracts/token/ERC721/ERC721.sol",
-        "@openzeppelin/contracts/security/ReentrancyGuard.sol",
         "hardhat/console.sol"
       ],
       "versionPragmas": [

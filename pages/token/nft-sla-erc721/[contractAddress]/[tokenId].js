@@ -168,7 +168,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
          
            
-            let transaction= await contractMarketplace.createMarketItem(nft.erc721SLATokenId,price,{value: listingPrice})
+            let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value: listingPrice})
             console.log(transaction)
             let tx= await transaction.wait()
             console.log(tx)

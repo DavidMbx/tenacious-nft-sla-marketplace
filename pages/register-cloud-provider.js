@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Input, Button, FormControl, FormLabel, Box, Text ,Flex} from '@chakra-ui/react';
+import { Input, Button, FormControl, FormLabel, Box, Text ,Flex,Heading} from '@chakra-ui/react';
 import { create } from 'ipfs-http-client';
 import {ethers} from 'ethers'
 import { 
@@ -255,6 +255,8 @@ console.log(responseUpdate)
   return (
     <Flex justifyContent="center" alignItems="center" height="60vh">
       <Box w="50%" p={4} >
+
+      <Heading size='lg' >Register as Cloud Provider</Heading>
 
       {registerSuccess && 
 

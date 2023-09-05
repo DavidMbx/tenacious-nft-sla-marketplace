@@ -1,6 +1,6 @@
-import { Container, Heading, Text ,Image} from "@chakra-ui/react";
+import { Container, Heading, Text ,Image,Link} from "@chakra-ui/react";
 import { useContract, useOwnedNFTs, useNFT } from "@thirdweb-dev/react";
-import { Input, Button, FormControl, FormLabel, Box ,Flex} from '@chakra-ui/react';
+import { Input, Button, FormControl, FormLabel, Box ,Flex,Stack} from '@chakra-ui/react';
 import { useEffect,useState } from 'react'
 import React from "react";
 import { 
@@ -25,6 +25,7 @@ import {ethers} from 'ethers'
 import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
 import {create } from 'ipfs-http-client'
 const axios = require('axios');
+import NextLink from 'next/link';
 
 import { ExternalLinkIcon,DeleteIcon,EditIcon,AddIcon,RepeatIcon } from '@chakra-ui/icons'
 
@@ -34,7 +35,11 @@ export default function ProfilePage() {
     
     const router = useRouter();
     const signer = useSigner();
-    const userAddress=useAddress()
+   
+    
+    const { address } = router.query;
+
+    const userAddress=address
 
     const [nftsProvider, setNftsProvider]=useState([])
     const [nftsService, setNftsService]=useState([])
@@ -74,7 +79,7 @@ export default function ProfilePage() {
 
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
             const tokenIds = await nftBadgeProviderCollection.getUserTokens(userAddress);
-            console.log(tokenIds)
+           
 
            
     
@@ -147,20 +152,8 @@ export default function ProfilePage() {
             // Chiamata a getUserTokens per ottenere l'array degli ID dei token dell'utente
             const tokenIds = await nftERC721_SLACollection.getUserTokens(userAddress);
 
-            const marketItems=await marketplace.fetchMyNfts()
-            console.log(marketItems)
-
-            // Supponiamo che marketItems sia l'array di oggetti di tipo MarketItem
-                const myMarketItems = marketItems.filter(item => {
-                    return item.owner.toLowerCase() === NFT_MARKETPLACE_CONTRACT.toLowerCase() &&
-                        item.seller.toLowerCase() === userAddress.toLowerCase();
-                });
-                
-               
-                
-        
-        
     
+            
             // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
             const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
                 const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
@@ -178,10 +171,21 @@ export default function ProfilePage() {
                     maxPenalty: response.data.maxPenalty,
                     slaEndingDate: response.data.slaEndingDate,
                     originalPrice: response.data.originalPrice,
+                    onSale:false,
             
                   }
                 return itemCloudSLA
             }))
+
+                const marketItems=await marketplace.fetchMarketItems()
+                console.log("Market Items",marketItems)
+
+                // Supponiamo che marketItems sia l'array di oggetti di tipo MarketItem
+                const myMarketItems = marketItems.filter(item => {
+                    return item.owner.toLowerCase() === NFT_MARKETPLACE_CONTRACT.toLowerCase() &&
+                        item.seller.toLowerCase() === userAddress.toLowerCase();
+                    });
+                    
 
                // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
                const itemsCloudSLAOnSale= await Promise.all(myMarketItems.map(async myMarketItem =>{
@@ -200,6 +204,8 @@ export default function ProfilePage() {
                     maxPenalty: response.data.maxPenalty,
                     slaEndingDate: response.data.slaEndingDate,
                     originalPrice: response.data.originalPrice,
+                    marketItemPrice: ethers.utils.formatUnits(myMarketItem.price.toString(),'ether'),
+                    onSale:true,
             
                   }
                 return itemCloudSLAOnSale
@@ -221,21 +227,24 @@ export default function ProfilePage() {
 
     return (
         <Container maxW={"1200px"} p={5}>
-            <Flex>
-            <Heading>{"Your NFTs"}</Heading>
+            <Stack direction='row' spacing={3} align='center'>
+            <Heading size='lg' >NFTs of</Heading>
+            <Link as={NextLink} href={`/profile/${address}`}>
+            <Heading size='md' >{userAddress}</Heading>
+            </Link>
             <Button
             
             onClick={loadNFTs}
-            ml={6}
+           
             colorScheme="teal"
             borderRadius="md"
             leftIcon={<RepeatIcon />}
             boxShadow="lg"
             variant='outline'
           >
-            Load NFTs
+            Load
           </Button>
-            </Flex>
+            </Stack>
 
 
             <Box mt={8} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">

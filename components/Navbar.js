@@ -1,8 +1,15 @@
-import {Avatar,Box,Flex,Heading,Link,Text,Image,Button} from "@chakra-ui/react";
+import {Avatar,Box,Flex,Heading,Link,Text,Image,Button,Stack} from "@chakra-ui/react";
 import { ConnectWallet,useAddress } from "@thirdweb-dev/react";
 import NextLink from 'next/link';
 import React, { useEffect } from 'react';
 const SparqlClient = require('sparql-http-client')
+import { SearchIcon, EmailIcon, WarningIcon } from '@chakra-ui/icons'
+import { Icon } from '@chakra-ui/react'
+import { HiOutlineUserAdd
+} from "react-icons/hi";
+import { TbLayoutGridAdd
+} from "react-icons/tb";
+
 
 
 
@@ -79,55 +86,54 @@ export function Navbar(){
 
 
   return (
-<Box maxW={"1200px"} m={"auto"} py={"10px"}px={"40px"} mt={6}>
+<Box maxW={"1350px"} m={"auto"} py={"10px"}px={"40px"} mt={6}>
 <Flex justifyContent={"space-between"}  alignItems={"center"}>
+<Stack direction='row' spacing={3} align='center'>
     <Link as={NextLink} href='/' mr={6}>
     <Image
-    width='400px'
+    width='350px'
      objectFit='contain'
     src="https://imageupload.io/ib/4lWENKf8rPeKDSU_1692366943.png"
     alt='logoTenacious'
       />
     </Link>
-    <Flex direction={"row"}>
+    
     <Link as={NextLink} href='/search' >
-    <Button colorScheme='messenger' variant='ghost' >
+    <Button leftIcon={<SearchIcon />} colorScheme='messenger' variant='outline' size='sm' >
     Search
   </Button>
   </Link>
 
   <Link as={NextLink} href='/register-cloud-provider' >
-    <Button colorScheme='messenger' variant='ghost' >
+    <Button leftIcon={<Icon as={HiOutlineUserAdd} />} colorScheme='messenger' variant='outline' size='sm'>
     Register as Cloud Provider
   </Button>
   </Link>
 
   <Link  as={NextLink}  href='/create-cloud-service-badge' >
-    <Button colorScheme='messenger' variant='ghost' mr={2} >
+    <Button leftIcon={<Icon as={TbLayoutGridAdd} />} colorScheme='messenger' variant='outline' mr={2} size='sm' >
     Create Cloud Service
   </Button>
   </Link>
      
- 
-    </Flex>
-    <Flex dir={"row"} alignItems={"center"} >
+  <Flex dir={"row"} alignItems={"center"} >
         <ConnectWallet
         clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENTID}/>
         { address && (
 
             
-        <>
+  
         <Link as={NextLink} href={`/profile/${address}`}>
         <Avatar ml={"20px"}/>
         </Link>
 
-        {
-           
-        }
             
-        </>
+
           )}
-    </Flex>
+          </Flex>
+
+
+    </Stack>
 </Flex>
 </Box>
     )

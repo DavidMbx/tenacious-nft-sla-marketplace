@@ -816,7 +816,7 @@ async function uploadToIPFS(file) {
 };
 
 export const getStaticProps = async (context) => {
-    const tokenId = context.params?.tokenId 
+    const tokenId = context.params?.tokenId  
 
     const provider= new ethers.providers.JsonRpcProvider()
    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)

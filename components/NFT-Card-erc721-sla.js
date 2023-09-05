@@ -38,7 +38,13 @@ export default function NFTComponentERC721({ nft }) {
         <Text fontSize={"small"} mt={2} >Ending Date: {nft.slaEndingDate}</Text>
         <Text fontSize={"small"} >Max Penalty in a Month: {nft.maxPenalty} ETH</Text>
         <Text fontSize={"small"} >Original Price: {nft.originalPrice} ETH </Text>
-        <Text fontWeight={"bold"} mt={4}>{"Hours Available: "+nft.hoursToBuy} </Text>
+        <Text fontSize={"sm"} fontWeight={"bold"} mt={2}>{"Hours Available: "+nft.hoursToBuy} </Text>
+        {nft.onSale &&
+        <Text fontWeight={"bold"} mt={2}>{"Price: "+nft.marketPrice} </Text>
+        } 
+        {!nft.onSale &&
+        <Text fontWeight={"bold"} mt={2}>{"Price: Not on sale"} </Text>
+        } 
 
         <Box>
   

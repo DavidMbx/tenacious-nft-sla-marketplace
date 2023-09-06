@@ -49,6 +49,7 @@ export default function SearchPage() {
 
   const [checkedItemsRegion, setCheckedItemsRegion] = useState({});
   const [checkedItemsPModel, setCheckedItemsPModel] = useState({});
+  const [checkedItemsCloudProvider, setCheckedItemsCloudProvider] = useState({});
 
     // Gestore per gli eventi di modifica della checkbox
     const handleCheckboxRegionChange = (event) => {
@@ -61,6 +62,12 @@ export default function SearchPage() {
       const { name, checked } = event.target;
       setCheckedItemsPModel({ ...checkedItemsPModel, [name]: checked });
     };
+
+    const handleCheckboxCloudProviderChange = (event) => {
+      const { name, checked } = event.target;
+      setCheckedItemsCloudProvider({ ...checkedItemsCloudProvider, [name]: checked });
+    };
+
 
   
 
@@ -107,6 +114,20 @@ export default function SearchPage() {
                   <Box width={"21%"} height={"100%"} mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     
                     <Heading align={"center"} size='md' >Filter</Heading>
+
+
+                    <FormLabel mt={4} >Cloud Provider</FormLabel>
+                   <CheckboxGroup size='sm' colorScheme='messenger' defaultValue={['amazon', 'azure','openstack','other']}>
+                  <Stack spacing={[1, 7]} direction={['column', 'row']}>
+                    <Checkbox value='amazon'>Amazon</Checkbox>
+                    <Checkbox value='azure'>Azure</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 3]} direction={['column', 'row']}>
+                    <Checkbox value='openstack'>Openstack</Checkbox>
+                    <Checkbox value='other'>Other</Checkbox>
+                    </Stack>
+                 
+                    </CheckboxGroup>
 
                     
                     <FormLabel mt={4} >Memory</FormLabel>
@@ -262,7 +283,8 @@ export default function SearchPage() {
                     <Box width={"20%"} height={"100%"} mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Heading align={"center"} size='md' >Filter</Heading>
 
-                    
+                    <FormLabel mt={4} >Listed on Marketplace</FormLabel>
+                    <Checkbox defaultChecked size='sm' colorScheme='messenger'>Yes</Checkbox>
 
                     <FormLabel mt={4} >SLA Max Penalty</FormLabel>
                       <Flex>

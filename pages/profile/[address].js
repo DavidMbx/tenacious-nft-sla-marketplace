@@ -179,20 +179,21 @@ export default function ProfilePage() {
             }))
 
                 const marketItems=await marketplace.fetchItemsCreated()
-                console.log("Market Items",marketItems)
+                
 
                 // Supponiamo che marketItems sia l'array di oggetti di tipo MarketItem
                 const myMarketItems = marketItems.filter(item => {
                     return item.owner.toLowerCase() === NFT_MARKETPLACE_CONTRACT.toLowerCase() &&
                         item.seller.toLowerCase() === userAddress.toLowerCase();
                     });
-                    
+                    console.log("Market Items",myMarketItems)
 
                // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
                const itemsCloudSLAOnSale= await Promise.all(myMarketItems.map(async myMarketItem =>{
                 const tokenURI = await nftERC721_SLACollection.tokenURI(myMarketItem.tokenId);
                 const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
                 const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+               
               
                 let itemCloudSLAOnSale={
 

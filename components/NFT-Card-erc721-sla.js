@@ -40,7 +40,7 @@ export default function NFTComponentERC721({ nft }) {
         <Text fontSize={"small"} >Original Price: {nft.originalPrice} ETH </Text>
         <Text fontSize={"sm"} fontWeight={"bold"} mt={2}>{"Hours Available: "+nft.hoursToBuy} </Text>
         {nft.onSale &&
-        <Text fontWeight={"bold"} mt={2}>{"Price: "+nft.marketPrice} </Text>
+        <Text fontWeight={"bold"} mt={2}>{"Price: "+nft.marketItemPrice+" ETH"} </Text>
         } 
         {!nft.onSale &&
         <Text fontWeight={"bold"} mt={2}>{"Price: Not on sale"} </Text>

@@ -169,14 +169,18 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
          
            if(nft.marketItemPrice==0.0){
             let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value: listingPrice})
-           }
-           else{
-            let transaction= await contractMarketplace.resellToken(nft.erc721SLATokenId,price,{value: listingPrice})
-           }
-            console.log(transaction)
             let tx= await transaction.wait()
             console.log(tx)
 
+           }
+           else{
+            let transaction= await contractMarketplace.resellToken(nft.erc721SLATokenId,price,{value: listingPrice})
+            let tx= await transaction.wait()
+            console.log(tx)
+
+           }
+            
+    
             await updateToSPARQLSelling(nft.tokenURI,true)
             
             setSuccess({state:true,message:"Cloud Service SLA NFT successfully listed on the marketplace!"})

@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import { Button, Container, Flex, Heading, Image, Stack,Text,Box,Tabs,TabList,Tab,TabPanels,TabPanel ,
   NumberInput,NumberInputField,
   NumberInputStepper,NumberIncrementStepper,NumberDecrementStepper,Link,IconButton,FormLabel,
-  Checkbox,CheckboxGroup} from '@chakra-ui/react';
+  Checkbox,CheckboxGroup,InputGroup,InputLeftElement,Input,InputRightAddon} from '@chakra-ui/react';
   import { SearchIcon, AddIcon, WarningIcon } from '@chakra-ui/icons'
 import Hero from "../components/sections/Hero";
 import { useRouter } from "next/router";
@@ -18,6 +18,8 @@ import NFT_Badge_Service from   '../artifacts/contracts/NFT_Badge_Service.sol/NF
 
 import NFTGridERC721SLA from "../components/NFT-Grid-erc721-sla";
 import NFT_ERC721 from   '../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
+import { Search2Icon } from "@chakra-ui/icons";
+const SparqlClient = require('sparql-http-client')
 
 
 
@@ -25,7 +27,24 @@ export default function SearchPage() {
 
   const [tabIndex, setTabIndex] = useState(1)
 
-  const [sliderValues, setSliderValues] = useState([20, 60]);
+  const [searchText, setSearchText] = useState();
+
+  const [nftsProvider, setNftsProvider]=useState([])
+  const [nftsService, setNftsService]=useState([])
+  const [nftsSLA, setNftsSLA]=useState([])
+  const[loadingStateProvider,setLoadingStateProvider]=useState(true)
+  const[loadingStateService,setLoadingStateService]=useState(true)
+  const[loadingStateSLA,setLoadingStateSLA]=useState(true)
+
+
+  //console.log("Search",searchText)
+
+  const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
+  const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
+  const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});
+
+  
+
 
   const [formInputFilterService,updateFormInputFilterService]=useState({ memoryMin:'', memoryMax:'', 
   storageMin:'',storageMax:'',
@@ -34,6 +53,7 @@ export default function SearchPage() {
   targetAvailabilityMin:'',targetAvailabilityMax:'',penaltyAvailabilityMin:'',penaltyAvailabilityMax:'',
   targetErrorRateMin:'',targetErrorRateMax:'',penaltyErrorRateMin:'',penaltyErrorRateMax:'',
   targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:''})
+  //console.log(formInputFilterService)
 
   const [formInputFilterSLA,updateFormInputFilterSLA]=useState({ 
   maxPenaltyMin:'',maxPenaltyMax:'',
@@ -46,16 +66,29 @@ export default function SearchPage() {
   targetAvailabilityMin:'',targetAvailabilityMax:'',penaltyAvailabilityMin:'',penaltyAvailabilityMin:'',
   targetErrorRateMin:'',targetErrorRateMax:'',penaltyErrorRateMin:'',penaltyErrorRateMax:'',
   targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:''})
+  //console.log(formInputFilterSLA)
 
-  const [checkedItemsRegion, setCheckedItemsRegion] = useState({});
-  const [checkedItemsPModel, setCheckedItemsPModel] = useState({});
-  const [checkedItemsCloudProvider, setCheckedItemsCloudProvider] = useState({});
+  const [checkedItemsRegion, setCheckedItemsRegion] = useState({afnorth:false,afsouth:false,eunorth:false,eusouth:false,useast:false,uswest:false 
+    });
+  const [checkedItemsPModel, setCheckedItemsPModel] = useState({subscription:false,payasyougo:false});
+  const [checkedItemsCloudProvider, setCheckedItemsCloudProvider] = useState({amazon: false, openstack: false, azure: false, other: false});
+  const [checkedItemsListed, setCheckedItemsListed] = useState({listed:false});
 
+  //console.log(checkedItemsRegion)
+  //console.log(checkedItemsPModel)
+  //console.log(checkedItemsCloudProvider)
+  //console.log(checkedItemsListed)
     // Gestore per gli eventi di modifica della checkbox
     const handleCheckboxRegionChange = (event) => {
       const { name, checked } = event.target;
       setCheckedItemsRegion({ ...checkedItemsRegion, [name]: checked });
     };
+
+    const handleCheckboxListedChange = (event) => {
+      const { name, checked } = event.target;
+      setCheckedItemsListed({ ...checkedItemsListed, [name]: checked });
+    };
+
 
     // Gestore per gli eventi di modifica della checkbox
     const handleCheckboxPModelChange = (event) => {
@@ -67,6 +100,108 @@ export default function SearchPage() {
       const { name, checked } = event.target;
       setCheckedItemsCloudProvider({ ...checkedItemsCloudProvider, [name]: checked });
     };
+
+    async function handleFilterCloudService() {
+
+
+      setLoadingStateService(false)
+
+
+     
+             
+      
+  }
+
+  async function handleFilterCloudSLA() {
+
+    setLoadingStateSLA(false)
+   
+           
+    
+}
+async function handleSearchCloudProvider() {
+
+  setLoadingStateProvider(false)
+
+
+
+
+     
+             
+      
+}
+async function handleSearchCloudService() {
+
+  setLoadingStateService(false)
+
+
+
+
+     
+             
+      
+}
+
+async function handleSearchCloudSLA() {
+
+
+  setLoadingStateSLA(false)
+
+  
+
+         
+  
+}
+
+async function searchQuerySPARQL() {
+
+
+  // Query SPARQL per verificare se l'utente esiste già nel database
+  const selectQuery = `
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+
+  SELECT ?cloudActor
+  WHERE {
+?address cs:hasAddress "${cloudProviderAddress}" .
+?cloudActor cs:hasBlockchainAddress ?address.
+?cloudActor rdf:type cs:CloudProvider.
+}
+
+  `;
+
+  const stream = await clientSPARQL.query.select(selectQuery);
+  let datiRicevuti=false;
+  
+ stream.on('data', row => {
+       Object.entries(row).forEach(([key, value]) => {
+        console.log(`${key}: ${value.value} (${value.termType})`)
+        datiRicevuti=true;
+
+      })
+    })
+
+    stream.on('end', () => {
+      
+      if (!datiRicevuti) {
+       // L'utente non è registrato già come cloud provider, procedo con l'inserimento
+       console.log("L'indirizzo non risulta associato a nessun Cloud Provider")
+       createFileJSON()
+      }
+      else{
+        console.log("L'indirizzo risulta già associato ad un Cloud Provider")
+      }
+
+      })
+    
+    
+    stream.on('error', err => {
+      console.error(err)
+    })
+}
+
+
 
 
   
@@ -82,7 +217,41 @@ export default function SearchPage() {
       <Heading mt={4} size='lg' >Search</Heading>
       <Text mt={1} md={8} size='md' color='grey' >Search in the RDF Triplestore your favourite Cloud Provider, Cloud Service to negotiate or a SLA contract already negotiated. </Text>
 
-        <SearchBar />
+      <InputGroup mt={10}  borderRadius={5} size="lg">
+        <InputLeftElement
+          pointerEvents="none"
+          children={<Search2Icon color="gray.600" />}
+        />
+        <Input onChange={(e)=>setSearchText(e.target.value)}type="text" placeholder="Search..." border="1px solid #949494" />
+        <InputRightAddon
+          p={0}
+          border="none"
+        >
+
+
+        {tabIndex==0 &&
+          <Button onClick={handleSearchCloudProvider} size="lg" borderLeftRadius={0} borderRightRadius={3.3} border="1px solid #949494">
+          Search
+        </Button>
+          
+          }
+
+          {tabIndex==1 &&
+          <Button onClick={handleSearchCloudService} size="lg" borderLeftRadius={0} borderRightRadius={3.3} border="1px solid #949494">
+          Search
+        </Button>
+          
+          }
+          {tabIndex==2 &&
+          <Button onClick={handleSearchCloudSLA} size="lg" borderLeftRadius={0} borderRightRadius={3.3} border="1px solid #949494">
+          Search
+        </Button>
+
+          }
+          
+        </InputRightAddon>
+      </InputGroup>
+
 
         <Tabs mt={6} isFitted variant='enclosed'index={tabIndex} onChange={handleTabsChange} >
           <TabList mb='1em'>
@@ -102,7 +271,8 @@ export default function SearchPage() {
                     <Box width={"80%"}  mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Heading align={"center"} size='md' >Cloud Provider Search Result</Heading>
                     <NFTGridBadgeProvider
-                     isLoading={true}
+                     data={nftsProvider}
+                     isLoading={loadingStateProvider}
                      emptyText={"No Cloud Provider found"}/>
 
 
@@ -117,14 +287,26 @@ export default function SearchPage() {
 
 
                     <FormLabel mt={4} >Cloud Provider</FormLabel>
-                   <CheckboxGroup size='sm' colorScheme='messenger' defaultValue={['amazon', 'azure','openstack','other']}>
+                   <CheckboxGroup size='sm' colorScheme='messenger' >
                   <Stack spacing={[1, 7]} direction={['column', 'row']}>
-                    <Checkbox value='amazon'>Amazon</Checkbox>
-                    <Checkbox value='azure'>Azure</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["amazon"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='amazon'>Amazon</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["azure"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='azure'>Azure</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 3]} direction={['column', 'row']}>
-                    <Checkbox value='openstack'>Openstack</Checkbox>
-                    <Checkbox value='other'>Other</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["openstack"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='openstack'>Openstack</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["other"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='other'>Other</Checkbox>
                     </Stack>
                  
                     </CheckboxGroup>
@@ -181,18 +363,36 @@ export default function SearchPage() {
                    </Flex>
                    
                    <FormLabel mt={4} >Region</FormLabel>
-                   <CheckboxGroup size='sm' colorScheme='messenger' defaultValue={['afnorth', 'afsouth','eunorth','eusouth','useast','uswest']}>
+                   <CheckboxGroup size='sm' colorScheme='messenger' >
                   <Stack spacing={[1, 3]} direction={['column', 'row']}>
-                    <Checkbox value='afnorth'>AF-North</Checkbox>
-                    <Checkbox value='afsouth'>AF-South</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsRegion["afnorth"] || false}
+                    onChange={handleCheckboxRegionChange}
+                    name='afnorth'>AF-North</Checkbox>
+                    <Checkbox name='afsouth'
+                    isChecked={checkedItemsRegion["afsouth"] || false}
+                    onChange={handleCheckboxRegionChange}>
+                      AF-South</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 3]} direction={['column', 'row']}>
-                    <Checkbox value='eunorth'>EU-North</Checkbox>
-                    <Checkbox value='eusouth'>EU-South</Checkbox>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["eunorth"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='eunorth'>EU-North</Checkbox>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["eusouth"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='eusouth'>EU-South</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 5]} direction={['column', 'row']}>
-                    <Checkbox value='useast'>US-East</Checkbox>
-                    <Checkbox value='uswest'>US-West</Checkbox>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["useast"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='useast'>US-East</Checkbox>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["uswest"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='uswest'>US-West</Checkbox>
                     </Stack>
                  
                     </CheckboxGroup>
@@ -254,13 +454,19 @@ export default function SearchPage() {
 
 
                     <FormLabel mt={4} >Pricing Model</FormLabel>
-                   <CheckboxGroup size='sm' colorScheme='messenger' defaultValue={['subscription', 'payasyougo']}>
-                    <Checkbox value='subscription'>Subscription</Checkbox>
-                    <Checkbox value='payasyougo'>Pay as You Go</Checkbox>
+                   <CheckboxGroup size='sm' colorScheme='messenger' >
+                    <Checkbox 
+                     isChecked={checkedItemsPModel["subscription"] || false}
+                     onChange={handleCheckboxPModelChange}
+                    name='subscription'>Subscription</Checkbox>
+                    <Checkbox 
+                      isChecked={checkedItemsPModel["payasyougo"] || false}
+                      onChange={handleCheckboxPModelChange}
+                    name='payasyougo'>Pay as You Go</Checkbox>
                     </CheckboxGroup>
 
 
-                    <Button align={"center"} mt={8} leftIcon={<SearchIcon />} colorScheme='messenger' variant='solid'>
+                    <Button align={"center"} mt={8} leftIcon={<SearchIcon />} colorScheme='messenger' variant='solid' onClick={handleFilterCloudService}>
                       Filter
                     </Button>
 
@@ -271,7 +477,8 @@ export default function SearchPage() {
                     <Box width={"80%"}  mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Heading align={"center"} size='md' >Cloud Service Search Result</Heading>
                     <NFTGridBadgeService
-                     isLoading={true}
+                     data={nftsService}
+                     isLoading={loadingStateService}
                      emptyText={"No Cloud Service found"}/>
 
 
@@ -284,7 +491,37 @@ export default function SearchPage() {
                     <Heading align={"center"} size='md' >Filter</Heading>
 
                     <FormLabel mt={4} >Listed on Marketplace</FormLabel>
-                    <Checkbox defaultChecked size='sm' colorScheme='messenger'>Yes</Checkbox>
+                    <Checkbox defaultChecked size='sm' colorScheme='messenger'
+                      name="listed"
+                      isChecked={checkedItemsListed["listed"] || false}
+                      onChange={handleCheckboxListedChange}>Yes</Checkbox>
+
+
+                    <FormLabel mt={4} >Cloud Provider</FormLabel>
+                   <CheckboxGroup size='sm' colorScheme='messenger' >
+                  <Stack spacing={[1, 7]} direction={['column', 'row']}>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["amazon"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='amazon'>Amazon</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["azure"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='azure'>Azure</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 3]} direction={['column', 'row']}>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["openstack"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='openstack'>Openstack</Checkbox>
+                    <Checkbox 
+                    isChecked={checkedItemsCloudProvider["other"] || false}
+                    onChange={handleCheckboxCloudProviderChange}
+                    name='other'>Other</Checkbox>
+                    </Stack>
+                 
+                    </CheckboxGroup>
+
 
                     <FormLabel mt={4} >SLA Max Penalty</FormLabel>
                       <Flex>
@@ -387,21 +624,40 @@ export default function SearchPage() {
                       </Flex>
 
                       <FormLabel mt={4} >Region</FormLabel>
-                      <CheckboxGroup size='sm' colorScheme='messenger' defaultValue={['afnorth', 'afsouth','eunorth','eusouth','useast','uswest']}>
-                      <Stack spacing={[1, 3]} direction={['column', 'row']}>
-                      <Checkbox value='afnorth'>AF-North</Checkbox>
-                      <Checkbox value='afsouth'>AF-South</Checkbox>
-                      </Stack>
-                      <Stack spacing={[1, 3]} direction={['column', 'row']}>
-                      <Checkbox value='eunorth'>EU-North</Checkbox>
-                      <Checkbox value='eusouth'>EU-South</Checkbox>
-                      </Stack>
-                      <Stack spacing={[1, 5]} direction={['column', 'row']}>
-                      <Checkbox value='useast'>US-East</Checkbox>
-                      <Checkbox value='uswest'>US-West</Checkbox>
-                      </Stack>
+                      <CheckboxGroup size='sm' colorScheme='messenger' >
+                  <Stack spacing={[1, 3]} direction={['column', 'row']}>
+                    <Checkbox 
+                    isChecked={checkedItemsRegion["afnorth"] || false}
+                    onChange={handleCheckboxRegionChange}
+                    name='afnorth'>AF-North</Checkbox>
+                    <Checkbox name='afsouth'
+                    isChecked={checkedItemsRegion["afsouth"] || false}
+                    onChange={handleCheckboxRegionChange}>
+                      AF-South</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 3]} direction={['column', 'row']}>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["eunorth"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='eunorth'>EU-North</Checkbox>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["eusouth"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='eusouth'>EU-South</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 5]} direction={['column', 'row']}>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["useast"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='useast'>US-East</Checkbox>
+                    <Checkbox 
+                     isChecked={checkedItemsRegion["uswest"] || false}
+                     onChange={handleCheckboxRegionChange}
+                    name='uswest'>US-West</Checkbox>
+                    </Stack>
+                 
+                    </CheckboxGroup>
 
-                      </CheckboxGroup>
 
 
 
@@ -460,13 +716,18 @@ export default function SearchPage() {
 
 
                       <FormLabel mt={4} >Pricing Model</FormLabel>
-                      <CheckboxGroup size='sm' colorScheme='messenger' defaultValue={['subscription', 'payasyougo']}>
-                      <Checkbox value='subscription'>Subscription</Checkbox>
-                      <Checkbox value='payasyougo'>Pay as You Go</Checkbox>
-                      </CheckboxGroup>
+                      <CheckboxGroup size='sm' colorScheme='messenger' >
+                    <Checkbox 
+                     isChecked={checkedItemsPModel["subscription"] || false}
+                     onChange={handleCheckboxPModelChange}
+                    name='subscription'>Subscription</Checkbox>
+                    <Checkbox 
+                      isChecked={checkedItemsPModel["payasyougo"] || false}
+                      onChange={handleCheckboxPModelChange}
+                    name='payasyougo'>Pay as You Go</Checkbox>
+                    </CheckboxGroup>
 
-
-                      <Button align={"center"} mt={8} leftIcon={<SearchIcon />} colorScheme='messenger' variant='solid'>
+                      <Button align={"center"} mt={8} leftIcon={<SearchIcon />} colorScheme='messenger' variant='solid' onClick={handleFilterCloudSLA}>
                         Filter
                       </Button>
 
@@ -477,7 +738,8 @@ export default function SearchPage() {
                     <Box width={"75%"}  mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Heading align={"center"} size='md' >Cloud SLA Search Result</Heading>
                     <NFTGridERC721SLA
-                     isLoading={true}
+                     data={nftsSLA}
+                     isLoading={loadingStateSLA}
                      emptyText={"No Cloud SLA found"}/>
 
 

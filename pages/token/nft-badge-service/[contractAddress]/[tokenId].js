@@ -414,7 +414,7 @@ async function uploadToIPFS(file) {
                   
                      
                         <Text fontSize={"xl"} fontWeight={"bold"}>
-                        {nft.cloudServicePrice} ETH per day </Text>
+                        {nft.cloudServicePrice} ETH per hour </Text>
                         <Text fontSize={"md"} fontWeight={"bold"} mt={5}>
                                     This type of NFT is a Badge, it cannot be sold or transferred but you can: </Text>
                            

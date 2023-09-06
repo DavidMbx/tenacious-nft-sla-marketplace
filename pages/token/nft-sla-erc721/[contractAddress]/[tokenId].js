@@ -43,6 +43,9 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
     const [priceToSellForm, setPriceToSellForm] = useState();
     const [showPriceForm, setShowPriceForm] = useState(false);
     const [tokenOnMarket,setTokenOnMarket]=useState(nft.cloudSLAOwner==NFT_MARKETPLACE_CONTRACT)
+
+    const contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
+    const contractERC721= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
     
 
     console.log(nft)
@@ -83,9 +86,9 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
    
       if(!formFragmentation.numberFragment=="" && !formFragmentation.numberFragment=="0"){
-        let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
-        console.log(contract)
-        let transaction= await contract.burn(nft.erc721SLATokenId)
+      
+        console.log(contractERC721)
+        let transaction= await contractERC721.burn(nft.erc721SLATokenId)
         let tx= await transaction.wait()
         console.log(tx)
         await deleteFromSPARQL(nft.tokenURI,nft.erc721SLATokenId)
@@ -106,8 +109,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         async function handleBuy() {
 
-        let contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
-        let contractERC721= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+
         console.log(contractERC721)
         console.log(contractMarketplace)
         const price= ethers.utils.parseUnits(nft.marketItemPrice.toString(),'ether')
@@ -124,7 +126,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         async function handleRemove() {
 
-            let contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
+
             console.log(contractMarketplace)
             const price= ethers.utils.parseUnits(nft.marketItemPrice.toString(),'ether')
             const transaction=await contractMarketplace.removeMarketItem(nft.erc721SLATokenId)
@@ -141,8 +143,8 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
         
             setShowPriceForm(!showPriceForm)
-       
-    
+
+           
                    
             
         }
@@ -150,9 +152,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
         async function handleSellCloudSLA() {
 
         
-          
-            let contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
-            let contractERC721= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+
             console.log(contractERC721)
             console.log(contractMarketplace)
           
@@ -161,7 +161,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
             listingPrice=ethers.utils.parseUnits(listingPrice.toString(),'ether')
             console.log(listingPrice)
 
-            if(!contractERC721.isApprovedForAll(address, NFT_MARKETPLACE_CONTRACT)){
+            if(!await contractERC721.isApprovedForAll(address, NFT_MARKETPLACE_CONTRACT)){
             const txApproval = await contractERC721.setApprovalForAll(NFT_MARKETPLACE_CONTRACT, true);
             await txApproval.wait();
             }
@@ -228,11 +228,11 @@ async function uploadToIPFS(file) {
     async function uploadToBlockchain(URI,cloudServiceOwner,priceMint) {
 
 
-        let contract= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
-        console.log(contract)
+      
+        console.log(contractERC721)
       
     
-        let transaction= await contract.safeMintAndPay(address,URI,cloudServiceOwner,0,{value:0})
+        let transaction= await contractERC721.safeMintAndPay(address,URI,cloudServiceOwner,0,{value:0})
         let tx= await transaction.wait()
         let event= tx.events[0]
         let value=event.args[2]
@@ -830,7 +830,6 @@ export const getStaticProps = async (context) => {
    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
    let marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
    const marketItem=await marketContract.getMarketItemById(tokenId)
-   console.log(marketContract)
    
 
    const cloudSLAOwner=await nftERC721_SLACollection.ownerOf(tokenId)

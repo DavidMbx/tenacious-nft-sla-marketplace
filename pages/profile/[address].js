@@ -178,7 +178,7 @@ export default function ProfilePage() {
                 return itemCloudSLA
             }))
 
-                const marketItems=await marketplace.fetchMarketItems()
+                const marketItems=await marketplace.fetchItemsCreated()
                 console.log("Market Items",marketItems)
 
                 // Supponiamo che marketItems sia l'array di oggetti di tipo MarketItem

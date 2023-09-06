@@ -43,6 +43,8 @@ contract NFTMarket is ReentrancyGuard {
     mapping(uint256 => MarketItem) private idToMarketItem;
     //Dato l'id di un item riesco a farmi ritornare tutto l'oggetto
 
+    mapping(uint256 => uint256) public indexOfTokenId;
+
 
 
 // Creo un oggetto evento per debugging
@@ -68,8 +70,10 @@ contract NFTMarket is ReentrancyGuard {
       return listingPrice;
     }
 
-    function getMarketItemById(uint256 _itemId) public view returns (MarketItem memory) {
-    return idToMarketItem[_itemId];
+  function getMarketItemById(uint256 tokenId) public view returns (MarketItem memory) {
+
+  return idToMarketItem[indexOfTokenId[tokenId]];
+   
 }
 
     
@@ -84,8 +88,9 @@ contract NFTMarket is ReentrancyGuard {
 
       _itemIds.increment();
       uint256 itemId=_itemIds.current();
+      indexOfTokenId[tokenId] = itemId;
 
-      idToMarketItem[tokenId] =  MarketItem(
+      idToMarketItem[itemId] =  MarketItem(
         itemId,
         nftContract,
         tokenId,
@@ -115,37 +120,42 @@ contract NFTMarket is ReentrancyGuard {
       uint256 tokenId
     ) public payable nonReentrant{
 
-      uint price=idToMarketItem[tokenId].price;
+      uint itemId=indexOfTokenId[tokenId];
+      uint price=idToMarketItem[itemId].price;
+    
 
 
       require(msg.value==price, "Invia il prezzo richiesto per completare l'acquisto");
 
-      idToMarketItem[tokenId].seller.transfer(msg.value);
+      idToMarketItem[itemId].seller.transfer(msg.value);
       IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
-      idToMarketItem[tokenId].owner=payable(msg.sender);
-      idToMarketItem[tokenId].sold=true;
+      idToMarketItem[itemId].owner=payable(msg.sender);
+      idToMarketItem[itemId].sold=true;
       _itemsSold.increment();
       payable(owner).transfer(listingPrice);
     }
 
      /* allows someone to resell a token they have purchased */
     function resellToken(uint256 tokenId, uint256 price) public payable {
-      require(idToMarketItem[tokenId].owner == msg.sender, "Only item owner can perform this operation");
+       uint itemId=indexOfTokenId[tokenId];
+      require(idToMarketItem[itemId].owner == msg.sender, "Only item owner can perform this operation");
       require(msg.value == listingPrice, "Price must be equal to listing price");
-      idToMarketItem[tokenId].sold = false;
-      idToMarketItem[tokenId].price = price;
-      idToMarketItem[tokenId].seller = payable(msg.sender);
-      idToMarketItem[tokenId].owner = payable(address(this));
+      idToMarketItem[itemId].sold = false;
+      idToMarketItem[itemId].price = price;
+      idToMarketItem[itemId].seller = payable(msg.sender);
+      idToMarketItem[itemId].owner = payable(address(this));
       _itemsSold.decrement();
 
-      IERC721(idToMarketItem[tokenId].nftContract).transferFrom(address(this), msg.sender, tokenId);
+      IERC721(idToMarketItem[itemId].nftContract).transferFrom(address(this), msg.sender, tokenId);
     }
 
 
     // Funzione per rimuovere un NFT dal mercato
     function removeMarketItem(uint256 tokenId) public nonReentrant {
+
+      uint itemId=indexOfTokenId[tokenId];
       // Ottieni l'oggetto dal mapping
-      MarketItem storage item = idToMarketItem[tokenId];
+      MarketItem storage item = idToMarketItem[itemId];
 
       // Verifica che l'item esista e che l'utente attuale sia il venditore
       require(item.itemId > 0, "Item does not exist");
@@ -157,8 +167,8 @@ contract NFTMarket is ReentrancyGuard {
       // Trasferisci il NFT indietro al venditore
       IERC721(item.nftContract).transferFrom(address(this), msg.sender, item.tokenId);
 
-      idToMarketItem[tokenId].owner=payable(msg.sender);
-      idToMarketItem[tokenId].sold=true;
+      idToMarketItem[itemId].owner=payable(msg.sender);
+      idToMarketItem[itemId].sold=true;
       _itemsSold.increment();
 
       // Rimborsa eventuali costi di inserimento al venditore

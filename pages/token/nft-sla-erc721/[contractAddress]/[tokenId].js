@@ -46,8 +46,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
 
     const contractMarketplace= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,signer)
     const contractERC721= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
-    
-
+ 
     console.log(nft)
     
 
@@ -144,6 +143,7 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
         
             setShowPriceForm(!showPriceForm)
 
+
            
                    
             
@@ -167,8 +167,12 @@ export default function TokenPageSLA({ nft, contractMetadata }) {
             }
 
          
-           
+           if(nft.marketItemPrice==0.0){
             let transaction= await contractMarketplace.createMarketItem(NFT_ERC721_CONTRACT,nft.erc721SLATokenId,price,{value: listingPrice})
+           }
+           else{
+            let transaction= await contractMarketplace.resellToken(nft.erc721SLATokenId,price,{value: listingPrice})
+           }
             console.log(transaction)
             let tx= await transaction.wait()
             console.log(tx)
@@ -830,6 +834,7 @@ export const getStaticProps = async (context) => {
    const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,provider)
    let marketContract= new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFTMarket.abi,provider)
    const marketItem=await marketContract.getMarketItemById(tokenId)
+   
    
 
    const cloudSLAOwner=await nftERC721_SLACollection.ownerOf(tokenId)

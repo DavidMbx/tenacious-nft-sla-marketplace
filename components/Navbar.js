@@ -32,12 +32,12 @@ export function Navbar(){
             const selectQuery = `
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+            PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
             
             SELECT ?user
             WHERE {
-              ?user rdf:type cs:BlockchainAddress.
-              ?user cs:hasAddress "${address}".
+              ?user rdf:type ts:BlockchainAddress.
+              ?user ts:hasAddress "${address}".
             }
             `;
     
@@ -59,11 +59,11 @@ export function Navbar(){
               const insertQuery = `
               PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-              PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+              PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
   
               INSERT DATA {
-                cs:Address_${address} rdf:type cs:BlockchainAddress.
-                cs:Address_${address} cs:hasAddress "${address}".
+                ts:Address_${address} rdf:type ts:BlockchainAddress.
+                ts:Address_${address} ts:hasAddress "${address}".
               }
             `;
   

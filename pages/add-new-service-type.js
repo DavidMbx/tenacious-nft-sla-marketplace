@@ -49,11 +49,11 @@ export default function AddNewServiceType() {
     const selectQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
 
     SELECT ?serviceCategory
 WHERE {
-  ?serviceCategory rdf:type/rdfs:subClassOf* cs:ServiceCategory .
+  ?serviceCategory rdf:type/rdfs:subClassOf* ts:ServiceCategory .
 }
 
 
@@ -107,13 +107,13 @@ async function checkCloudProviderName() {
     const selectQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
 
     SELECT ?cloudActor
     WHERE {
-    ?address cs:hasAddress "${cloudProviderAddress}" .
-    ?cloudActor cs:hasBlockchainAddress ?address.
-    ?cloudActor rdf:type cs:CloudProvider.
+    ?address ts:hasAddress "${cloudProviderAddress}" .
+    ?cloudActor ts:hasBlockchainAddress ?address.
+    ?cloudActor rdf:type ts:CloudProvider.
     }
 
     `;
@@ -181,11 +181,11 @@ async function uploadToSPARQL(cloudProviderName) {
     const insertQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
   
     INSERT DATA {
-        cs:${serviceTypeName.replace(/ /g, "_")} rdf:type cs:ServiceType .
-        cs:${serviceTypeName.replace(/ /g, "_")} cs:aKindOf cs:${serviceCategory+"_Category"} .
+        ts:${serviceTypeName.replace(/ /g, "_")} rdf:type ts:ServiceType .
+        ts:${serviceTypeName.replace(/ /g, "_")} ts:aKindOf ts:${serviceCategory+"_Category"} .
          }
   `;
   

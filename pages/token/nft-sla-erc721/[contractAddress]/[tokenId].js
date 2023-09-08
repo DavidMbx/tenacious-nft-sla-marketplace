@@ -273,36 +273,36 @@ async function uploadToIPFS(file) {
         const insertQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+        PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
       
         INSERT DATA {
-          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer .
-          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address} .
-          cs:Parties_${address+cloudServiceOwner} rdf:type cs:Parties .
-          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA .
-          cs:Terms_${slaIstanceId} rdf:type cs:Terms .
-          cs:ServiceDefinitionTerms_${slaIstanceId} rdf:type cs:ServiceDefinitionTerms .
-          cs:TerminationTerms_${slaIstanceId} rdf:type cs:TerminationTerms .
-          cs:ViolationCausing_${slaIstanceId} rdf:type cs:ViolationCausing .
-          cs:SLAEnding_${slaIstanceId} rdf:type cs:SLAEnding_${slaIstanceId} .
-          cs:CloudSLA_${slaIstanceId} cs:hasTerms cs:Terms_${slaIstanceId} .
-          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+cloudServiceOwner} .
-          cs:Parties_${address+cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
-          cs:Parties_${address+cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
-          cs:Terms_${slaIstanceId} cs:hasTTerms cs:TerminationTerms_${slaIstanceId} .
-          cs:Terms_${slaIstanceId} cs:hasSDTerms cs:ServiceDefinitionTerms_${slaIstanceId} .
-          cs:ServiceDefinitionTerms_${slaIstanceId} cs:hoursAvailable "${hoursToBuy}" .
-          cs:ViolationCausing_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId}  .
-          cs:SLAEnding_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId} .
-          cs:ViolationCausing_${slaIstanceId} cs:maxViolationNumber "${maxPenalty}"  .
-          cs:SLAEnding_${slaIstanceId} cs:hasDate "${slaEndingDate}" .
-          cs:NFT_ERC721_${slaIstanceId} rdf:type cs:NFT-ERC-721 .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasCloudSLA cs:CloudSLA_${slaIstanceId}  .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasAddress "${NFT_ERC721_CONTRACT}"  .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
-          cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
-          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${cloudServicePictureURI} .
+          ts:CloudConsumer_${address} rdf:type ts:CloudConsumer .
+          ts:CloudConsumer_${address} ts:hasBlockchainAddress ts:Address_${address} .
+          ts:Parties_${address+cloudServiceOwner} rdf:type ts:Parties .
+          ts:CloudSLA_${slaIstanceId} rdf:type ts:CloudSLA .
+          ts:Terms_${slaIstanceId} rdf:type ts:Terms .
+          ts:ServiceDefinitionTerms_${slaIstanceId} rdf:type ts:ServiceDefinitionTerms .
+          ts:TerminationTerms_${slaIstanceId} rdf:type ts:TerminationTerms .
+          ts:ViolationCausing_${slaIstanceId} rdf:type ts:ViolationCausing .
+          ts:SLAEnding_${slaIstanceId} rdf:type ts:SLAEnding_${slaIstanceId} .
+          ts:CloudSLA_${slaIstanceId} ts:hasTerms ts:Terms_${slaIstanceId} .
+          ts:CloudSLA_${slaIstanceId} ts:hasParties ts:Parties_${address+cloudServiceOwner} .
+          ts:Parties_${address+cloudServiceOwner} ts:hasCloudConsumer ts:CloudConsumer_${address} .
+          ts:Parties_${address+cloudServiceOwner} ts:hasCloudProvider ts:CloudProvider_${cloudServiceOwner} .
+          ts:Terms_${slaIstanceId} ts:hasTTerms ts:TerminationTerms_${slaIstanceId} .
+          ts:Terms_${slaIstanceId} ts:hasSDTerms ts:ServiceDefinitionTerms_${slaIstanceId} .
+          ts:ServiceDefinitionTerms_${slaIstanceId} ts:hoursAvailable "${hoursToBuy}" .
+          ts:ViolationCausing_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId}  .
+          ts:SLAEnding_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId} .
+          ts:ViolationCausing_${slaIstanceId} ts:maxViolationNumber "${maxPenalty}"  .
+          ts:SLAEnding_${slaIstanceId} ts:hasDate "${slaEndingDate}" .
+          ts:NFT_ERC721_${slaIstanceId} rdf:type ts:NFT-ERC-721 .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasCloudSLA ts:CloudSLA_${slaIstanceId}  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasAddress "${NFT_ERC721_CONTRACT}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
+          ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasTokenId "${tokenId}"  .
+          ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         
       `;
@@ -334,36 +334,36 @@ async function uploadToIPFS(file) {
         const deleteQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+        PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
       
         DELETE DATA {
-          cs:CloudConsumer_${address} rdf:type cs:CloudConsumer .
-          cs:CloudConsumer_${address} cs:hasBlockchainAddress cs:Address_${address} .
-          cs:Parties_${address+cloudServiceOwner} rdf:type cs:Parties .
-          cs:CloudSLA_${slaIstanceId} rdf:type cs:CloudSLA .
-          cs:Terms_${slaIstanceId} rdf:type cs:Terms .
-          cs:ServiceDefinitionTerms_${slaIstanceId} rdf:type cs:ServiceDefinitionTerms .
-          cs:TerminationTerms_${slaIstanceId} rdf:type cs:TerminationTerms .
-          cs:ViolationCausing_${slaIstanceId} rdf:type cs:ViolationCausing .
-          cs:SLAEnding_${slaIstanceId} rdf:type cs:SLAEnding_${slaIstanceId} .
-          cs:CloudSLA_${slaIstanceId} cs:hasTerms cs:Terms_${slaIstanceId} .
-          cs:CloudSLA_${slaIstanceId} cs:hasParties cs:Parties_${address+cloudServiceOwner} .
-          cs:Parties_${address+cloudServiceOwner} cs:hasCloudConsumer cs:CloudConsumer_${address} .
-          cs:Parties_${address+cloudServiceOwner} cs:hasCloudProvider cs:CloudProvider_${cloudServiceOwner} .
-          cs:Terms_${slaIstanceId} cs:hasTTerms cs:TerminationTerms_${slaIstanceId} .
-          cs:Terms_${slaIstanceId} cs:hasSDTerms cs:ServiceDefinitionTerms_${slaIstanceId} .
-          cs:ServiceDefinitionTerms_${slaIstanceId} cs:hoursAvailable "${hoursToBuy}" .
-          cs:ViolationCausing_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId}  .
-          cs:SLAEnding_${slaIstanceId} cs:isATTerms cs:TerminationTerms_${slaIstanceId} .
-          cs:ViolationCausing_${slaIstanceId} cs:maxViolationNumber "${maxPenalty}"  .
-          cs:SLAEnding_${slaIstanceId} cs:hasDate "${slaEndingDate}" .
-          cs:NFT_ERC721_${slaIstanceId} rdf:type cs:NFT-ERC-721 .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasCloudSLA cs:CloudSLA_${slaIstanceId}  .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasAddress "${NFT_ERC721_CONTRACT}"  .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
-          cs:NFT_ERC721_${slaIstanceId} cs:tokenURI "${tokenURI}"  .
-          cs:NFT_ERC721_${slaIstanceId} cs:hasTokenId "${tokenId}"  .
-          cs:CloudSLA_${slaIstanceId} cs:hasCloudService cs:CloudService_${cloudServicePictureURI} .
+          ts:CloudConsumer_${address} rdf:type ts:CloudConsumer .
+          ts:CloudConsumer_${address} ts:hasBlockchainAddress ts:Address_${address} .
+          ts:Parties_${address+cloudServiceOwner} rdf:type ts:Parties .
+          ts:CloudSLA_${slaIstanceId} rdf:type ts:CloudSLA .
+          ts:Terms_${slaIstanceId} rdf:type ts:Terms .
+          ts:ServiceDefinitionTerms_${slaIstanceId} rdf:type ts:ServiceDefinitionTerms .
+          ts:TerminationTerms_${slaIstanceId} rdf:type ts:TerminationTerms .
+          ts:ViolationCausing_${slaIstanceId} rdf:type ts:ViolationCausing .
+          ts:SLAEnding_${slaIstanceId} rdf:type ts:SLAEnding_${slaIstanceId} .
+          ts:CloudSLA_${slaIstanceId} ts:hasTerms ts:Terms_${slaIstanceId} .
+          ts:CloudSLA_${slaIstanceId} ts:hasParties ts:Parties_${address+cloudServiceOwner} .
+          ts:Parties_${address+cloudServiceOwner} ts:hasCloudConsumer ts:CloudConsumer_${address} .
+          ts:Parties_${address+cloudServiceOwner} ts:hasCloudProvider ts:CloudProvider_${cloudServiceOwner} .
+          ts:Terms_${slaIstanceId} ts:hasTTerms ts:TerminationTerms_${slaIstanceId} .
+          ts:Terms_${slaIstanceId} ts:hasSDTerms ts:ServiceDefinitionTerms_${slaIstanceId} .
+          ts:ServiceDefinitionTerms_${slaIstanceId} ts:hoursAvailable "${hoursToBuy}" .
+          ts:ViolationCausing_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId}  .
+          ts:SLAEnding_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId} .
+          ts:ViolationCausing_${slaIstanceId} ts:maxViolationNumber "${maxPenalty}"  .
+          ts:SLAEnding_${slaIstanceId} ts:hasDate "${slaEndingDate}" .
+          ts:NFT_ERC721_${slaIstanceId} rdf:type ts:NFT-ERC-721 .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasCloudSLA ts:CloudSLA_${slaIstanceId}  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasAddress "${NFT_ERC721_CONTRACT}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
+          ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasTokenId "${tokenId}"  .
+          ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         
       `;
@@ -386,12 +386,12 @@ async function uploadToIPFS(file) {
         const deleteQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+        PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
       
         DELETE DATA {
 
-          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${nft.marketItemSeller}  .
-          cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "true"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${nft.marketItemSeller}  .
+          ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "true"  .
    
         }
  
@@ -400,13 +400,13 @@ async function uploadToIPFS(file) {
       const insertQuery = `
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
     
      
       INSERT DATA{
 
-          cs:NFT_ERC721_${slaIstanceId} cs:hasOwner cs:Address_${address}  .
-          cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "false"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
+          ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
 
       }
       
@@ -432,11 +432,11 @@ async function uploadToIPFS(file) {
       const deleteQuery = `
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+      PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
     
       DELETE DATA {
 
-        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "${!selling}"  .
+        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "${!selling}"  .
  
       }
 
@@ -445,12 +445,12 @@ async function uploadToIPFS(file) {
     const insertQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
   
    
     INSERT DATA{
 
-        cs:NFT_ERC721_${slaIstanceId} cs:onTheMarketplace "${selling}"  .
+        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "${selling}"  .
 
     }
     

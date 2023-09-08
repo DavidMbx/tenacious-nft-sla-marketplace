@@ -189,71 +189,64 @@ async function uploadToIPFS(file) {
         const insertQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+        PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
       
         INSERT DATA {
-            cs:CloudService_${cloudServiceID} rdf:type cs:CloudService .
-            cs:Price_${cloudServiceID} rdf:type cs:Price.
-            cs:Price_${cloudServiceID} cs:currency "Eth".
-            cs:Price_${cloudServiceID}  cs:value "${cloudServicePrice}".
-            cs:PricingModel_${cloudServiceID}  rdf:type cs:${cloudServicePricingModel}.
-            cs:PricingModel_${cloudServiceID}  rdf:type cs:PricingModel.
-            cs:CloudService_${cloudServiceID}  cs:hasPrice cs:Price_${cloudServiceID} .
-            cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
-            cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
-            cs:Availability_${cloudServiceID}  rdf:type cs:Availability.
-            cs:ErrorRate_${cloudServiceID}  rdf:type cs:ErrorRate.
-            cs:ResponseTime_${cloudServiceID}  rdf:type cs:ResponseTime.
-            cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget}".
-            cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget}".
-            cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget}".
-            cs:Penalty_Availability_${cloudServiceID} rdf:type cs:Penalty .
-            cs:Penalty_ErrorRate_${cloudServiceID} rdf:type cs:Penalty .
-            cs:Penalty_ResponseTime_${cloudServiceID} rdf:type cs:Penalty .
-            
-            cs:SLO_${cloudServiceID} rdf:type cs:SLO .
-            cs:Availability_${cloudServiceID}  cs:hasPenalty cs:Penalty_Availability_${cloudServiceID}.
-            cs:ErrorRate_${cloudServiceID}  cs:hasPenalty cs:Penalty_ErrorRate_${cloudServiceID}.
-            cs:ResponseTime_${cloudServiceID}  cs:hasPenalty cs:Penalty_ResponseTime_${cloudServiceID}.
-
-            cs:Price_PenaltyAvailability_${cloudServiceID} rdf:type cs:Price.
-            cs:Price_PenaltyAvailability_${cloudServiceID} cs:currency "Eth".
-            cs:Price_PenaltyAvailability_${cloudServiceID}  cs:value "${cloudServiceAvailabilityPenalty}".
-
-            cs:Price_PenaltyErrorRate_${cloudServiceID} rdf:type cs:Price.
-            cs:Price_PenaltyErrorRate_${cloudServiceID} cs:currency "Eth".
-            cs:Price_PenaltyErrorRate_${cloudServiceID}   cs:value "${cloudServiceErrorRatePenalty}".
-
-            cs:Price_PenaltyResponseTime_${cloudServiceID} rdf:type cs:Price.
-            cs:Price_PenaltyResponseTime_${cloudServiceID} cs:currency "Eth".
-            cs:Price_PenaltyResponseTime_${cloudServiceID}  cs:value "${cloudServiceResponseTimePenalty}".
-
-            cs:Penalty_Availability_${cloudServiceID} cs:hasPrice cs:Price_PenaltyAvailability_${cloudServiceID} .
-            cs:Penalty_ErrorRate_${cloudServiceID} cs:hasPrice  cs:Price_PenaltyErrorRate_${cloudServiceID}  .
-            cs:Penalty_ResponseTime_${cloudServiceID} cs:hasPrice  cs:Price_PenaltyResponseTime_${cloudServiceID}.
-        
-           
-            cs:VirtualAppliance_${cloudServiceID} rdf:type cs:VirtualAppliance .
-            cs:ImageType_${cloudServiceID} rdf:type cs:ImageType .
-            cs:CloudService_${cloudServiceID} cs:hasImage cs:ImageType_${cloudServiceID}.
-            cs:CloudService_${cloudServiceID} cs:hasAppliance cs:VirtualAppliance_${cloudServiceID}.
-            cs:VirtualAppliance_${cloudServiceID} cs:memory "${memory}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:storage "${storage}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:version "${version}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:cpuSpeed "${cpuSpeed}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:cpuCores "${cpuCores}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:architecture "${architecture.replace(/ /g, "_")}" .
-            cs:VirtualAppliance_${cloudServiceID} cs:hasRegion cs:${region}.
-            cs:CloudService_${cloudServiceID}  cs:hasPicture cs:Picture_${cloudServiceID} .
-            cs:Picture_${cloudServiceID}  rdf:type cs:Picture .
-            cs:Picture_${cloudServiceID}  cs:hasLink "${cloudServicePictureURI} " .
-            cs:CloudService_${cloudServiceID}  cs:offeredBy cs:${cloudProviderName}.
-            cs:NFT-Badge_${cloudServiceID}  rdf:type cs:NFT-Badge .
-            cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
-            cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
-            cs:NFT-Badge_${cloudServiceID}  cs:hasOwner cs:Address_${cloudProviderAddress.replace(/ /g, "_")} .
-            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "${tokenURI} ".
-            cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "${tokenId} ".
+            ts:CloudService_${cloudServiceID} rdf:type ts:CloudService .
+            ts:Price_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_${cloudServiceID} ts:currency "Eth".
+            ts:Price_${cloudServiceID}  ts:value "${cloudServicePrice}".
+            ts:PricingModel_${cloudServiceID}  rdf:type ts:${cloudServicePricingModel}.
+            ts:PricingModel_${cloudServiceID}  rdf:type ts:PricingModel.
+            ts:CloudService_${cloudServiceID}  ts:hasPrice ts:Price_${cloudServiceID} .
+            ts:CloudService_${cloudServiceID} ts:hasPricingModel ts:PricingModel_${cloudServiceID} .
+            ts:CloudService_${cloudServiceID} ts:hasServiceType ts:${cloudServiceType} .
+            ts:Availability_${cloudServiceID}  rdf:type ts:Availability.
+            ts:ErrorRate_${cloudServiceID}  rdf:type ts:ErrorRate.
+            ts:ResponseTime_${cloudServiceID}  rdf:type ts:ResponseTime.
+            ts:Availability_${cloudServiceID}  ts:targetValueSLO "${cloudServiceAvailabilityTarget}".
+            ts:ErrorRate_${cloudServiceID}  ts:targetValueSLO "${cloudServiceErrorRateTarget}".
+            ts:ResponseTime_${cloudServiceID}  ts:targetValueSLO "${cloudServiceResponseTimeTarget}".
+            ts:Penalty_Availability_${cloudServiceID} rdf:type ts:Penalty .
+            ts:Penalty_ErrorRate_${cloudServiceID} rdf:type ts:Penalty .
+            ts:Penalty_ResponseTime_${cloudServiceID} rdf:type ts:Penalty .
+            ts:SLO_${cloudServiceID} rdf:type ts:SLO .
+            ts:Availability_${cloudServiceID}  ts:hasPenalty ts:Penalty_Availability_${cloudServiceID}.
+            ts:ErrorRate_${cloudServiceID}  ts:hasPenalty ts:Penalty_ErrorRate_${cloudServiceID}.
+            ts:ResponseTime_${cloudServiceID}  ts:hasPenalty ts:Penalty_ResponseTime_${cloudServiceID}.
+            ts:Price_PenaltyAvailability_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_PenaltyAvailability_${cloudServiceID} ts:currency "Eth".
+            ts:Price_PenaltyAvailability_${cloudServiceID}  ts:value "${cloudServiceAvailabilityPenalty}".
+            ts:Price_PenaltyErrorRate_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_PenaltyErrorRate_${cloudServiceID} ts:currency "Eth".
+            ts:Price_PenaltyErrorRate_${cloudServiceID}   ts:value "${cloudServiceErrorRatePenalty}".
+            ts:Price_PenaltyResponseTime_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_PenaltyResponseTime_${cloudServiceID} ts:currency "Eth".
+            ts:Price_PenaltyResponseTime_${cloudServiceID}  ts:value "${cloudServiceResponseTimePenalty}".
+            ts:Penalty_Availability_${cloudServiceID} ts:hasPrice ts:Price_PenaltyAvailability_${cloudServiceID} .
+            ts:Penalty_ErrorRate_${cloudServiceID} ts:hasPrice  ts:Price_PenaltyErrorRate_${cloudServiceID}  .
+            ts:Penalty_ResponseTime_${cloudServiceID} ts:hasPrice  ts:Price_PenaltyResponseTime_${cloudServiceID}.
+            ts:VirtualAppliance_${cloudServiceID} rdf:type ts:VirtualAppliance .
+            ts:ImageType_${cloudServiceID} rdf:type ts:ImageType .
+            ts:CloudService_${cloudServiceID} ts:hasImage ts:ImageType_${cloudServiceID}.
+            ts:CloudService_${cloudServiceID} ts:hasAppliance ts:VirtualAppliance_${cloudServiceID}.
+            ts:VirtualAppliance_${cloudServiceID} ts:memory "${memory}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:storage "${storage}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:version "${version}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:cpuSpeed "${cpuSpeed}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:cpuCores "${cpuCores}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:architecture "${architecture.replace(/ /g, "_")}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:hasRegion ts:${region}.
+            ts:CloudService_${cloudServiceID}  ts:hasPicture ts:Picture_${cloudServiceID} .
+            ts:Picture_${cloudServiceID}  rdf:type ts:Picture .
+            ts:Picture_${cloudServiceID}  ts:hasLink "${cloudServicePictureURI} " .
+            ts:CloudService_${cloudServiceID}  ts:offeredBy ts:${cloudProviderName}.
+            ts:NFT-Badge_${cloudServiceID}  rdf:type ts:NFT-Badge .
+            ts:NFT-Badge_${cloudServiceID}  ts:hasCloudService ts:CloudService_${cloudServiceID} .
+            ts:NFT-Badge_${cloudServiceID}  ts:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
+            ts:NFT-Badge_${cloudServiceID}  ts:hasOwner ts:Address_${cloudProviderAddress.replace(/ /g, "_")} .
+            ts:NFT-Badge_${cloudServiceID}  ts:hasTokenURI "${tokenURI} ".
+            ts:NFT-Badge_${cloudServiceID}  ts:hasTokenID "${tokenId} ".
         }
         
       `;
@@ -273,13 +266,13 @@ async function uploadToIPFS(file) {
         const selectQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+        PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
     
         SELECT ?cloudActor
         WHERE {
-      ?address cs:hasAddress "${cloudProviderAddress}" .
-      ?cloudActor cs:hasBlockchainAddress ?address.
-      ?cloudActor rdf:type cs:CloudProvider.
+      ?address ts:hasAddress "${cloudProviderAddress}" .
+      ?cloudActor ts:hasBlockchainAddress ?address.
+      ?cloudActor rdf:type ts:CloudProvider.
     }
     
         `;
@@ -355,14 +348,14 @@ async function uploadToIPFS(file) {
         const selectQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+        PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
     
         SELECT ?serviceType
         WHERE {
       
-      ?address cs:hasAddress "${cloudProviderAddress}" .
-      ?cloudActor cs:hasBlockchainAddress ?address.
-      ?serviceType cs:createdBy ?cloudActor.
+      ?address ts:hasAddress "${cloudProviderAddress}" .
+      ?cloudActor ts:hasBlockchainAddress ?address.
+      ?serviceType ts:createdBy ?cloudActor.
     }
 
     

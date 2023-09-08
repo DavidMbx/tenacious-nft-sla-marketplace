@@ -154,13 +154,13 @@ async function checkIfAlreadyCloudProvider() {
     const selectQuery = `
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+    PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
 
     SELECT ?cloudActor
     WHERE {
-  ?address cs:hasAddress "${cloudProviderAddress}" .
-  ?cloudActor cs:hasBlockchainAddress ?address.
-  ?cloudActor rdf:type cs:CloudProvider.
+  ?address ts:hasAddress "${cloudProviderAddress}" .
+  ?cloudActor ts:hasBlockchainAddress ?address.
+  ?cloudActor rdf:type ts:CloudProvider.
 }
 
     `;
@@ -225,20 +225,20 @@ async function uploadToSPARQL(tokenURI,tokenId) {
   const insertQuery = `
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  PREFIX cs: <http://127.0.0.1/ontologies/CSOntology.owl#>
+  PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
 
   INSERT DATA {
-    cs:${cloudProviderName.replace(/ /g, "_")} rdf:type cs:CloudProvider.
-    cs:${cloudProviderName.replace(/ /g, "_")} cs:hasMail "${cloudProviderMail}".
-    cs:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type cs:Picture.
-    cs:Picture_${cloudProviderName.replace(/ /g, "_")} cs:hasLink "${cloudProviderPictureURI}".
-    cs:${cloudProviderName.replace(/ /g, "_")} cs:hasPicture cs:Picture_${cloudProviderName.replace(/ /g, "_")}.
-    cs:${cloudProviderName.replace(/ /g, "_")} cs:hasBlockchainAddress cs:Address_${cloudProviderAddress} .
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")}  rdf:type cs:NFT-Badge .
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasOwner cs:Address_${cloudProviderAddress} .
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:tokenURI "${tokenURI}".
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".
-    cs:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} cs:hasTokenID "${tokenId}".
+    ts:${cloudProviderName.replace(/ /g, "_")} rdf:type ts:CloudProvider.
+    ts:${cloudProviderName.replace(/ /g, "_")} ts:hasMail "${cloudProviderMail}".
+    ts:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type ts:Picture.
+    ts:Picture_${cloudProviderName.replace(/ /g, "_")} ts:hasLink "${cloudProviderPictureURI}".
+    ts:${cloudProviderName.replace(/ /g, "_")} ts:hasPicture ts:Picture_${cloudProviderName.replace(/ /g, "_")}.
+    ts:${cloudProviderName.replace(/ /g, "_")} ts:hasBlockchainAddress ts:Address_${cloudProviderAddress} .
+    ts:NFT-Badge_${cloudProviderName.replace(/ /g, "_")}  rdf:type ts:NFT-Badge .
+    ts:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} ts:hasOwner ts:Address_${cloudProviderAddress} .
+    ts:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} ts:tokenURI "${tokenURI}".
+    ts:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} ts:hasAddress "${NFT_BADGE_PROVIDER_CONTRACT}".
+    ts:NFT-Badge_${cloudProviderName.replace(/ /g, "_")} ts:hasTokenID "${tokenId}".
   }
   
 `;

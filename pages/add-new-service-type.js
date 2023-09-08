@@ -185,7 +185,6 @@ async function uploadToSPARQL(cloudProviderName) {
   
     INSERT DATA {
         cs:${serviceTypeName.replace(/ /g, "_")} rdf:type cs:ServiceType .
-        cs:${serviceTypeName.replace(/ /g, "_")} cs:createdBy cs:${cloudProviderName} .
         cs:${serviceTypeName.replace(/ /g, "_")} cs:aKindOf cs:${serviceCategory+"_Category"} .
          }
   `;

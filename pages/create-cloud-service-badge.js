@@ -193,29 +193,46 @@ async function uploadToIPFS(file) {
       
         INSERT DATA {
             cs:CloudService_${cloudServiceID} rdf:type cs:CloudService .
+            cs:Price_${cloudServiceID} rdf:type cs:Price.
             cs:Price_${cloudServiceID} cs:currency "Eth".
             cs:Price_${cloudServiceID}  cs:value "${cloudServicePrice}".
             cs:PricingModel_${cloudServiceID}  rdf:type cs:${cloudServicePricingModel}.
             cs:PricingModel_${cloudServiceID}  rdf:type cs:PricingModel.
-            cs:PricingModel_${cloudServiceID}  cs:hasPrice cs:Price_${cloudServiceID} .
+            cs:CloudService_${cloudServiceID}  cs:hasPrice cs:Price_${cloudServiceID} .
             cs:CloudService_${cloudServiceID} cs:hasPricingModel cs:PricingModel_${cloudServiceID} .
             cs:CloudService_${cloudServiceID} cs:hasServiceType cs:${cloudServiceType} .
             cs:Availability_${cloudServiceID}  rdf:type cs:Availability.
             cs:ErrorRate_${cloudServiceID}  rdf:type cs:ErrorRate.
             cs:ResponseTime_${cloudServiceID}  rdf:type cs:ResponseTime.
-            cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget} ".
-            cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget} ".
-            cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget} ".
-            cs:Penalty_${cloudServiceID} rdf:type cs:Penalty .
+            cs:Availability_${cloudServiceID}  cs:targetValueSLO "${cloudServiceAvailabilityTarget}".
+            cs:ErrorRate_${cloudServiceID}  cs:targetValueSLO "${cloudServiceErrorRateTarget}".
+            cs:ResponseTime_${cloudServiceID}  cs:targetValueSLO "${cloudServiceResponseTimeTarget}".
+            cs:Penalty_Availability_${cloudServiceID} rdf:type cs:Penalty .
+            cs:Penalty_ErrorRate_${cloudServiceID} rdf:type cs:Penalty .
+            cs:Penalty_ResponseTime_${cloudServiceID} rdf:type cs:Penalty .
+            
             cs:SLO_${cloudServiceID} rdf:type cs:SLO .
-            cs:SLO_${cloudServiceID} cs:hasAvailability cs:Availability_${cloudServiceID} .
-            cs:SLO_${cloudServiceID} cs:hasErrorRate cs:ErrorRate_${cloudServiceID}  .
-            cs:SLO_${cloudServiceID} cs:hasResponseTime cs:ResponseTime_${cloudServiceID} .
-            cs:SLO_${cloudServiceID} cs:hasPenalty cs:Penalty_${cloudServiceID} .
-            cs:Penalty_${cloudServiceID} cs:penaltyValueAvailability "${cloudServiceAvailabilityPenalty}" .
-            cs:Penalty_${cloudServiceID} cs:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}" . 
-            cs:Penalty_${cloudServiceID} cs:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}" .
-            cs:Penalty_${cloudServiceID} cs:currency "Ether" .
+            cs:Availability_${cloudServiceID}  cs:hasPenalty cs:Penalty_Availability_${cloudServiceID}.
+            cs:ErrorRate_${cloudServiceID}  cs:hasPenalty cs:Penalty_ErrorRate_${cloudServiceID}.
+            cs:ResponseTime_${cloudServiceID}  cs:hasPenalty cs:Penalty_ResponseTime_${cloudServiceID}.
+
+            cs:Price_PenaltyAvailability_${cloudServiceID} rdf:type cs:Price.
+            cs:Price_PenaltyAvailability_${cloudServiceID} cs:currency "Eth".
+            cs:Price_PenaltyAvailability_${cloudServiceID}  cs:value "${cloudServiceAvailabilityPenalty}".
+
+            cs:Price_PenaltyErrorRate_${cloudServiceID} rdf:type cs:Price.
+            cs:Price_PenaltyErrorRate_${cloudServiceID} cs:currency "Eth".
+            cs:Price_PenaltyErrorRate_${cloudServiceID}   cs:value "${cloudServiceErrorRatePenalty}".
+
+            cs:Price_PenaltyResponseTime_${cloudServiceID} rdf:type cs:Price.
+            cs:Price_PenaltyResponseTime_${cloudServiceID} cs:currency "Eth".
+            cs:Price_PenaltyResponseTime_${cloudServiceID}  cs:value "${cloudServiceResponseTimePenalty}".
+
+            cs:Penalty_Availability_${cloudServiceID} cs:hasPrice cs:Price_PenaltyAvailability_${cloudServiceID} .
+            cs:Penalty_ErrorRate_${cloudServiceID} cs:hasPrice  cs:Price_PenaltyErrorRate_${cloudServiceID}  .
+            cs:Penalty_ResponseTime_${cloudServiceID} cs:hasPrice  cs:Price_PenaltyResponseTime_${cloudServiceID}.
+        
+           
             cs:VirtualAppliance_${cloudServiceID} rdf:type cs:VirtualAppliance .
             cs:ImageType_${cloudServiceID} rdf:type cs:ImageType .
             cs:CloudService_${cloudServiceID} cs:hasImage cs:ImageType_${cloudServiceID}.
@@ -234,7 +251,7 @@ async function uploadToIPFS(file) {
             cs:NFT-Badge_${cloudServiceID}  rdf:type cs:NFT-Badge .
             cs:NFT-Badge_${cloudServiceID}  cs:hasCloudService cs:CloudService_${cloudServiceID} .
             cs:NFT-Badge_${cloudServiceID}  cs:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
-            cs:NFT-Badge_${cloudServiceID}  cs:hasOwner cs:Address_${cloudProviderAddress} .
+            cs:NFT-Badge_${cloudServiceID}  cs:hasOwner cs:Address_${cloudProviderAddress.replace(/ /g, "_")} .
             cs:NFT-Badge_${cloudServiceID}  cs:hasTokenURI "${tokenURI} ".
             cs:NFT-Badge_${cloudServiceID}  cs:hasTokenID "${tokenId} ".
         }
@@ -334,7 +351,7 @@ async function uploadToIPFS(file) {
         
         setOptions([]);
 
-        // Query SPARQL per verificare se l'utente esiste già nel database
+        // Query SPARQL per prelevare tutti i service type afferenti ad un dato utente
         const selectQuery = `
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

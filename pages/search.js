@@ -153,6 +153,37 @@ async function handleSearchCloudSLA() {
   
 }
 
+function buildSparqlQuery() {
+  
+  let baseQuery = `
+  SELECT ?individual WHERE {
+      ?individual rdf:type :Person .
+  `;
+  
+  let filters = [];
+
+  if (eta_min !== null && eta_max !== null) {
+      filters.push(`    ?individual :hasAge ?age . 
+      FILTER (?age >= ${eta_min} && ?age <= ${eta_max})`);
+  }
+
+  if (luogo_selezionato) {
+      filters.push(`    ?individual :livesIn '${luogo_selezionato}' .`);
+  }
+
+  if (professione_selezionata) {
+      filters.push(`    ?individual :hasJob '${professione_selezionata}' .`);
+  }
+
+  // altri filtri...
+
+  let filterStr = filters.join("\n");
+  let completeQuery = `${baseQuery}${filterStr}\n    }}`;
+  
+  return completeQuery;
+}
+
+
 async function searchQuerySPARQL() {
 
 

@@ -276,6 +276,7 @@ async function uploadToIPFS(file) {
         PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
       
         INSERT DATA {
+         
           ts:CloudConsumer_${address} rdf:type ts:CloudConsumer .
           ts:CloudConsumer_${address} ts:hasBlockchainAddress ts:Address_${address} .
           ts:Parties_${address+cloudServiceOwner} rdf:type ts:Parties .
@@ -287,13 +288,13 @@ async function uploadToIPFS(file) {
           ts:SLAEnding_${slaIstanceId} rdf:type ts:SLAEnding_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasTerms ts:Terms_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasParties ts:Parties_${address+cloudServiceOwner} .
+          ts:CloudSLA_${slaIstanceId} ts:hasPicture ts:Picture_${cloudServicePictureURI} .
           ts:Parties_${address+cloudServiceOwner} ts:hasCloudConsumer ts:CloudConsumer_${address} .
           ts:Parties_${address+cloudServiceOwner} ts:hasCloudProvider ts:CloudProvider_${cloudServiceOwner} .
-          ts:Terms_${slaIstanceId} ts:hasTTerms ts:TerminationTerms_${slaIstanceId} .
           ts:Terms_${slaIstanceId} ts:hasSDTerms ts:ServiceDefinitionTerms_${slaIstanceId} .
           ts:ServiceDefinitionTerms_${slaIstanceId} ts:hoursAvailable "${hoursToBuy}" .
-          ts:ViolationCausing_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId}  .
-          ts:SLAEnding_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId} .
+          ts:Terms_${slaIstanceId} ts:hasTTerms ts:ViolationCausing_${slaIstanceId} .
+          ts:Terms_${slaIstanceId} ts:hasTTerms ts:SLAEnding_${slaIstanceId} .
           ts:ViolationCausing_${slaIstanceId} ts:maxViolationNumber "${maxPenalty}"  .
           ts:SLAEnding_${slaIstanceId} ts:hasDate "${slaEndingDate}" .
           ts:NFT_ERC721_${slaIstanceId} rdf:type ts:NFT-ERC-721 .
@@ -302,6 +303,7 @@ async function uploadToIPFS(file) {
           ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
           ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:hasTokenId "${tokenId}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
           ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         

@@ -193,13 +193,13 @@ async function uploadToIPFS(file) {
           ts:SLAEnding_${slaIstanceId} rdf:type ts:SLAEnding_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasTerms ts:Terms_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasParties ts:Parties_${address+cloudServiceOwner} .
+          ts:CloudSLA_${slaIstanceId} ts:hasPicture ts:Picture_${nft.cloudServicePictureURI} .
           ts:Parties_${address+cloudServiceOwner} ts:hasCloudConsumer ts:CloudConsumer_${address} .
           ts:Parties_${address+cloudServiceOwner} ts:hasCloudProvider ts:CloudProvider_${cloudServiceOwner} .
-          ts:Terms_${slaIstanceId} ts:hasTTerms ts:TerminationTerms_${slaIstanceId} .
           ts:Terms_${slaIstanceId} ts:hasSDTerms ts:ServiceDefinitionTerms_${slaIstanceId} .
           ts:ServiceDefinitionTerms_${slaIstanceId} ts:hoursAvailable "${hoursToBuy}" .
-          ts:ViolationCausing_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId}  .
-          ts:SLAEnding_${slaIstanceId} ts:isATTerms ts:TerminationTerms_${slaIstanceId} .
+          ts:Terms_${slaIstanceId} ts:hasTTerms ts:ViolationCausing_${slaIstanceId} .
+          ts:Terms_${slaIstanceId} ts:hasTTerms ts:SLAEnding_${slaIstanceId} .
           ts:ViolationCausing_${slaIstanceId} ts:maxViolationNumber "${maxPenalty}"  .
           ts:SLAEnding_${slaIstanceId} ts:hasDate "${slaEndingDate}" .
           ts:NFT_ERC721_${slaIstanceId} rdf:type ts:NFT-ERC-721 .
@@ -248,29 +248,39 @@ async function uploadToIPFS(file) {
       
         DELETE DATA {
             ts:CloudService_${cloudServiceID} rdf:type ts:CloudService .
+            ts:Price_${cloudServiceID} rdf:type ts:Price.
             ts:Price_${cloudServiceID} ts:currency "Eth".
             ts:Price_${cloudServiceID}  ts:value "${cloudServicePrice}".
             ts:PricingModel_${cloudServiceID}  rdf:type ts:${cloudServicePricingModel}.
             ts:PricingModel_${cloudServiceID}  rdf:type ts:PricingModel.
-            ts:PricingModel_${cloudServiceID}  ts:hasPrice ts:Price_${cloudServiceID} .
+            ts:CloudService_${cloudServiceID}  ts:hasPrice ts:Price_${cloudServiceID} .
             ts:CloudService_${cloudServiceID} ts:hasPricingModel ts:PricingModel_${cloudServiceID} .
             ts:CloudService_${cloudServiceID} ts:hasServiceType ts:${cloudServiceType} .
             ts:Availability_${cloudServiceID}  rdf:type ts:Availability.
             ts:ErrorRate_${cloudServiceID}  rdf:type ts:ErrorRate.
             ts:ResponseTime_${cloudServiceID}  rdf:type ts:ResponseTime.
-            ts:Availability_${cloudServiceID}  ts:targetValueSLO "${cloudServiceAvailabilityTarget} ".
-            ts:ErrorRate_${cloudServiceID}  ts:targetValueSLO "${cloudServiceErrorRateTarget} ".
-            ts:ResponseTime_${cloudServiceID}  ts:targetValueSLO "${cloudServiceResponseTimeTarget} ".
-            ts:Penalty_${cloudServiceID} rdf:type ts:Penalty .
+            ts:Availability_${cloudServiceID}  ts:targetValueSLO "${cloudServiceAvailabilityTarget}".
+            ts:ErrorRate_${cloudServiceID}  ts:targetValueSLO "${cloudServiceErrorRateTarget}".
+            ts:ResponseTime_${cloudServiceID}  ts:targetValueSLO "${cloudServiceResponseTimeTarget}".
+            ts:Penalty_Availability_${cloudServiceID} rdf:type ts:Penalty .
+            ts:Penalty_ErrorRate_${cloudServiceID} rdf:type ts:Penalty .
+            ts:Penalty_ResponseTime_${cloudServiceID} rdf:type ts:Penalty .
             ts:SLO_${cloudServiceID} rdf:type ts:SLO .
-            ts:SLO_${cloudServiceID} ts:hasAvailability ts:Availability_${cloudServiceID} .
-            ts:SLO_${cloudServiceID} ts:hasErrorRate ts:ErrorRate_${cloudServiceID}  .
-            ts:SLO_${cloudServiceID} ts:hasResponseTime ts:ResponseTime_${cloudServiceID} .
-            ts:SLO_${cloudServiceID} ts:hasPenalty ts:Penalty_${cloudServiceID} .
-            ts:Penalty_${cloudServiceID} ts:penaltyValueAvailability "${cloudServiceAvailabilityPenalty}" .
-            ts:Penalty_${cloudServiceID} ts:penaltyValueErrorRate "${cloudServiceErrorRatePenalty}" . 
-            ts:Penalty_${cloudServiceID} ts:penaltyValueResponseTime "${cloudServiceResponseTimePenalty}" .
-            ts:Penalty_${cloudServiceID} ts:currency "Ether" .
+            ts:Availability_${cloudServiceID}  ts:hasPenalty ts:Penalty_Availability_${cloudServiceID}.
+            ts:ErrorRate_${cloudServiceID}  ts:hasPenalty ts:Penalty_ErrorRate_${cloudServiceID}.
+            ts:ResponseTime_${cloudServiceID}  ts:hasPenalty ts:Penalty_ResponseTime_${cloudServiceID}.
+            ts:Price_PenaltyAvailability_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_PenaltyAvailability_${cloudServiceID} ts:currency "Eth".
+            ts:Price_PenaltyAvailability_${cloudServiceID}  ts:value "${cloudServiceAvailabilityPenalty}".
+            ts:Price_PenaltyErrorRate_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_PenaltyErrorRate_${cloudServiceID} ts:currency "Eth".
+            ts:Price_PenaltyErrorRate_${cloudServiceID}   ts:value "${cloudServiceErrorRatePenalty}".
+            ts:Price_PenaltyResponseTime_${cloudServiceID} rdf:type ts:Price.
+            ts:Price_PenaltyResponseTime_${cloudServiceID} ts:currency "Eth".
+            ts:Price_PenaltyResponseTime_${cloudServiceID}  ts:value "${cloudServiceResponseTimePenalty}".
+            ts:Penalty_Availability_${cloudServiceID} ts:hasPrice ts:Price_PenaltyAvailability_${cloudServiceID} .
+            ts:Penalty_ErrorRate_${cloudServiceID} ts:hasPrice  ts:Price_PenaltyErrorRate_${cloudServiceID}  .
+            ts:Penalty_ResponseTime_${cloudServiceID} ts:hasPrice  ts:Price_PenaltyResponseTime_${cloudServiceID}.
             ts:VirtualAppliance_${cloudServiceID} rdf:type ts:VirtualAppliance .
             ts:ImageType_${cloudServiceID} rdf:type ts:ImageType .
             ts:CloudService_${cloudServiceID} ts:hasImage ts:ImageType_${cloudServiceID}.
@@ -284,11 +294,11 @@ async function uploadToIPFS(file) {
             ts:VirtualAppliance_${cloudServiceID} ts:hasRegion ts:${region}.
             ts:CloudService_${cloudServiceID}  ts:hasPicture ts:Picture_${cloudServiceID} .
             ts:Picture_${cloudServiceID}  rdf:type ts:Picture .
-            ts:Picture_${cloudServiceID}  ts:hasLink "${cloudServicePictureURI} " .
+            ts:Picture_${cloudServiceID}  ts:hasLink "${cloudServiceID} " .
             ts:NFT-Badge_${cloudServiceID}  rdf:type ts:NFT-Badge .
             ts:NFT-Badge_${cloudServiceID}  ts:hasCloudService ts:CloudService_${cloudServiceID} .
             ts:NFT-Badge_${cloudServiceID}  ts:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
-            ts:NFT-Badge_${cloudServiceID}  ts:hasOwner ts:Address_${nft.cloudProviderAddress} .
+            ts:NFT-Badge_${cloudServiceID}  ts:hasOwner ts:Address_${cloudProviderAddress.replace(/ /g, "_")} .
             ts:NFT-Badge_${cloudServiceID}  ts:hasTokenURI "${tokenURI} ".
             ts:NFT-Badge_${cloudServiceID}  ts:hasTokenID "${tokenId} ".
         }

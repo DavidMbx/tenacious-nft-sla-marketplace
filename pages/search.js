@@ -20,10 +20,30 @@ import NFTGridERC721SLA from "../components/NFT-Grid-erc721-sla";
 import NFT_ERC721 from   '../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
 import { Search2Icon } from "@chakra-ui/icons";
 const SparqlClient = require('sparql-http-client')
+import {ethers} from 'ethers'
+import { 
+  NFT_MARKETPLACE_CONTRACT, 
+  NFT_BADGE_PROVIDER_CONTRACT,
+  NFT_BADGE_SERVICE_CONTRACT,
+  NFT_ERC721_CONTRACT 
+} from "../const/addresses";
+import { ConnectWallet,useAddress, useSigner } from "@thirdweb-dev/react";
+
+
+
 
 
 
 export default function SearchPage() {
+
+  const signer=useSigner()
+
+  const nftBadgeProviderCollection= new ethers.Contract(NFT_BADGE_PROVIDER_CONTRACT,NFT_Badge_Provider.abi,signer)
+  const nftBadgeServiceCollection= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
+  const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
+  let marketplace = new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFT_Market.abi,signer)
+
+
 
   const [tabIndex, setTabIndex] = useState(1)
 
@@ -123,6 +143,8 @@ export default function SearchPage() {
 }
 async function handleSearchCloudProvider() {
 
+
+
   setLoadingStateProvider(false)
 
 
@@ -134,18 +156,73 @@ async function handleSearchCloudProvider() {
 }
 async function handleSearchCloudService() {
 
+
+
+  const selectQuery=buildSparqlQueryCloudService()
+  const tokenIds=searchQuerySPARQL(selectQuery)
+
+
+    
+            // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+            const itemsCloudService= await Promise.all(tokenIds.map(async tokenId =>{
+              const tokenURI = await nftBadgeServiceCollection.tokenURI(tokenId);
+              const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+              let itemCloudService={
+
+                  
+                  badgeServiceTokenId:tokenId.toNumber(),
+                  cloudServiceType: response.data.cloudServiceType,
+                  memory: response.data.memory,
+                  storage: response.data.storage,
+                  region: response.data.region,
+                  cpuSpeed: response.data.cpuSpeed,
+                  cpuCores: response.data.cpuCores,
+                  cloudServicePricingModel: response.data.cloudServicePricingModel,
+                  cloudServicePrice: response.data.cloudServicePrice,
+                  cloudServicePictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudServicePictureURI,
+          
+                }
+              return itemCloudService
+          }))
+          console.log("Metadati degli NFT Service dell'utente:", itemsCloudService);
+            setNftsService(itemsCloudService)
+  
+
+
   setLoadingStateService(false)
 
 
-
-
-     
-             
-      
 }
 
 async function handleSearchCloudSLA() {
 
+  const selectQuery=buildSparqlQueryCloudSLA()
+  const tokenIds=searchQuerySPARQL(selectQuery)
+
+  const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
+    const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+    const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+    const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+  
+    let itemCloudSLA={
+
+        
+        erc721SLATokenId:tokenId.toNumber(),
+        cloudServiceName: responseCloudService.data.cloudServiceType,
+        cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+        cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+        hoursToBuy: response.data.hoursToBuy,
+        maxPenalty: response.data.maxPenalty,
+        slaEndingDate: response.data.slaEndingDate,
+        originalPrice: response.data.originalPrice,
+
+      }
+    return itemCloudSLA
+}))
+
+
+console.log("Metadati degli NFT SLA della ricerca:", itemsCloudSLA);
+setNftsService(itemsCloudSLA)
 
   setLoadingStateSLA(false)
 
@@ -443,31 +520,19 @@ async function buildSparqlQueryCloudSLA() {
 
 
 
-async function searchQuerySPARQL() {
+async function searchQuerySPARQL(selectQuery) {
 
 
-  // Query SPARQL per verificare se l'utente esiste già nel database
-  const selectQuery = `
-  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
-
-  SELECT ?cloudActor
-  WHERE {
-?address ts:hasAddress "${cloudProviderAddress}" .
-?cloudActor ts:hasBlockchainAddress ?address.
-?cloudActor rdf:type ts:CloudProvider.
-}
-
-  `;
 
   const stream = await clientSPARQL.query.select(selectQuery);
   let datiRicevuti=false;
+  let tokenIds= []
   
  stream.on('data', row => {
        Object.entries(row).forEach(([key, value]) => {
         console.log(`${key}: ${value.value} (${value.termType})`)
         datiRicevuti=true;
+        tokenIds.push(value.value)
 
       })
     })
@@ -475,12 +540,13 @@ async function searchQuerySPARQL() {
     stream.on('end', () => {
       
       if (!datiRicevuti) {
-       // L'utente non è registrato già come cloud provider, procedo con l'inserimento
-       console.log("L'indirizzo non risulta associato a nessun Cloud Provider")
-       createFileJSON()
+       console.log("La ricerca non ha prodotto risultati")
+       return tokenIds
+       
       }
       else{
-        console.log("L'indirizzo risulta già associato ad un Cloud Provider")
+        console.log("La ricerca ha prodotto risultati")
+        return tokenIds
       }
 
       })
@@ -490,6 +556,8 @@ async function searchQuerySPARQL() {
       console.error(err)
     })
 }
+
+
 
 
 

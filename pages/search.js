@@ -68,10 +68,10 @@ export default function SearchPage() {
   targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:''})
   //console.log(formInputFilterSLA)
 
-  const [checkedItemsRegion, setCheckedItemsRegion] = useState({afnorth:false,afsouth:false,eunorth:false,eusouth:false,useast:false,uswest:false 
+  const [checkedItemsRegion, setCheckedItemsRegion] = useState({'AF-North':false,'AF-South':false,'EU-North':false,'EU-South':false,'US-East':false,'US-West':false 
     });
-  const [checkedItemsPModel, setCheckedItemsPModel] = useState({subscription:false,payasyougo:false});
-  const [checkedItemsCloudProvider, setCheckedItemsCloudProvider] = useState({amazon: false, openstack: false, azure: false, other: false});
+  const [checkedItemsPModel, setCheckedItemsPModel] = useState({Subscription:false,PayAsYouGo:false});
+  const [checkedItemsCloudProvider, setCheckedItemsCloudProvider] = useState({Amazon: false, OpenStack: false, MicrosoftAzure: false, Agnostic: false});
   const [checkedItemsListed, setCheckedItemsListed] = useState({listed:false});
 
   //console.log(checkedItemsRegion)
@@ -105,6 +105,7 @@ export default function SearchPage() {
 
 
       setLoadingStateService(false)
+     
 
 
      
@@ -115,6 +116,7 @@ export default function SearchPage() {
   async function handleFilterCloudSLA() {
 
     setLoadingStateSLA(false)
+
    
            
     
@@ -153,35 +155,292 @@ async function handleSearchCloudSLA() {
   
 }
 
-function buildSparqlQuery() {
-  
+async function buildSparqlQueryCloudService() {
+
+  const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
+  targetAvailabilityMax,penaltyAvailabilityMin,penaltyAvailabilityMax,targetErrorRateMin,targetErrorRateMax,
+  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax}=formInputFilterService
+
   let baseQuery = `
-  SELECT ?individual WHERE {
-      ?individual rdf:type :Person .
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+
+  SELECT ?uri ?tokenId WHERE {
+      ?nftBadge ts:tokenURI ?uri .
+      ?nftBadge ts:hasTokenId ?tokenId .
+      ?nftBadge ts:hasCloudService ?cloudService .
+      ?cloudService ts:hasAppliance ?virtualAppliance .
+
   `;
   
   let filters = [];
 
-  if (eta_min !== null && eta_max !== null) {
-      filters.push(`    ?individual :hasAge ?age . 
-      FILTER (?age >= ${eta_min} && ?age <= ${eta_max})`);
+
+  //Filtro sul Provider
+  if (checkedItemsCloudProvider['Amazon']==false && checkedItemsCloudProvider['MicrosoftAzure']==false && 
+    checkedItemsCloudProvider['OpenStack']==false && checkedItemsCloudProvider['Agnostic']==false) {
+  
+    
+  }
+  else{
+    let providerSelected = [];
+
+    for (var key in checkedItemsCloudProvider) {
+      if (checkedItemsCloudProvider.hasOwnProperty(key)) {
+         if(checkedItemsCloudProvider[key]==true){
+          providerSelected.push({key})
+         }
+      }
+    }
+      let providerList = providerSelected.map(p => `ts:${p}`).join(", ");
+      filters.push(`    ?cloudService ts:offeredBy ?cloudProvider .
+      FILTER (?cloudProvider IN (${providerList}))`);
   }
 
-  if (luogo_selezionato) {
-      filters.push(`    ?individual :livesIn '${luogo_selezionato}' .`);
+  //Filtro sulla memoria
+  if (memoryMin && memoryMax) {
+    filters.push(`     ?virtualAppliance ts:memory ?memory .
+      FILTER (?memory >= ${parseInt(memoryMin)} && ?memory <= ${parseInt(memoryMax)})`);
+      
   }
 
-  if (professione_selezionata) {
-      filters.push(`    ?individual :hasJob '${professione_selezionata}' .`);
+  //Filtro sullo storage
+  if (storageMin && storageMax) {
+    filters.push(`     ?virtualAppliance ts:size ?storage .
+      FILTER (?storage >= ${parseInt(storageMin)} && ?storage <= ${parseInt(storageMax)})`);
+      
   }
 
-  // altri filtri...
+   //Filtro sulla location
+   if (checkedItemsRegion['US-East']==false && checkedItemsRegion['US-West']==false && 
+   checkedItemsRegion['EU-South']==false && checkedItemsRegion['EU-North']==false
+   && checkedItemsRegion['AF-South']==false && checkedItemsRegion['AF-North']==false) {
+ 
+   
+ }
+ else{
+   let locationSelected = [];
+
+   for (var key in checkedItemsRegion) {
+     if (checkedItemsRegion.hasOwnProperty(key)) {
+        if(checkedItemsRegion[key]==true){
+          locationSelected.push({key})
+        }
+     }
+   }
+     let locationList = locationSelected.map(p => `ts:${p}`).join(", ");
+     filters.push(`    ?virtualAppliance ts:hasRegion ?location .
+     FILTER (?location IN (${locationList}))`);
+ }
+
+   //Filtro sullo cpuspeed
+   if (cpuSpeedMin && cpuSpeedMax) {
+    filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
+      FILTER (?cpuSpeed >= ${parseInt(cpuSpeedMin)} && ?cpuSpeed <= ${parseInt(cpuSpeedMax)})`);
+      
+  }
+
+
+   //Filtro sullo cpucores
+   if (cpuCoresMin && cpuCoresMax) {
+    filters.push(`     ?virtualAppliance ts:cpuCores ?cpuCores .
+      FILTER (?cpuCores >= ${parseInt(cpuCoresMin)} && ?cpuCores <= ${parseInt(cpuCoresMax)})`);
+      
+  }
+
+    //Filtro sul PricingModel
+    if (checkedItemsPModel['Subscription']==false && checkedItemsPModel['PayAsYouGo']==false) {
+  
+    
+  }
+  else{
+    let pModelSelected = [];
+
+    for (var key in checkedItemsPModel) {
+      if (checkedItemsPModel.hasOwnProperty(key)) {
+         if(checkedItemsPModel[key]==true){
+          pModelSelected.push({key})
+         }
+      }
+    }
+      let pModelList = pModelSelected.map(p => `ts:${p}`).join(", ");
+      filters.push(`    ?cloudService ts:hasPricingModel ?pricingModel .
+                        ?pricingModel rdf:type ?typeModel .
+      FILTER (?cloudProvider IN (${pModelList}))`);
+  }
+
+
+
+
+
+
 
   let filterStr = filters.join("\n");
   let completeQuery = `${baseQuery}${filterStr}\n    }}`;
   
   return completeQuery;
 }
+
+async function buildSparqlQueryCloudSLA() {
+
+  const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
+  targetAvailabilityMax,penaltyAvailabilityMin,penaltyAvailabilityMax,targetErrorRateMin,targetErrorRateMax,
+  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax}=formInputFilterService
+
+  let baseQuery = `
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+
+  SELECT ?uri ?tokenId WHERE {
+      ?nftERC721 ts:tokenURI ?uri .
+      ?nftERC721 ts:hasTokenId ?tokenId .
+      ?nftERC721 ts:hasCloudSLA ?cloudSLA .
+      ?cloudSLA ts:hasCloudService ?cloudService .
+      ?cloudService ts:hasAppliance ?virtualAppliance .
+
+  `;
+  
+  let filters = [];
+
+
+  //Filtro sul list del marketplace
+
+  if(checkedItemsListed['listed']==true){
+
+    filters.push(`    ?nftERC721 ts:onTheMarketplace "true" .`);
+
+  }
+  else{
+
+    filters.push(`    ?nftERC721 ts:onTheMarketplace "false" .`);
+
+  }
+
+  //Filtro sulla MaxPenalty
+  if (maxPenaltyMin && maxPenaltyMax) {
+    filters.push(`      ?cloudSLA ts:hasTerms ?terms .
+                        ?terms ts:hasTTerms ?violationCausing .
+                        ?violationCausing ts:maxViolationNumber ?violationNumber .
+      FILTER (?violationNumber >= ${parseInt(maxPenaltyMin)} && ?violationNumber <= ${parseInt(maxPenaltyMax)})`);
+      
+  }
+
+   //Filtro sulla HoursAvailable
+   if (hoursAvailableMin && hoursAvailableMax) {
+    filters.push(`      ?cloudSLA ts:hasTerms ?terms .
+                        ?terms ts:hasSDTerms ?serviceDefinitionTerms .
+                        ?serviceDefinitionTerms ts:hoursAvailable ?hours .
+      FILTER (?hours >= ${parseInt(hoursAvailableMin)} && ?hours <= ${parseInt(hoursAvailableMax)})`);
+      
+  }
+
+  //Filtro sul Provider
+  if (checkedItemsCloudProvider['Amazon']==false && checkedItemsCloudProvider['MicrosoftAzure']==false && 
+    checkedItemsCloudProvider['OpenStack']==false && checkedItemsCloudProvider['Agnostic']==false) {
+  
+    
+  }
+  else{
+    let providerSelected = [];
+
+    for (var key in checkedItemsCloudProvider) {
+      if (checkedItemsCloudProvider.hasOwnProperty(key)) {
+         if(checkedItemsCloudProvider[key]==true){
+          providerSelected.push({key})
+         }
+      }
+    }
+      let providerList = providerSelected.map(p => `ts:${p}`).join(", ");
+      filters.push(`    ?cloudService ts:offeredBy ?cloudProvider .
+      FILTER (?cloudProvider IN (${providerList}))`);
+  }
+
+  //Filtro sulla memoria
+  if (memoryMin && memoryMax) {
+    filters.push(`     ?virtualAppliance ts:memory ?memory .
+      FILTER (?memory >= ${parseInt(memoryMin)} && ?memory <= ${parseInt(memoryMax)})`);
+      
+  }
+
+  //Filtro sullo storage
+  if (storageMin && storageMax) {
+    filters.push(`     ?virtualAppliance ts:size ?storage .
+      FILTER (?storage >= ${parseInt(storageMin)} && ?storage <= ${parseInt(storageMax)})`);
+      
+  }
+
+   //Filtro sulla location
+   if (checkedItemsRegion['US-East']==false && checkedItemsRegion['US-West']==false && 
+   checkedItemsRegion['EU-South']==false && checkedItemsRegion['EU-North']==false
+   && checkedItemsRegion['AF-South']==false && checkedItemsRegion['AF-North']==false) {
+ 
+   
+ }
+ else{
+   let locationSelected = [];
+
+   for (var key in checkedItemsRegion) {
+     if (checkedItemsRegion.hasOwnProperty(key)) {
+        if(checkedItemsRegion[key]==true){
+          locationSelected.push({key})
+        }
+     }
+   }
+     let locationList = locationSelected.map(p => `ts:${p}`).join(", ");
+     filters.push(`    ?virtualAppliance ts:hasRegion ?location .
+     FILTER (?location IN (${locationList}))`);
+ }
+
+   //Filtro sullo cpuspeed
+   if (cpuSpeedMin && cpuSpeedMax) {
+    filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
+      FILTER (?cpuSpeed >= ${parseInt(cpuSpeedMin)} && ?cpuSpeed <= ${parseInt(cpuSpeedMax)})`);
+      
+  }
+
+
+   //Filtro sullo cpucores
+   if (cpuCoresMin && cpuCoresMax) {
+    filters.push(`     ?virtualAppliance ts:cpuCores ?cpuCores .
+      FILTER (?cpuCores >= ${parseInt(cpuCoresMin)} && ?cpuCores <= ${parseInt(cpuCoresMax)})`);
+      
+  }
+
+    //Filtro sul PricingModel
+    if (checkedItemsPModel['Subscription']==false && checkedItemsPModel['PayAsYouGo']==false) {
+  
+    
+  }
+  else{
+    let pModelSelected = [];
+
+    for (var key in checkedItemsPModel) {
+      if (checkedItemsPModel.hasOwnProperty(key)) {
+         if(checkedItemsPModel[key]==true){
+          pModelSelected.push({key})
+         }
+      }
+    }
+      let pModelList = pModelSelected.map(p => `ts:${p}`).join(", ");
+      filters.push(`    ?cloudService ts:hasPricingModel ?pricingModel .
+                        ?pricingModel rdf:type ?typeModel .
+      FILTER (?cloudProvider IN (${pModelList}))`);
+  }
+
+
+
+
+
+
+
+  let filterStr = filters.join("\n");
+  let completeQuery = `${baseQuery}${filterStr}\n    }}`;
+  
+  return completeQuery;
+}
+
 
 
 async function searchQuerySPARQL() {
@@ -321,23 +580,23 @@ async function searchQuerySPARQL() {
                    <CheckboxGroup size='sm' colorScheme='messenger' >
                   <Stack spacing={[1, 7]} direction={['column', 'row']}>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["amazon"] || false}
+                    isChecked={checkedItemsCloudProvider["Amazon"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='amazon'>Amazon</Checkbox>
+                    name='Amazon'>Amazon</Checkbox>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["azure"] || false}
+                    isChecked={checkedItemsCloudProvider["MicrosoftAzure"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='azure'>Azure</Checkbox>
+                    name='MicrosoftAzure'>Azure</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 3]} direction={['column', 'row']}>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["openstack"] || false}
+                    isChecked={checkedItemsCloudProvider["OpenStack"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='openstack'>Openstack</Checkbox>
+                    name='OpenStack'>Openstack</Checkbox>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["other"] || false}
+                    isChecked={checkedItemsCloudProvider["Agnostic"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='other'>Other</Checkbox>
+                    name='Agnostic'>Other</Checkbox>
                     </Stack>
                  
                     </CheckboxGroup>
@@ -397,33 +656,33 @@ async function searchQuerySPARQL() {
                    <CheckboxGroup size='sm' colorScheme='messenger' >
                   <Stack spacing={[1, 3]} direction={['column', 'row']}>
                     <Checkbox 
-                    isChecked={checkedItemsRegion["afnorth"] || false}
+                    isChecked={checkedItemsRegion["AF-North"] || false}
                     onChange={handleCheckboxRegionChange}
-                    name='afnorth'>AF-North</Checkbox>
-                    <Checkbox name='afsouth'
-                    isChecked={checkedItemsRegion["afsouth"] || false}
+                    name='AF-North'>AF-North</Checkbox>
+                    <Checkbox name='AF-South'
+                    isChecked={checkedItemsRegion["AF-South"] || false}
                     onChange={handleCheckboxRegionChange}>
                       AF-South</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 3]} direction={['column', 'row']}>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["eunorth"] || false}
+                     isChecked={checkedItemsRegion["EU-North"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='eunorth'>EU-North</Checkbox>
+                    name='EU-North'>EU-North</Checkbox>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["eusouth"] || false}
+                     isChecked={checkedItemsRegion["EU-South"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='eusouth'>EU-South</Checkbox>
+                    name='EU-South'>EU-South</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 5]} direction={['column', 'row']}>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["useast"] || false}
+                     isChecked={checkedItemsRegion["US-East"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='useast'>US-East</Checkbox>
+                    name='US-East'>US-East</Checkbox>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["uswest"] || false}
+                     isChecked={checkedItemsRegion["US-West"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='uswest'>US-West</Checkbox>
+                    name='US-West'>US-West</Checkbox>
                     </Stack>
                  
                     </CheckboxGroup>
@@ -487,13 +746,13 @@ async function searchQuerySPARQL() {
                     <FormLabel mt={4} >Pricing Model</FormLabel>
                    <CheckboxGroup size='sm' colorScheme='messenger' >
                     <Checkbox 
-                     isChecked={checkedItemsPModel["subscription"] || false}
+                     isChecked={checkedItemsPModel["Subscription"] || false}
                      onChange={handleCheckboxPModelChange}
-                    name='subscription'>Subscription</Checkbox>
+                    name='Subscription'>Subscription</Checkbox>
                     <Checkbox 
-                      isChecked={checkedItemsPModel["payasyougo"] || false}
+                      isChecked={checkedItemsPModel["PayAsYouGo"] || false}
                       onChange={handleCheckboxPModelChange}
-                    name='payasyougo'>Pay as You Go</Checkbox>
+                    name='PayAsYouGo'>Pay as You Go</Checkbox>
                     </CheckboxGroup>
 
 
@@ -532,23 +791,23 @@ async function searchQuerySPARQL() {
                    <CheckboxGroup size='sm' colorScheme='messenger' >
                   <Stack spacing={[1, 7]} direction={['column', 'row']}>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["amazon"] || false}
+                    isChecked={checkedItemsCloudProvider["Amazon"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='amazon'>Amazon</Checkbox>
+                    name='Amazon'>Amazon</Checkbox>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["azure"] || false}
+                    isChecked={checkedItemsCloudProvider["MicrosoftAzure"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='azure'>Azure</Checkbox>
+                    name='MicrosoftAzure'>Azure</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 3]} direction={['column', 'row']}>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["openstack"] || false}
+                    isChecked={checkedItemsCloudProvider["OpenStack"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='openstack'>Openstack</Checkbox>
+                    name='OpenStack'>Openstack</Checkbox>
                     <Checkbox 
-                    isChecked={checkedItemsCloudProvider["other"] || false}
+                    isChecked={checkedItemsCloudProvider["Agnostic"] || false}
                     onChange={handleCheckboxCloudProviderChange}
-                    name='other'>Other</Checkbox>
+                    name='Agnostic'>Other</Checkbox>
                     </Stack>
                  
                     </CheckboxGroup>
@@ -658,33 +917,33 @@ async function searchQuerySPARQL() {
                       <CheckboxGroup size='sm' colorScheme='messenger' >
                   <Stack spacing={[1, 3]} direction={['column', 'row']}>
                     <Checkbox 
-                    isChecked={checkedItemsRegion["afnorth"] || false}
+                    isChecked={checkedItemsRegion["AF-North"] || false}
                     onChange={handleCheckboxRegionChange}
-                    name='afnorth'>AF-North</Checkbox>
-                    <Checkbox name='afsouth'
-                    isChecked={checkedItemsRegion["afsouth"] || false}
+                    name='AF-North'>AF-North</Checkbox>
+                    <Checkbox name='AF-South'
+                    isChecked={checkedItemsRegion["AF-South"] || false}
                     onChange={handleCheckboxRegionChange}>
                       AF-South</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 3]} direction={['column', 'row']}>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["eunorth"] || false}
+                     isChecked={checkedItemsRegion["EU-North"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='eunorth'>EU-North</Checkbox>
+                    name='EU-North'>EU-North</Checkbox>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["eusouth"] || false}
+                     isChecked={checkedItemsRegion["EU-South"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='eusouth'>EU-South</Checkbox>
+                    name='EU-South'>EU-South</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 5]} direction={['column', 'row']}>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["useast"] || false}
+                     isChecked={checkedItemsRegion["US-East"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='useast'>US-East</Checkbox>
+                    name='US-East'>US-East</Checkbox>
                     <Checkbox 
-                     isChecked={checkedItemsRegion["uswest"] || false}
+                     isChecked={checkedItemsRegion["US-West"] || false}
                      onChange={handleCheckboxRegionChange}
-                    name='uswest'>US-West</Checkbox>
+                    name='US-West'>US-West</Checkbox>
                     </Stack>
                  
                     </CheckboxGroup>
@@ -749,13 +1008,13 @@ async function searchQuerySPARQL() {
                       <FormLabel mt={4} >Pricing Model</FormLabel>
                       <CheckboxGroup size='sm' colorScheme='messenger' >
                     <Checkbox 
-                     isChecked={checkedItemsPModel["subscription"] || false}
+                     isChecked={checkedItemsPModel["Subscription"] || false}
                      onChange={handleCheckboxPModelChange}
-                    name='subscription'>Subscription</Checkbox>
+                    name='Subscription'>Subscription</Checkbox>
                     <Checkbox 
-                      isChecked={checkedItemsPModel["payasyougo"] || false}
+                      isChecked={checkedItemsPModel["PayAsYouGo"] || false}
                       onChange={handleCheckboxPModelChange}
-                    name='payasyougo'>Pay as You Go</Checkbox>
+                    name='PayAsYouGo'>Pay as You Go</Checkbox>
                     </CheckboxGroup>
 
                       <Button align={"center"} mt={8} leftIcon={<SearchIcon />} colorScheme='messenger' variant='solid' onClick={handleFilterCloudSLA}>

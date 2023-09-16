@@ -231,7 +231,7 @@ async function uploadToIPFS(file) {
             ts:CloudService_${cloudServiceID} ts:hasImage ts:ImageType_${cloudServiceID}.
             ts:CloudService_${cloudServiceID} ts:hasAppliance ts:VirtualAppliance_${cloudServiceID}.
             ts:VirtualAppliance_${cloudServiceID} ts:memory "${memory}" .
-            ts:VirtualAppliance_${cloudServiceID} ts:storage "${storage}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:size "${storage}" .
             ts:VirtualAppliance_${cloudServiceID} ts:version "${version}" .
             ts:VirtualAppliance_${cloudServiceID} ts:cpuSpeed "${cpuSpeed}" .
             ts:VirtualAppliance_${cloudServiceID} ts:cpuCores "${cpuCores}" .
@@ -245,7 +245,7 @@ async function uploadToIPFS(file) {
             ts:NFT-Badge_${cloudServiceID}  ts:hasCloudService ts:CloudService_${cloudServiceID} .
             ts:NFT-Badge_${cloudServiceID}  ts:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
             ts:NFT-Badge_${cloudServiceID}  ts:hasOwner ts:Address_${cloudProviderAddress.replace(/ /g, "_")} .
-            ts:NFT-Badge_${cloudServiceID}  ts:hasTokenURI "${tokenURI} ".
+            ts:NFT-Badge_${cloudServiceID}  ts:tokenURI "${tokenURI} ".
             ts:NFT-Badge_${cloudServiceID}  ts:hasTokenID "${tokenId} ".
         }
         
@@ -355,7 +355,8 @@ async function uploadToIPFS(file) {
       
       ?address ts:hasAddress "${cloudProviderAddress}" .
       ?cloudActor ts:hasBlockchainAddress ?address.
-      ?serviceType ts:createdBy ?cloudActor.
+      ?serviceType rdf:type ts:ServiceType.
+      ?serviceType ts:offeredBy ?cloudActor.
     }
 
     

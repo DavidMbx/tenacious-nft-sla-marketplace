@@ -286,7 +286,7 @@ async function uploadToIPFS(file) {
             ts:CloudService_${cloudServiceID} ts:hasImage ts:ImageType_${cloudServiceID}.
             ts:CloudService_${cloudServiceID} ts:hasAppliance ts:VirtualAppliance_${cloudServiceID}.
             ts:VirtualAppliance_${cloudServiceID} ts:memory "${memory}" .
-            ts:VirtualAppliance_${cloudServiceID} ts:storage "${storage}" .
+            ts:VirtualAppliance_${cloudServiceID} ts:size "${storage}" .
             ts:VirtualAppliance_${cloudServiceID} ts:version "${version}" .
             ts:VirtualAppliance_${cloudServiceID} ts:cpuSpeed "${cpuSpeed}" .
             ts:VirtualAppliance_${cloudServiceID} ts:cpuCores "${cpuCores}" .

@@ -1,6 +1,5 @@
 import  SearchBar  from "../components/SearchBar"
 import React, { useState } from "react";
-import { ConnectWallet } from "@thirdweb-dev/react";
 import styles from "../styles/Home.module.css";
 import NextLink from 'next/link'
 import { Button, Container, Flex, Heading, Image, Stack,Text,Box,Tabs,TabList,Tab,TabPanels,TabPanel ,
@@ -18,8 +17,10 @@ import NFT_Badge_Service from   '../artifacts/contracts/NFT_Badge_Service.sol/NF
 
 import NFTGridERC721SLA from "../components/NFT-Grid-erc721-sla";
 import NFT_ERC721 from   '../artifacts/contracts/NFT_ERC721.sol/NFT_ERC721.json'
+import NFT_Market from   '../artifacts/contracts/NFTMarket.sol/NFTMarket.json'
 import { Search2Icon } from "@chakra-ui/icons";
 const SparqlClient = require('sparql-http-client')
+const axios = require('axios');
 import {ethers} from 'ethers'
 import { 
   NFT_MARKETPLACE_CONTRACT, 
@@ -42,6 +43,9 @@ export default function SearchPage() {
   const nftBadgeServiceCollection= new ethers.Contract(NFT_BADGE_SERVICE_CONTRACT,NFT_Badge_Service.abi,signer)
   const nftERC721_SLACollection= new ethers.Contract(NFT_ERC721_CONTRACT,NFT_ERC721.abi,signer)
   let marketplace = new ethers.Contract(NFT_MARKETPLACE_CONTRACT,NFT_Market.abi,signer)
+
+
+
 
 
 
@@ -124,6 +128,7 @@ export default function SearchPage() {
     async function handleFilterCloudService() {
 
 
+      console.log(await buildSparqlQueryCloudService())
       setLoadingStateService(false)
      
 
@@ -134,6 +139,8 @@ export default function SearchPage() {
   }
 
   async function handleFilterCloudSLA() {
+
+    console.log(await buildSparqlQueryCloudSLA())
 
     setLoadingStateSLA(false)
 
@@ -158,19 +165,21 @@ async function handleSearchCloudService() {
 
 
 
-  const selectQuery=buildSparqlQueryCloudService()
-  const tokenIds=searchQuerySPARQL(selectQuery)
+  const selectQuery=await buildSparqlQueryCloudService()
+  const tokenIds=await searchQuerySPARQL(selectQuery)
+  console.log('tokenIds Service Found',tokenIds)
+  if(!tokenIds) return setNftsService([])
 
 
     
             // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
             const itemsCloudService= await Promise.all(tokenIds.map(async tokenId =>{
-              const tokenURI = await nftBadgeServiceCollection.tokenURI(tokenId);
+              const tokenURI = await nftBadgeServiceCollection.tokenURI(+tokenId);
               const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
               let itemCloudService={
 
                   
-                  badgeServiceTokenId:tokenId.toNumber(),
+                  badgeServiceTokenId:+tokenId,
                   cloudServiceType: response.data.cloudServiceType,
                   memory: response.data.memory,
                   storage: response.data.storage,
@@ -196,8 +205,10 @@ async function handleSearchCloudService() {
 
 async function handleSearchCloudSLA() {
 
-  const selectQuery=buildSparqlQueryCloudSLA()
-  const tokenIds=searchQuerySPARQL(selectQuery)
+  const selectQuery=await buildSparqlQueryCloudSLA()
+  const tokenIds=await searchQuerySPARQL(selectQuery)
+  console.log('tokenIds SLA Found',tokenIds)
+  if(!tokenIds) return setNftsSLA([])
 
   const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
     const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
@@ -242,16 +253,24 @@ async function buildSparqlQueryCloudService() {
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
   PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-  SELECT ?uri ?tokenId WHERE {
-      ?nftBadge ts:tokenURI ?uri .
-      ?nftBadge ts:hasTokenId ?tokenId .
+  SELECT ?tokenId WHERE {
+      
+      ?nftBadge ts:hasTokenID ?tokenId .
       ?nftBadge ts:hasCloudService ?cloudService .
       ?cloudService ts:hasAppliance ?virtualAppliance .
 
   `;
   
   let filters = [];
+  
+  if(searchText){
+
+    filters.push(`    ?cloudService ts:hasServiceType ?serviceType .
+    FILTER CONTAINS (lcase(STR(?serviceType)),lcase("${searchText}"))`);
+
+  }
 
 
   //Filtro sul Provider
@@ -266,7 +285,7 @@ async function buildSparqlQueryCloudService() {
     for (var key in checkedItemsCloudProvider) {
       if (checkedItemsCloudProvider.hasOwnProperty(key)) {
          if(checkedItemsCloudProvider[key]==true){
-          providerSelected.push({key})
+          providerSelected.push(key)
          }
       }
     }
@@ -277,15 +296,18 @@ async function buildSparqlQueryCloudService() {
 
   //Filtro sulla memoria
   if (memoryMin && memoryMax) {
+    
     filters.push(`     ?virtualAppliance ts:memory ?memory .
-      FILTER (?memory >= ${parseInt(memoryMin)} && ?memory <= ${parseInt(memoryMax)})`);
+      BIND(xsd:integer(?memory) AS ?memoryInt)
+      FILTER (?memoryInt >= ${parseInt(memoryMin)} && ?memoryInt <= ${parseInt(memoryMax)})`);
       
   }
 
   //Filtro sullo storage
   if (storageMin && storageMax) {
     filters.push(`     ?virtualAppliance ts:size ?storage .
-      FILTER (?storage >= ${parseInt(storageMin)} && ?storage <= ${parseInt(storageMax)})`);
+      BIND(xsd:integer(?storage) AS ?storageInt)
+      FILTER (?storageInt >= ${parseInt(storageMin)} && ?storageInt <= ${parseInt(storageMax)})`);
       
   }
 
@@ -302,7 +324,7 @@ async function buildSparqlQueryCloudService() {
    for (var key in checkedItemsRegion) {
      if (checkedItemsRegion.hasOwnProperty(key)) {
         if(checkedItemsRegion[key]==true){
-          locationSelected.push({key})
+          locationSelected.push(key)
         }
      }
    }
@@ -314,7 +336,8 @@ async function buildSparqlQueryCloudService() {
    //Filtro sullo cpuspeed
    if (cpuSpeedMin && cpuSpeedMax) {
     filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
-      FILTER (?cpuSpeed >= ${parseInt(cpuSpeedMin)} && ?cpuSpeed <= ${parseInt(cpuSpeedMax)})`);
+      BIND(xsd:integer(?cpuSpeed) AS ?cpuSpeedInt)
+      FILTER (?cpuSpeedInt >= ${parseInt(cpuSpeedMin)} && ?cpuSpeedInt <= ${parseInt(cpuSpeedMax)})`);
       
   }
 
@@ -322,7 +345,8 @@ async function buildSparqlQueryCloudService() {
    //Filtro sullo cpucores
    if (cpuCoresMin && cpuCoresMax) {
     filters.push(`     ?virtualAppliance ts:cpuCores ?cpuCores .
-      FILTER (?cpuCores >= ${parseInt(cpuCoresMin)} && ?cpuCores <= ${parseInt(cpuCoresMax)})`);
+      BIND(xsd:integer(?cpuCores) AS ?cpuCoresInt)
+      FILTER (?cpuCoresInt >= ${parseInt(cpuCoresMin)} && ?cpuCoresInt <= ${parseInt(cpuCoresMax)})`);
       
   }
 
@@ -337,14 +361,14 @@ async function buildSparqlQueryCloudService() {
     for (var key in checkedItemsPModel) {
       if (checkedItemsPModel.hasOwnProperty(key)) {
          if(checkedItemsPModel[key]==true){
-          pModelSelected.push({key})
+          pModelSelected.push(key)
          }
       }
     }
       let pModelList = pModelSelected.map(p => `ts:${p}`).join(", ");
       filters.push(`    ?cloudService ts:hasPricingModel ?pricingModel .
                         ?pricingModel rdf:type ?typeModel .
-      FILTER (?cloudProvider IN (${pModelList}))`);
+      FILTER (?typeModel IN (${pModelList}))`);
   }
 
 
@@ -354,7 +378,7 @@ async function buildSparqlQueryCloudService() {
 
 
   let filterStr = filters.join("\n");
-  let completeQuery = `${baseQuery}${filterStr}\n    }}`;
+  let completeQuery = `${baseQuery}${filterStr}\n    }`;
   
   return completeQuery;
 }
@@ -363,16 +387,19 @@ async function buildSparqlQueryCloudSLA() {
 
   const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
   targetAvailabilityMax,penaltyAvailabilityMin,penaltyAvailabilityMax,targetErrorRateMin,targetErrorRateMax,
-  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax}=formInputFilterService
-
+  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax,
+  maxPenaltyMin,maxPenaltyMax,
+  endingDateMin,endingDateMax,
+  hoursAvailableMin,hoursAvailableMax}=formInputFilterSLA
   let baseQuery = `
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
   PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
   SELECT ?uri ?tokenId WHERE {
       ?nftERC721 ts:tokenURI ?uri .
-      ?nftERC721 ts:hasTokenId ?tokenId .
+      ?nftERC721 ts:hasTokenID ?tokenId .
       ?nftERC721 ts:hasCloudSLA ?cloudSLA .
       ?cloudSLA ts:hasCloudService ?cloudService .
       ?cloudService ts:hasAppliance ?virtualAppliance .
@@ -380,6 +407,15 @@ async function buildSparqlQueryCloudSLA() {
   `;
   
   let filters = [];
+
+
+  if(searchText){
+
+    filters.push(`    ?cloudService ts:hasServiceType ?serviceType .
+    FILTER CONTAINS (lcase(STR(?serviceType)),lcase("${searchText}"))`);
+
+  }
+
 
 
   //Filtro sul list del marketplace
@@ -409,7 +445,8 @@ async function buildSparqlQueryCloudSLA() {
     filters.push(`      ?cloudSLA ts:hasTerms ?terms .
                         ?terms ts:hasSDTerms ?serviceDefinitionTerms .
                         ?serviceDefinitionTerms ts:hoursAvailable ?hours .
-      FILTER (?hours >= ${parseInt(hoursAvailableMin)} && ?hours <= ${parseInt(hoursAvailableMax)})`);
+                        BIND(xsd:integer(?hours) AS ?hoursInt)
+      FILTER (?hoursInt >= ${parseInt(hoursAvailableMin)} && ?hoursInt <= ${parseInt(hoursAvailableMax)})`);
       
   }
 
@@ -425,7 +462,7 @@ async function buildSparqlQueryCloudSLA() {
     for (var key in checkedItemsCloudProvider) {
       if (checkedItemsCloudProvider.hasOwnProperty(key)) {
          if(checkedItemsCloudProvider[key]==true){
-          providerSelected.push({key})
+          providerSelected.push(key)
          }
       }
     }
@@ -437,14 +474,16 @@ async function buildSparqlQueryCloudSLA() {
   //Filtro sulla memoria
   if (memoryMin && memoryMax) {
     filters.push(`     ?virtualAppliance ts:memory ?memory .
-      FILTER (?memory >= ${parseInt(memoryMin)} && ?memory <= ${parseInt(memoryMax)})`);
+    BIND(xsd:integer(?memory) AS ?memoryInt)
+      FILTER (?memoryInt >= ${parseInt(memoryMin)} && ?memoryInt <= ${parseInt(memoryMax)})`);
       
   }
 
   //Filtro sullo storage
   if (storageMin && storageMax) {
     filters.push(`     ?virtualAppliance ts:size ?storage .
-      FILTER (?storage >= ${parseInt(storageMin)} && ?storage <= ${parseInt(storageMax)})`);
+    BIND(xsd:integer(?storage) AS ?storageInt)
+      FILTER (?storageInt >= ${parseInt(storageMin)} && ?storageInt <= ${parseInt(storageMax)})`);
       
   }
 
@@ -461,7 +500,7 @@ async function buildSparqlQueryCloudSLA() {
    for (var key in checkedItemsRegion) {
      if (checkedItemsRegion.hasOwnProperty(key)) {
         if(checkedItemsRegion[key]==true){
-          locationSelected.push({key})
+          locationSelected.push(key)
         }
      }
    }
@@ -473,7 +512,8 @@ async function buildSparqlQueryCloudSLA() {
    //Filtro sullo cpuspeed
    if (cpuSpeedMin && cpuSpeedMax) {
     filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
-      FILTER (?cpuSpeed >= ${parseInt(cpuSpeedMin)} && ?cpuSpeed <= ${parseInt(cpuSpeedMax)})`);
+    BIND(xsd:integer(?cpuSpeed) AS ?cpuSpeedInt)
+      FILTER (?cpuSpeedInt >= ${parseInt(cpuSpeedMin)} && ?cpuSpeedInt <= ${parseInt(cpuSpeedMax)})`);
       
   }
 
@@ -481,7 +521,8 @@ async function buildSparqlQueryCloudSLA() {
    //Filtro sullo cpucores
    if (cpuCoresMin && cpuCoresMax) {
     filters.push(`     ?virtualAppliance ts:cpuCores ?cpuCores .
-      FILTER (?cpuCores >= ${parseInt(cpuCoresMin)} && ?cpuCores <= ${parseInt(cpuCoresMax)})`);
+    BIND(xsd:integer(?cpuCores) AS ?cpuCoresInt)
+      FILTER (?cpuCoresInt >= ${parseInt(cpuCoresMin)} && ?cpuCoresInt <= ${parseInt(cpuCoresMax)})`);
       
   }
 
@@ -496,14 +537,14 @@ async function buildSparqlQueryCloudSLA() {
     for (var key in checkedItemsPModel) {
       if (checkedItemsPModel.hasOwnProperty(key)) {
          if(checkedItemsPModel[key]==true){
-          pModelSelected.push({key})
+          pModelSelected.push(key)
          }
       }
     }
       let pModelList = pModelSelected.map(p => `ts:${p}`).join(", ");
       filters.push(`    ?cloudService ts:hasPricingModel ?pricingModel .
                         ?pricingModel rdf:type ?typeModel .
-      FILTER (?cloudProvider IN (${pModelList}))`);
+      FILTER (?typeModel IN (${pModelList}))`);
   }
 
 
@@ -522,39 +563,59 @@ async function buildSparqlQueryCloudSLA() {
 
 async function searchQuerySPARQL(selectQuery) {
 
+  return new Promise(async (resolve, reject) => {
 
 
+
+  console.log(selectQuery)
   const stream = await clientSPARQL.query.select(selectQuery);
   let datiRicevuti=false;
   let tokenIds= []
   
- stream.on('data', row => {
+  stream.on('data', row => {
        Object.entries(row).forEach(([key, value]) => {
         console.log(`${key}: ${value.value} (${value.termType})`)
         datiRicevuti=true;
         tokenIds.push(value.value)
 
+
       })
     })
 
-    stream.on('end', () => {
+  stream.on('end', () => {
       
       if (!datiRicevuti) {
        console.log("La ricerca non ha prodotto risultati")
-       return tokenIds
+       resolve(null); // Ritorna null se non ci sono risultati
+      
        
       }
       else{
         console.log("La ricerca ha prodotto risultati")
+        resolve(tokenIds); // Risolve la promessa con i tokenIds
         return tokenIds
+        
+       
+
+
+       
       }
+
+      
 
       })
     
     
-    stream.on('error', err => {
+  stream.on('error', err => {
       console.error(err)
     })
+
+  })
+
+
+
+
+
 }
 
 
@@ -580,7 +641,7 @@ async function searchQuerySPARQL(selectQuery) {
           pointerEvents="none"
           children={<Search2Icon color="gray.600" />}
         />
-        <Input onChange={(e)=>setSearchText(e.target.value)}type="text" placeholder="Search..." border="1px solid #949494" />
+        <Input onChange={(e)=>setSearchText(e.target.value.replace(/ /g, "_"))}type="text" placeholder="Search..." border="1px solid #949494" />
         <InputRightAddon
           p={0}
           border="none"
@@ -670,9 +731,9 @@ async function searchQuerySPARQL(selectQuery) {
                     </CheckboxGroup>
 
                     
-                    <FormLabel mt={4} >Memory</FormLabel>
+                    <FormLabel mt={4} >{"Memory (GB)"}</FormLabel>
                     <Flex>
-                    <NumberInput size='xs' maxW={16} min={0}>
+                    <NumberInput size='xs' maxW={16} min={0} >
                     <NumberInputField
                      placeholder="Min"
                      onChange={e=> updateFormInputFilterService({...formInputFilterService,memoryMin: e.target.value})}  />
@@ -695,7 +756,7 @@ async function searchQuerySPARQL(selectQuery) {
 
                    </Flex>
 
-                   <FormLabel mt={4} >Storage</FormLabel>
+                   <FormLabel mt={4} >{"Storage (GB)"}</FormLabel>
                     <Flex>
                     <NumberInput size='xs' maxW={16} min={0}>
                     <NumberInputField
@@ -758,7 +819,7 @@ async function searchQuerySPARQL(selectQuery) {
 
                     
 
-                    <FormLabel mt={4} >CPU Speed</FormLabel>
+                    <FormLabel mt={4} >{"CPU Speed (GHz)"}</FormLabel>
                     <Flex>
                     <NumberInput size='xs' maxW={16} min={0}>
                     <NumberInputField
@@ -881,7 +942,7 @@ async function searchQuerySPARQL(selectQuery) {
                     </CheckboxGroup>
 
 
-                    <FormLabel mt={4} >SLA Max Penalty</FormLabel>
+                    <FormLabel mt={4} >{"SLA Max Penalty (ETH)"}</FormLabel>
                       <Flex>
                       <NumberInput size='xs' maxW={16} min={0}>
                       <NumberInputField
@@ -931,7 +992,7 @@ async function searchQuerySPARQL(selectQuery) {
 
                       </Flex>
 
-                      <FormLabel mt={4} >Memory</FormLabel>
+                      <FormLabel mt={4} >{"Memory (GB)"}</FormLabel>
                       <Flex>
                       <NumberInput size='xs' maxW={16} min={0}>
                       <NumberInputField
@@ -956,7 +1017,7 @@ async function searchQuerySPARQL(selectQuery) {
 
                       </Flex>
 
-                      <FormLabel mt={4} >Storage</FormLabel>
+                      <FormLabel mt={4} >{"Storage (GB)"}</FormLabel>
                       <Flex>
                       <NumberInput size='xs' maxW={16} min={0}>
                       <NumberInputField
@@ -1020,7 +1081,7 @@ async function searchQuerySPARQL(selectQuery) {
 
 
 
-                      <FormLabel mt={4} >CPU Speed</FormLabel>
+                      <FormLabel mt={4} >{"CPU Speed (GHz)"}</FormLabel>
                       <Flex>
                       <NumberInput size='xs' maxW={16} min={0}>
                       <NumberInputField

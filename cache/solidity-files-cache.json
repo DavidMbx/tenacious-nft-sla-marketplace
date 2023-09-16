@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/davidecasuccio/tenacious-nft-sla-marketplace/contracts/NFTMarket.sol": {
-      "lastModificationDate": 1694008838202,
-      "contentHash": "64858da3e3837955c55aa2badace711f",
+      "lastModificationDate": 1694010499958,
+      "contentHash": "1bf11306f146e680e8817a82c047577b",
       "sourceName": "contracts/NFTMarket.sol",
       "solcConfig": {
         "version": "0.8.4",

@@ -285,7 +285,7 @@ async function uploadToIPFS(file) {
           ts:ServiceDefinitionTerms_${slaIstanceId} rdf:type ts:ServiceDefinitionTerms .
           ts:TerminationTerms_${slaIstanceId} rdf:type ts:TerminationTerms .
           ts:ViolationCausing_${slaIstanceId} rdf:type ts:ViolationCausing .
-          ts:SLAEnding_${slaIstanceId} rdf:type ts:SLAEnding.
+          ts:SLAEnding_${slaIstanceId} rdf:type ts:SLAEnding .
           ts:CloudSLA_${slaIstanceId} ts:hasTerms ts:Terms_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasParties ts:Parties_${address+cloudServiceOwner} .
           ts:CloudSLA_${slaIstanceId} ts:hasPicture ts:Picture_${cloudServicePictureURI} .

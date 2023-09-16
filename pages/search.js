@@ -127,10 +127,41 @@ export default function SearchPage() {
 
     async function handleFilterCloudService() {
 
-
-      console.log(await buildSparqlQueryCloudService())
+      const selectQuery=await buildSparqlQueryCloudService()
+      const tokenIds=await searchQuerySPARQL(selectQuery)
+      console.log('tokenIds Service Found',tokenIds)
+      if(!tokenIds) return setNftsService([])
+    
+    
+        
+                // Cicla attraverso gli ID dei token e ottieni i metadati per ciascun token
+                const itemsCloudService= await Promise.all(tokenIds.map(async tokenId =>{
+                  const tokenURI = await nftBadgeServiceCollection.tokenURI(+tokenId);
+                  const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+                  let itemCloudService={
+    
+                      
+                      badgeServiceTokenId:+tokenId,
+                      cloudServiceType: response.data.cloudServiceType,
+                      memory: response.data.memory,
+                      storage: response.data.storage,
+                      region: response.data.region,
+                      cpuSpeed: response.data.cpuSpeed,
+                      cpuCores: response.data.cpuCores,
+                      cloudServicePricingModel: response.data.cloudServicePricingModel,
+                      cloudServicePrice: response.data.cloudServicePrice,
+                      cloudServicePictureURI: 'https://ipfs.io/ipfs/'+response.data.cloudServicePictureURI,
+              
+                    }
+                  return itemCloudService
+              }))
+              console.log("Metadati degli NFT Service dell'utente:", itemsCloudService);
+                setNftsService(itemsCloudService)
+      
+    
+    
       setLoadingStateService(false)
-     
+    
 
 
      
@@ -140,9 +171,38 @@ export default function SearchPage() {
 
   async function handleFilterCloudSLA() {
 
-    console.log(await buildSparqlQueryCloudSLA())
-
+    const selectQuery=await buildSparqlQueryCloudSLA()
+    const tokenIds=await searchQuerySPARQL(selectQuery)
+    console.log('tokenIds SLA Found',tokenIds)
+    if(!tokenIds) return setNftsSLA([])
+  
+    const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
+      const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+      const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
+      const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+    
+      let itemCloudSLA={
+  
+          
+          erc721SLATokenId:tokenId.toNumber(),
+          cloudServiceName: responseCloudService.data.cloudServiceType,
+          cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+          cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+          hoursToBuy: response.data.hoursToBuy,
+          maxPenalty: response.data.maxPenalty,
+          slaEndingDate: response.data.slaEndingDate,
+          originalPrice: response.data.originalPrice,
+  
+        }
+      return itemCloudSLA
+  }))
+  
+  
+  console.log("Metadati degli NFT SLA della ricerca:", itemsCloudSLA);
+  setNftsService(itemsCloudSLA)
+  
     setLoadingStateSLA(false)
+  
 
    
            
@@ -165,7 +225,7 @@ async function handleSearchCloudService() {
 
 
 
-  const selectQuery=await buildSparqlQueryCloudService()
+  const selectQuery=await buildSparqlQueryCloudServiceOnlySearch()
   const tokenIds=await searchQuerySPARQL(selectQuery)
   console.log('tokenIds Service Found',tokenIds)
   if(!tokenIds) return setNftsService([])
@@ -205,7 +265,7 @@ async function handleSearchCloudService() {
 
 async function handleSearchCloudSLA() {
 
-  const selectQuery=await buildSparqlQueryCloudSLA()
+  const selectQuery=await buildSparqlQueryCloudSLAOnlySearch()
   const tokenIds=await searchQuerySPARQL(selectQuery)
   console.log('tokenIds SLA Found',tokenIds)
   if(!tokenIds) return setNftsSLA([])
@@ -383,6 +443,42 @@ async function buildSparqlQueryCloudService() {
   return completeQuery;
 }
 
+async function buildSparqlQueryCloudServiceOnlySearch() {
+
+  const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
+  targetAvailabilityMax,penaltyAvailabilityMin,penaltyAvailabilityMax,targetErrorRateMin,targetErrorRateMax,
+  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax}=formInputFilterService
+
+  let baseQuery = `
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+  SELECT ?tokenId WHERE {
+      
+      ?nftBadge ts:hasTokenID ?tokenId .
+      ?nftBadge ts:hasCloudService ?cloudService .
+      ?cloudService ts:hasAppliance ?virtualAppliance .
+
+  `;
+  
+  let filters = [];
+  
+  if(searchText){
+
+    filters.push(`    ?cloudService ts:hasServiceType ?serviceType .
+    FILTER CONTAINS (lcase(STR(?serviceType)),lcase("${searchText}"))`);
+
+  }
+
+
+  let filterStr = filters.join("\n");
+  let completeQuery = `${baseQuery}${filterStr}\n    }`;
+  
+  return completeQuery;
+}
+
 async function buildSparqlQueryCloudSLA() {
 
   const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
@@ -552,6 +648,45 @@ async function buildSparqlQueryCloudSLA() {
 
 
 
+
+  let filterStr = filters.join("\n");
+  let completeQuery = `${baseQuery}${filterStr}\n    }}`;
+  
+  return completeQuery;
+}
+
+async function buildSparqlQueryCloudSLAOnlySearch() {
+
+  const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
+  targetAvailabilityMax,penaltyAvailabilityMin,penaltyAvailabilityMax,targetErrorRateMin,targetErrorRateMax,
+  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax,
+  maxPenaltyMin,maxPenaltyMax,
+  endingDateMin,endingDateMax,
+  hoursAvailableMin,hoursAvailableMax}=formInputFilterSLA
+  let baseQuery = `
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+  SELECT ?uri ?tokenId WHERE {
+      ?nftERC721 ts:tokenURI ?uri .
+      ?nftERC721 ts:hasTokenID ?tokenId .
+      ?nftERC721 ts:hasCloudSLA ?cloudSLA .
+      ?cloudSLA ts:hasCloudService ?cloudService .
+      ?cloudService ts:hasAppliance ?virtualAppliance .
+
+  `;
+  
+  let filters = [];
+
+
+  if(searchText){
+
+    filters.push(`    ?cloudService ts:hasServiceType ?serviceType .
+    FILTER CONTAINS (lcase(STR(?serviceType)),lcase("${searchText}"))`);
+
+  }
 
   let filterStr = filters.join("\n");
   let completeQuery = `${baseQuery}${filterStr}\n    }}`;

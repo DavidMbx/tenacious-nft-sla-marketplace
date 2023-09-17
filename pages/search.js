@@ -542,8 +542,8 @@ async function buildSparqlQueryCloudSLA() {
     filters.push(`      ?cloudSLA ts:hasTerms ?terms .
                         ?terms ts:hasSDTerms ?serviceDefinitionTerms .
                         ?serviceDefinitionTerms ts:hoursAvailable ?hours .
-                        BIND(xsd:integer(?hours) AS ?hoursInt)
-      FILTER (?hoursInt >= ${parseInt(hoursAvailableMin)} && ?hoursInt <= ${parseInt(hoursAvailableMax)})`);
+                        BIND(xsd:float(?hours) AS ?hoursInt)
+      FILTER (?hoursInt >= ${parseFloat(hoursAvailableMin)} && ?hoursInt <= ${parseFloat(hoursAvailableMax)})`);
       
   }
 
@@ -609,8 +609,8 @@ async function buildSparqlQueryCloudSLA() {
    //Filtro sullo cpuspeed
    if (cpuSpeedMin && cpuSpeedMax) {
     filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
-    BIND(xsd:integer(?cpuSpeed) AS ?cpuSpeedInt)
-      FILTER (?cpuSpeedInt >= ${parseInt(cpuSpeedMin)} && ?cpuSpeedInt <= ${parseInt(cpuSpeedMax)})`);
+    BIND(xsd:float(?cpuSpeed) AS ?cpuSpeedInt)
+      FILTER (?cpuSpeedInt >= ${parseFloat(cpuSpeedMin)} && ?cpuSpeedInt <= ${parseFloat(cpuSpeedMax)})`);
       
   }
 
@@ -840,6 +840,33 @@ async function searchQuerySPARQL(selectQuery) {
                     
                     <Heading align={"center"} size='md' >Filter</Heading>
 
+                    <FormLabel mt={4} >{"Price per hour"}</FormLabel>
+                      <Flex>
+                      <NumberInput size='xs' maxW={16} min={0}>
+                      <NumberInputField
+                      placeholder="Min"
+                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMin: e.target.value})}  />
+              
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                      </NumberInput>
+
+
+                      <NumberInput size='xs' ml={2} maxW={16} min={0}>
+                      <NumberInputField
+                      placeholder="Max"
+                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMax: e.target.value})}  />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                      </NumberInput>
+
+                      </Flex>
+
+
 
                     <FormLabel mt={4} >Cloud Provider</FormLabel>
                    <CheckboxGroup size='sm' colorScheme='messenger' >
@@ -1044,6 +1071,32 @@ async function searchQuerySPARQL(selectQuery) {
             <Flex>
                     <Box width={"20%"} height={"100%"} mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Heading align={"center"} size='md' >Filter</Heading>
+
+                    <FormLabel mt={4} >{"Price"}</FormLabel>
+                      <Flex>
+                      <NumberInput size='xs' maxW={16} min={0}>
+                      <NumberInputField
+                      placeholder="Min"
+                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMin: e.target.value})}  />
+              
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                      </NumberInput>
+
+
+                      <NumberInput size='xs' ml={2} maxW={16} min={0}>
+                      <NumberInputField
+                      placeholder="Max"
+                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMax: e.target.value})}  />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                      </NumberInput>
+
+                      </Flex>
 
                     <FormLabel mt={4} >Listed on Marketplace</FormLabel>
                     <Checkbox defaultChecked size='sm' colorScheme='messenger'

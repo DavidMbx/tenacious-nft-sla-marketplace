@@ -76,7 +76,7 @@ export default function SearchPage() {
   cpuCoresMin:'',cpuCoresMax:'',
   targetAvailabilityMin:'',targetAvailabilityMax:'',penaltyAvailabilityMin:'',penaltyAvailabilityMax:'',
   targetErrorRateMin:'',targetErrorRateMax:'',penaltyErrorRateMin:'',penaltyErrorRateMax:'',
-  targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:''})
+  targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:'',pricePerHourMin:'',pricePerHourMax:''})
   //console.log(formInputFilterService)
 
   const [formInputFilterSLA,updateFormInputFilterSLA]=useState({ 
@@ -89,7 +89,7 @@ export default function SearchPage() {
   cpuCoresMin:'',cpuCoresMax:'',
   targetAvailabilityMin:'',targetAvailabilityMax:'',penaltyAvailabilityMin:'',penaltyAvailabilityMin:'',
   targetErrorRateMin:'',targetErrorRateMax:'',penaltyErrorRateMin:'',penaltyErrorRateMax:'',
-  targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:''})
+  targetRTimeMin:'',targetRTimeMax:'',penaltyRTimeMin:'',penaltyRTimeMax:'',priceMarketMin:'',priceMarketMax:''})
   //console.log(formInputFilterSLA)
 
   const [checkedItemsRegion, setCheckedItemsRegion] = useState({'AF-North':false,'AF-South':false,'EU-North':false,'EU-South':false,'US-East':false,'US-West':false 
@@ -363,6 +363,15 @@ async function buildSparqlQueryCloudService() {
       
   }
 
+  //Filtro sul price per hour
+if (priceMarketMin && priceMarketMax) {
+  filters.push(`      ?cloudService ts:hasPrice ?hourPrice .
+                      ?hourPrice ts:value ?hourPriceValue .
+                      BIND(xsd:float(?hourPriceValue) AS ?hourPriceValueFloat)
+    FILTER (?hourPriceValueFloat >= ${parseFloat(pricePerHourMin)} && ?hourPriceValueFloat <= ${parseFloat(pricePerHourMax)})`);
+    
+}
+
   //Filtro sullo storage
   if (storageMin && storageMax) {
     filters.push(`     ?virtualAppliance ts:size ?storage .
@@ -396,8 +405,8 @@ async function buildSparqlQueryCloudService() {
    //Filtro sullo cpuspeed
    if (cpuSpeedMin && cpuSpeedMax) {
     filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
-      BIND(xsd:integer(?cpuSpeed) AS ?cpuSpeedInt)
-      FILTER (?cpuSpeedInt >= ${parseInt(cpuSpeedMin)} && ?cpuSpeedInt <= ${parseInt(cpuSpeedMax)})`);
+      BIND(xsd:float(?cpuSpeed) AS ?cpuSpeedFloat)
+      FILTER (?cpuSpeedFloat >= ${parseFloat(cpuSpeedMin)} && ?cpuSpeedFloat <= ${parseFloat(cpuSpeedMax)})`);
       
   }
 
@@ -486,7 +495,7 @@ async function buildSparqlQueryCloudSLA() {
   penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax,
   maxPenaltyMin,maxPenaltyMax,
   endingDateMin,endingDateMax,
-  hoursAvailableMin,hoursAvailableMax}=formInputFilterSLA
+  hoursAvailableMin,hoursAvailableMax,priceMarketMin,priceMarketMax}=formInputFilterSLA
   let baseQuery = `
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -532,10 +541,19 @@ async function buildSparqlQueryCloudSLA() {
     filters.push(`      ?cloudSLA ts:hasTerms ?terms .
                         ?terms ts:hasTTerms ?violationCausing .
                         ?violationCausing ts:maxViolationNumber ?violationNumber .
-                        BIND(xsd:integer(?violationNumber) AS ?violationNumberInt)
-      FILTER (?violationNumberInt >= ${parseInt(maxPenaltyMin)} && ?violationNumberInt <= ${parseInt(maxPenaltyMax)})`);
+                        BIND(xsd:float(?violationNumber) AS ?violationNumberFloat)
+      FILTER (?violationNumberFloat >= ${parseFloat(maxPenaltyMin)} && ?violationNumberFloat <= ${parseFloat(maxPenaltyMax)})`);
       
   }
+
+//Filtro sulla marketPrice
+if (priceMarketMin && priceMarketMax) {
+  filters.push(`      ?cloudSLA ts:hasPrice ?marketPrice .
+                      ?marketPrice ts:value ?marketPriceValue .
+                      BIND(xsd:float(?marketPriceValue) AS ?marketPriceValueFloat)
+    FILTER (?marketPriceValueFloat >= ${parseFloat(priceMarketMin)} && ?marketPriceValueFloat <= ${parseFloat(priceMarketMax)})`);
+    
+}
 
    //Filtro sulla HoursAvailable
    if (hoursAvailableMin && hoursAvailableMax) {
@@ -609,8 +627,8 @@ async function buildSparqlQueryCloudSLA() {
    //Filtro sullo cpuspeed
    if (cpuSpeedMin && cpuSpeedMax) {
     filters.push(`     ?virtualAppliance ts:cpuSpeed ?cpuSpeed .
-    BIND(xsd:float(?cpuSpeed) AS ?cpuSpeedInt)
-      FILTER (?cpuSpeedInt >= ${parseFloat(cpuSpeedMin)} && ?cpuSpeedInt <= ${parseFloat(cpuSpeedMax)})`);
+    BIND(xsd:float(?cpuSpeed) AS ?cpuSpeedFloat)
+      FILTER (?cpuSpeedFloat >= ${parseFloat(cpuSpeedMin)} && ?cpuSpeedFloat <= ${parseFloat(cpuSpeedMax)})`);
       
   }
 
@@ -845,7 +863,7 @@ async function searchQuerySPARQL(selectQuery) {
                       <NumberInput size='xs' maxW={16} min={0}>
                       <NumberInputField
                       placeholder="Min"
-                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMin: e.target.value})}  />
+                      onChange={e=> updateFormInputFilterService({...formInputFilterSLA,pricePerHourMin: e.target.value})}  />
               
                       <NumberInputStepper>
                         <NumberIncrementStepper />
@@ -857,7 +875,7 @@ async function searchQuerySPARQL(selectQuery) {
                       <NumberInput size='xs' ml={2} maxW={16} min={0}>
                       <NumberInputField
                       placeholder="Max"
-                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMax: e.target.value})}  />
+                      onChange={e=> updateFormInputFilterService({...formInputFilterSLA,pricePerHourMax: e.target.value})}  />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />
@@ -1072,12 +1090,12 @@ async function searchQuerySPARQL(selectQuery) {
                     <Box width={"20%"} height={"100%"} mt={5} p={5} mr={4} borderWidth={1} borderRadius={8} boxShadow="lg">
                     <Heading align={"center"} size='md' >Filter</Heading>
 
-                    <FormLabel mt={4} >{"Price"}</FormLabel>
+                    <FormLabel mt={4} >{"Market Price"}</FormLabel>
                       <Flex>
                       <NumberInput size='xs' maxW={16} min={0}>
                       <NumberInputField
                       placeholder="Min"
-                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMin: e.target.value})}  />
+                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,priceMarketMin: e.target.value})}  />
               
                       <NumberInputStepper>
                         <NumberIncrementStepper />
@@ -1089,7 +1107,7 @@ async function searchQuerySPARQL(selectQuery) {
                       <NumberInput size='xs' ml={2} maxW={16} min={0}>
                       <NumberInputField
                       placeholder="Max"
-                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,maxPenaltyMax: e.target.value})}  />
+                      onChange={e=> updateFormInputFilterSLA({...formInputFilterSLA,priceMarketMax: e.target.value})}  />
                       <NumberInputStepper>
                         <NumberIncrementStepper />
                         <NumberDecrementStepper />

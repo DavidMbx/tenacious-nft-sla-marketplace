@@ -209,6 +209,10 @@ async function uploadToIPFS(file) {
           ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:hasTokenID "${tokenId}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
+          ts:Price_${slaIstanceId}  rdf:type ts:Price .
+          ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+          ts:Price_${slaIstanceId}  rdf:value "0.0" .
+          ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         

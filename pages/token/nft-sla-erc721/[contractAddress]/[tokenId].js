@@ -304,6 +304,10 @@ async function uploadToIPFS(file) {
           ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:hasTokenID "${tokenId}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
+          ts:Price_${slaIstanceId}  rdf:type ts:Price .
+          ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+          ts:Price_${slaIstanceId}  rdf:value "0.0" .
+          ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         
@@ -365,6 +369,10 @@ async function uploadToIPFS(file) {
           ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
           ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:hasTokenID "${tokenId}"  .
+          ts:Price_${slaIstanceId}  rdf:type ts:Price .
+          ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+          ts:Price_${slaIstanceId}  rdf:value "0.0" .
+          ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
           ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         
@@ -394,6 +402,10 @@ async function uploadToIPFS(file) {
 
           ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${nft.marketItemSeller}  .
           ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "true"  .
+          ts:Price_${slaIstanceId}  rdf:type ts:Price .
+          ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+          ts:Price_${slaIstanceId}  rdf:value ${nft.marketItemPrice} .
+          ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
    
         }
  
@@ -409,6 +421,10 @@ async function uploadToIPFS(file) {
 
           ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
           ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
+          ts:Price_${slaIstanceId}  rdf:type ts:Price .
+          ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+          ts:Price_${slaIstanceId}  rdf:value "0.0" .
+          ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
 
       }
       
@@ -429,8 +445,9 @@ async function uploadToIPFS(file) {
 
         const slaIstanceId=tokenURI
         
-    
-    
+    if(selling){
+
+
       const deleteQuery = `
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -438,7 +455,11 @@ async function uploadToIPFS(file) {
     
       DELETE DATA {
 
-        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "${!selling}"  .
+        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
+        ts:Price_${slaIstanceId}  rdf:type ts:Price .
+        ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+        ts:Price_${slaIstanceId}  rdf:value "0.0" .
+        ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
  
       }
 
@@ -452,11 +473,57 @@ async function uploadToIPFS(file) {
    
     INSERT DATA{
 
-        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "${selling}"  .
+        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "true"  .
+        ts:Price_${slaIstanceId}  rdf:type ts:Price .
+        ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+        ts:Price_${slaIstanceId}  rdf:value ${priceToSellForm} .
+        ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
 
     }
     
   `;
+
+}
+else{
+
+  const deleteQuery = `
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+    
+      DELETE DATA {
+
+        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "true"  .
+        ts:Price_${slaIstanceId}  rdf:type ts:Price .
+        ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+        ts:Price_${slaIstanceId}  rdf:value ${nft.marketItemPrice} .
+        ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
+ 
+      }
+
+      
+    `;
+    const insertQuery = `
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
+  
+   
+    INSERT DATA{
+
+        ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
+        ts:Price_${slaIstanceId}  rdf:type ts:Price .
+        ts:Price_${slaIstanceId}  rdf:currency "ETH" .
+        ts:Price_${slaIstanceId}  rdf:value "0.0" .
+        ts:CloudSLA_${slaIstanceId} ts:hasPrice ts:Price_${slaIstanceId} .
+
+    }
+    
+  `;
+
+
+}
+    
     
     const responseDelete=clientSPARQL.query.update(deleteQuery)
     console.log(responseDelete)

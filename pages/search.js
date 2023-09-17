@@ -177,14 +177,14 @@ export default function SearchPage() {
     if(!tokenIds) return setNftsSLA([])
   
     const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
-      const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+      const tokenURI = await nftERC721_SLACollection.tokenURI(+tokenId);
       const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
       const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
     
       let itemCloudSLA={
   
           
-          erc721SLATokenId:tokenId.toNumber(),
+          erc721SLATokenId:+tokenId,
           cloudServiceName: responseCloudService.data.cloudServiceType,
           cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
           cloudServiceTokenURI: response.data.cloudServiceTokenURI,
@@ -199,7 +199,7 @@ export default function SearchPage() {
   
   
   console.log("Metadati degli NFT SLA della ricerca:", itemsCloudSLA);
-  setNftsService(itemsCloudSLA)
+  setNftsSLA(itemsCloudSLA)
   
     setLoadingStateSLA(false)
   
@@ -271,14 +271,14 @@ async function handleSearchCloudSLA() {
   if(!tokenIds) return setNftsSLA([])
 
   const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
-    const tokenURI = await nftERC721_SLACollection.tokenURI(tokenId);
+    const tokenURI = await nftERC721_SLACollection.tokenURI(+tokenId);
     const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
     const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
   
     let itemCloudSLA={
 
         
-        erc721SLATokenId:tokenId.toNumber(),
+        erc721SLATokenId:+tokenId,
         cloudServiceName: responseCloudService.data.cloudServiceType,
         cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
         cloudServiceTokenURI: response.data.cloudServiceTokenURI,
@@ -293,7 +293,7 @@ async function handleSearchCloudSLA() {
 
 
 console.log("Metadati degli NFT SLA della ricerca:", itemsCloudSLA);
-setNftsService(itemsCloudSLA)
+setNftsSLA(itemsCloudSLA)
 
   setLoadingStateSLA(false)
 
@@ -493,7 +493,7 @@ async function buildSparqlQueryCloudSLA() {
   PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-  SELECT ?uri ?tokenId WHERE {
+  SELECT ?tokenId WHERE {
       ?nftERC721 ts:tokenURI ?uri .
       ?nftERC721 ts:hasTokenID ?tokenId .
       ?nftERC721 ts:hasCloudSLA ?cloudSLA .
@@ -532,7 +532,8 @@ async function buildSparqlQueryCloudSLA() {
     filters.push(`      ?cloudSLA ts:hasTerms ?terms .
                         ?terms ts:hasTTerms ?violationCausing .
                         ?violationCausing ts:maxViolationNumber ?violationNumber .
-      FILTER (?violationNumber >= ${parseInt(maxPenaltyMin)} && ?violationNumber <= ${parseInt(maxPenaltyMax)})`);
+                        BIND(xsd:integer(?violationNumber) AS ?violationNumberInt)
+      FILTER (?violationNumberInt >= ${parseInt(maxPenaltyMin)} && ?violationNumberInt <= ${parseInt(maxPenaltyMax)})`);
       
   }
 
@@ -650,7 +651,7 @@ async function buildSparqlQueryCloudSLA() {
 
 
   let filterStr = filters.join("\n");
-  let completeQuery = `${baseQuery}${filterStr}\n    }}`;
+  let completeQuery = `${baseQuery}${filterStr}\n    }`;
   
   return completeQuery;
 }
@@ -669,7 +670,7 @@ async function buildSparqlQueryCloudSLAOnlySearch() {
   PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-  SELECT ?uri ?tokenId WHERE {
+  SELECT ?tokenId WHERE {
       ?nftERC721 ts:tokenURI ?uri .
       ?nftERC721 ts:hasTokenID ?tokenId .
       ?nftERC721 ts:hasCloudSLA ?cloudSLA .
@@ -689,7 +690,7 @@ async function buildSparqlQueryCloudSLAOnlySearch() {
   }
 
   let filterStr = filters.join("\n");
-  let completeQuery = `${baseQuery}${filterStr}\n    }}`;
+  let completeQuery = `${baseQuery}${filterStr}\n    }`;
   
   return completeQuery;
 }

@@ -302,7 +302,7 @@ async function uploadToIPFS(file) {
           ts:NFT_ERC721_${slaIstanceId} ts:hasAddress "${NFT_ERC721_CONTRACT}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
           ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
-          ts:NFT_ERC721_${slaIstanceId} ts:hasTokenId "${tokenId}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasTokenID "${tokenId}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:onTheMarketplace "false"  .
           ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
@@ -364,7 +364,7 @@ async function uploadToIPFS(file) {
           ts:NFT_ERC721_${slaIstanceId} ts:hasAddress "${NFT_ERC721_CONTRACT}"  .
           ts:NFT_ERC721_${slaIstanceId} ts:hasOwner ts:Address_${address}  .
           ts:NFT_ERC721_${slaIstanceId} ts:tokenURI "${tokenURI}"  .
-          ts:NFT_ERC721_${slaIstanceId} ts:hasTokenId "${tokenId}"  .
+          ts:NFT_ERC721_${slaIstanceId} ts:hasTokenID "${tokenId}"  .
           ts:CloudSLA_${slaIstanceId} ts:hasCloudService ts:CloudService_${cloudServicePictureURI} .
         }
         

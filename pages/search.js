@@ -175,12 +175,17 @@ export default function SearchPage() {
     const tokenIds=await searchQuerySPARQL(selectQuery)
     console.log('tokenIds SLA Found',tokenIds)
     if(!tokenIds) return setNftsSLA([])
+    const marketItems=await marketplace.fetchMarketItems()
+  console.log('we',marketItems)
+
   
     const itemsCloudSLA= await Promise.all(tokenIds.map(async tokenId =>{
       const tokenURI = await nftERC721_SLACollection.tokenURI(+tokenId);
       const response = await axios.get("https://ipfs.io/ipfs/"+tokenURI);
       const responseCloudService=await axios.get("https://ipfs.io/ipfs/"+response.data.cloudServiceTokenURI);
+      let onMarket= marketItems.some(marketItem => marketItem.tokenId==tokenId);
     
+      if(onMarket){
       let itemCloudSLA={
   
           
@@ -192,9 +197,29 @@ export default function SearchPage() {
           maxPenalty: response.data.maxPenalty,
           slaEndingDate: response.data.slaEndingDate,
           originalPrice: response.data.originalPrice,
+          marketItemPrice: ethers.utils.formatUnits(marketItems.find(marketItem=> marketItem.tokenId==tokenId).price.toString(),'ether'),
+          onSale:onMarket,
+  
+        }
+      return itemCloudSLA }
+      else{
+        let itemCloudSLA={
+  
+          
+          erc721SLATokenId:+tokenId,
+          cloudServiceName: responseCloudService.data.cloudServiceType,
+          cloudServicePictureURI: 'https://ipfs.io/ipfs/'+responseCloudService.data.cloudServicePictureURI,
+          cloudServiceTokenURI: response.data.cloudServiceTokenURI,
+          hoursToBuy: response.data.hoursToBuy,
+          maxPenalty: response.data.maxPenalty,
+          slaEndingDate: response.data.slaEndingDate,
+          originalPrice: response.data.originalPrice,
+    
   
         }
       return itemCloudSLA
+
+      }
   }))
   
   
@@ -307,7 +332,7 @@ async function buildSparqlQueryCloudService() {
 
   const {memoryMin,memoryMax,storageMin,storageMax,cpuSpeedMin,cpuSpeedMax,cpuCoresMin,cpuCoresMax,targetAvailabilityMin,
   targetAvailabilityMax,penaltyAvailabilityMin,penaltyAvailabilityMax,targetErrorRateMin,targetErrorRateMax,
-  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax}=formInputFilterService
+  penaltyErrorRateMin,penaltyErrorRateMax,targetRTimeMin,targetRTimeMax,penaltyRTimeMin,penaltyRTimeMax,pricePerHourMin,pricePerHourMax}=formInputFilterService
 
   let baseQuery = `
   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -364,7 +389,7 @@ async function buildSparqlQueryCloudService() {
   }
 
   //Filtro sul price per hour
-if (priceMarketMin && priceMarketMax) {
+if (pricePerHourMin && pricePerHourMax) {
   filters.push(`      ?cloudService ts:hasPrice ?hourPrice .
                       ?hourPrice ts:value ?hourPriceValue .
                       BIND(xsd:float(?hourPriceValue) AS ?hourPriceValueFloat)
@@ -731,8 +756,6 @@ async function searchQuerySPARQL(selectQuery) {
         console.log(`${key}: ${value.value} (${value.termType})`)
         datiRicevuti=true;
         tokenIds.push(value.value)
-
-
       })
     })
 

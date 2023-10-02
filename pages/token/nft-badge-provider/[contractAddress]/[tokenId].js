@@ -66,7 +66,7 @@ export default function TokenPageProvider({ nft, contractMetadata }) {
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX ts: <http://127.0.0.1/ontologies/TenaciousOntology.owl#>
           
-            INSERT DATA {
+            DELETE DATA {
               ts:${cloudProviderName.replace(/ /g, "_")} rdf:type ts:CloudProvider.
               ts:${cloudProviderName.replace(/ /g, "_")} ts:hasMail "${cloudProviderMail}".
               ts:Picture_${cloudProviderName.replace(/ /g, "_")} rdf:type ts:Picture.

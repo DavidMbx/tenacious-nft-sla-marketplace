@@ -11,7 +11,6 @@ contract NFT_Badge_Provider is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
-
     mapping(address => uint256[]) private _userTokens;
 
     event Attest(address indexed to, uint256 indexed tokenId);
@@ -24,7 +23,6 @@ contract NFT_Badge_Provider is ERC721, ERC721URIStorage, Ownable {
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
-
         _userTokens[to].push(tokenId);
 
     }

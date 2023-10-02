@@ -17,7 +17,6 @@ export function Navbar(){
 
 
     const address=useAddress();
-
     const endpointUrl = process.env.NEXT_PUBLIC_SPARQL_ENDPOINT; 
     const updateUrl = process.env.NEXT_PUBLIC_SPARQL_UPDATE; 
     const clientSPARQL = new SparqlClient({ endpointUrl ,updateUrl});

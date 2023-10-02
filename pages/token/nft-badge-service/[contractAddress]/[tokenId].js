@@ -302,7 +302,6 @@ async function uploadToIPFS(file) {
             ts:NFT-Badge_${cloudServiceID}  rdf:type ts:NFT-Badge .
             ts:NFT-Badge_${cloudServiceID}  ts:hasCloudService ts:CloudService_${cloudServiceID} .
             ts:NFT-Badge_${cloudServiceID}  ts:hasAddress "${NFT_BADGE_SERVICE_CONTRACT}".
-            ts:NFT-Badge_${cloudServiceID}  ts:hasOwner ts:Address_${cloudProviderAddress.replace(/ /g, "_")} .
             ts:NFT-Badge_${cloudServiceID}  ts:hasTokenURI "${tokenURI} ".
             ts:NFT-Badge_${cloudServiceID}  ts:hasTokenID "${tokenId} ".
         }

@@ -482,6 +482,10 @@ async function uploadToIPFS(file) {
     }
     
   `;
+  const responseDelete=clientSPARQL.query.update(deleteQuery)
+  console.log(responseDelete)
+  const responseInsert=clientSPARQL.query.update(insertQuery)
+  console.log(responseInsert)
 
 }
 else{
@@ -520,16 +524,15 @@ else{
     }
     
   `;
-
+  const responseDelete=clientSPARQL.query.update(deleteQuery)
+    console.log(responseDelete)
+    const responseInsert=clientSPARQL.query.update(insertQuery)
+    console.log(responseInsert)
 
 }
     
     
-    const responseDelete=clientSPARQL.query.update(deleteQuery)
-    console.log(responseDelete)
-    const responseInsert=clientSPARQL.query.update(insertQuery)
-    console.log(responseInsert)
-    
+
     
     
     

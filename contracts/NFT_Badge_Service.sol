@@ -23,9 +23,7 @@ contract NFT_Badge_Service is ERC721, ERC721URIStorage, Ownable {
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
-
         _userTokens[to].push(tokenId);
-
     }
 
     function revoke(uint256 tokenId) external onlyOwner {

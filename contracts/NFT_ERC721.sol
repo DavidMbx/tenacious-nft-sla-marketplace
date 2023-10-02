@@ -18,18 +18,14 @@ contract NFT_ERC721 is ERC721, ERC721URIStorage, Ownable {
     }
 
     function safeMintAndPay(address to, string memory uri,address payable originalOwner,uint256 mintPrice) public payable {
-        
-         require(msg.value == mintPrice, "Incorrect Ether sent");
-
+        require(msg.value == mintPrice, "Incorrect Ether sent");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
         _userTokens[to].push(tokenId);
-
          // Transfer the payment to the payee
         originalOwner.transfer(mintPrice);
-
     }
 
     function revoke(uint256 tokenId) external onlyOwner {
